@@ -53,9 +53,8 @@ extern "js" fn get_target_checked_ffi(event : @webapi.JsValue) -> Bool = "(event
 /// Get event.key (for keyboard events)
 extern "js" fn get_event_key_ffi(event : @webapi.JsValue) -> String = "(event) => event.key"
 
-///|
-/// Prevent default event behavior
-extern "js" fn prevent_default_ffi(event : @webapi.JsValue) -> Unit = "(event) => event.preventDefault()"
+// Event helpers: get_target_value/checked/key use FFI because webapi has no
+// EventTarget -> HTMLInputElement or Event -> KeyboardEvent cast path.
 
 ///|
 /// Get the value from an input event's target
@@ -78,5 +77,5 @@ pub fn get_event_key(event : @webapi.Event) -> String {
 ///|
 /// Prevent the default behavior of an event
 pub fn prevent_default(event : @webapi.Event) -> Unit {
-  prevent_default_ffi(@webapi.TJsValue::to_js(event))
+  event.prevent_default()
 }
