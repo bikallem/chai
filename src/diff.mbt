@@ -1,24 +1,22 @@
+// Type cast FFIs: webapi has no Text -> Node or Node -> Element conversion.
+// Child access FFI: published webapi 0.3.0 lacks NodeList.item().
+
 ///|
-/// Cast JsValue to Node
 extern "js" fn jsvalue_to_node(v : @webapi.JsValue) -> @webapi.Node = "(v) => v"
 
 ///|
-/// Cast JsValue to Element
 extern "js" fn jsvalue_to_element(v : @webapi.JsValue) -> @webapi.Element = "(v) => v"
 
 ///|
-/// Get a child node at a given index
 extern "js" fn get_child_node_ffi(
   parent : @webapi.JsValue,
   index : Int,
 ) -> @webapi.Node = "(parent, index) => parent.childNodes[index]"
 
 ///|
-/// Set the nodeValue of a text node
-extern "js" fn set_node_value_ffi(
-  node : @webapi.JsValue,
-  value : String,
-) -> Unit = "(node, value) => { node.nodeValue = value; }"
+fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
+  get_child_node_ffi(@webapi.TJsValue::to_js(parent), index)
+}
 
 ///|
 /// Create a real DOM node from a virtual node
@@ -76,15 +74,14 @@ pub fn[Msg] diff(
   match (old, new_) {
     (Text(old_text), Text(new_text)) =>
       if old_text != new_text {
-        let child = get_child_node_ffi(@webapi.TJsValue::to_js(parent), index)
-        set_node_value_ffi(@webapi.TJsValue::to_js(child), new_text)
+        get_child(parent, index).set_node_value(new_text)
       }
     (
       Element(old_tag, old_attrs, old_children),
       Element(new_tag, new_attrs, new_children),
     ) =>
       if old_tag == new_tag {
-        let child = get_child_node_ffi(@webapi.TJsValue::to_js(parent), index)
+        let child = get_child(parent, index)
         let el = jsvalue_to_element(@webapi.TJsValue::to_js(child))
         diff_attrs(el, old_attrs, new_attrs, dispatch)
         diff_children(child, old_children, new_children, dispatch)
@@ -93,15 +90,12 @@ pub fn[Msg] diff(
           Element(new_tag, new_attrs, new_children),
           dispatch,
         )
-        let old_node = get_child_node_ffi(
-          @webapi.TJsValue::to_js(parent),
-          index,
-        )
+        let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
     _ => {
       let new_node = create_dom_node(new_, dispatch)
-      let old_node = get_child_node_ffi(@webapi.TJsValue::to_js(parent), index)
+      let old_node = get_child(parent, index)
       parent.replace_child(new_node, old_node) |> ignore
     }
   }
@@ -125,7 +119,7 @@ fn[Msg] diff_children(
   // Remove extras from end (backwards to preserve indices)
   if old_len > new_len {
     for i = old_len - 1; i >= new_len; i = i - 1 {
-      let child = get_child_node_ffi(@webapi.TJsValue::to_js(parent), i)
+      let child = get_child(parent, i)
       parent.remove_child(child) |> ignore
     }
   }
