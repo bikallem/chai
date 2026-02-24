@@ -1,3 +1,5 @@
 _build
 .mooncakes
 .claude
+node_modules
+tests/test-results
