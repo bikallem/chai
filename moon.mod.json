@@ -1,0 +1,11 @@
+{
+  "name": "blem/mvdom",
+  "version": "0.1.0",
+  "deps": {
+    "bikallem/webapi": "0.3.0"
+  },
+  "license": "MIT",
+  "description": "TEA (The Elm Architecture) framework for Moonbit",
+  "source": "src",
+  "preferred-target": "js"
+}

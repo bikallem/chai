@@ -1,0 +1,7 @@
+import {
+  "bikallem/webapi",
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

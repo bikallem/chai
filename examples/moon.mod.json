@@ -1,0 +1,11 @@
+{
+  "name": "blem/mvdom-examples",
+  "version": "0.1.0",
+  "deps": {
+    "blem/mvdom": {
+      "path": "../"
+    },
+    "bikallem/webapi": "0.3.0"
+  },
+  "preferred-target": "js"
+}
