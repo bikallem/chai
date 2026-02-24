@@ -16,7 +16,7 @@ pub fn[Model, Msg] start(
   // Get root element
   let root_el = @webapi.document.query_selector(selector)
   guard root_el is Some(el) else { return }
-  let root_node = jsvalue_to_node(@webapi.TJsValue::to_js(el))
+  let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
   // Mutable state
   let state : Ref[Model] = match init() {
     (m, _) => Ref::new(m)

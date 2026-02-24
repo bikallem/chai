@@ -5,7 +5,9 @@
     "blem/mvdom": {
       "path": "../"
     },
-    "bikallem/webapi": "0.3.0"
+    "bikallem/webapi": {
+      "path": "/home/blem/projects/webapi"
+    }
   },
   "preferred-target": "js"
 }

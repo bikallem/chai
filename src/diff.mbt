@@ -1,21 +1,6 @@
-// Type cast FFIs: webapi has no Text -> Node or Node -> Element conversion.
-// Child access FFI: published webapi 0.3.0 lacks NodeList.item().
-
-///|
-extern "js" fn jsvalue_to_node(v : @webapi.JsValue) -> @webapi.Node = "(v) => v"
-
-///|
-extern "js" fn jsvalue_to_element(v : @webapi.JsValue) -> @webapi.Element = "(v) => v"
-
-///|
-extern "js" fn get_child_node_ffi(
-  parent : @webapi.JsValue,
-  index : Int,
-) -> @webapi.Node = "(parent, index) => parent.childNodes[index]"
-
 ///|
 fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
-  get_child_node_ffi(@webapi.TJsValue::to_js(parent), index)
+  parent.child_nodes().item(index.reinterpret_as_uint()).unwrap()
 }
 
 ///|
@@ -27,12 +12,12 @@ pub fn[Msg] create_dom_node(
   match vnode {
     Text(s) => {
       let text_node = @webapi.document.create_text_node(s)
-      jsvalue_to_node(@webapi.TJsValue::to_js(text_node))
+      @webapi.TJsValue::to_js(text_node).into()
     }
     Element(tag, attrs, children) => {
       let el = @webapi.document.create_element(tag)
       apply_attrs(el, attrs, dispatch)
-      let el_node = jsvalue_to_node(@webapi.TJsValue::to_js(el))
+      let el_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
       for child in children {
         let child_node = create_dom_node(child, dispatch)
         el_node.append_child(child_node) |> ignore
@@ -82,7 +67,7 @@ pub fn[Msg] diff(
     ) =>
       if old_tag == new_tag {
         let child = get_child(parent, index)
-        let el = jsvalue_to_element(@webapi.TJsValue::to_js(child))
+        let el : @webapi.Element = @webapi.TJsValue::to_js(child).into()
         diff_attrs(el, old_attrs, new_attrs, dispatch)
         diff_children(child, old_children, new_children, dispatch)
       } else {

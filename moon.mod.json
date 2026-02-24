@@ -2,7 +2,9 @@
   "name": "blem/mvdom",
   "version": "0.1.0",
   "deps": {
-    "bikallem/webapi": "0.3.0"
+    "bikallem/webapi": {
+      "path": "/home/blem/projects/webapi"
+    }
   },
   "license": "MIT",
   "description": "TEA (The Elm Architecture) framework for Moonbit",
