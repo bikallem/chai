@@ -1,6 +1,6 @@
 ///|
 struct Model {
-  reset_gen : Int
+  initial_count : Int
 }
 
 ///|
@@ -10,13 +10,13 @@ enum Msg {
 
 ///|
 fn app_init() -> (Model, @mvdom.Cmd[Msg]) {
-  ({ reset_gen: 0 }, @mvdom.Cmd::none())
+  ({ initial_count: 0 }, @mvdom.Cmd::none())
 }
 
 ///|
 fn update(model : Model, msg : Msg) -> (Model, @mvdom.Cmd[Msg]) {
   match msg {
-    ResetAll => ({ reset_gen: model.reset_gen + 1 }, @mvdom.Cmd::none())
+    ResetAll => ({ initial_count: model.initial_count + 1 }, @mvdom.Cmd::none())
   }
 }
 
@@ -27,11 +27,11 @@ fn view(model : Model) -> @mvdom.VNode[Msg] {
     @mvdom.div([@mvdom.class_("counters")], [
       @mvdom.div([@mvdom.class_("counter-wrapper")], [
         @mvdom.h2([], [@mvdom.text("Counter A")]),
-        @counter.widget(model.reset_gen),
+        @counter.widget(model.initial_count),
       ]),
       @mvdom.div([@mvdom.class_("counter-wrapper")], [
         @mvdom.h2([], [@mvdom.text("Counter B")]),
-        @counter.widget(model.reset_gen),
+        @counter.widget(model.initial_count),
       ]),
     ]),
     @mvdom.button(
