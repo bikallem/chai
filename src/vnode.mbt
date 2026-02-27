@@ -1,12 +1,12 @@
 ///|
-pub(all) enum VNode[Msg] {
+enum VNode[Msg] {
   Text(String)
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
   Embed(Component)
 }
 
 ///|
-pub(all) enum Attr[Msg] {
+enum Attr[Msg] {
   Attribute(String, String)
   Property(String, String)
   BoolProperty(String, Bool)

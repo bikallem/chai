@@ -1,7 +1,7 @@
 ///|
 /// A self-contained component with type-erased internal state.
 /// The component's Model and Msg types are hidden inside the mount closure.
-pub(all) struct Component {
+struct Component {
   key : String
   props_fingerprint : Int
   mount : () -> @webapi.Node

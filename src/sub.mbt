@@ -1,11 +1,11 @@
 ///|
-pub(all) struct SubDef[Msg] {
+priv struct SubDef[Msg] {
   key : String
   start : ((Msg) -> Unit) -> () -> Unit
 }
 
 ///|
-pub struct Sub[Msg] {
+struct Sub[Msg] {
   subs : Array[SubDef[Msg]]
 }
 

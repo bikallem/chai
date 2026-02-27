@@ -1,5 +1,5 @@
 ///|
-pub struct Cmd[Msg] {
+struct Cmd[Msg] {
   tasks : Array[((Msg) -> Unit) -> Unit]
 }
 

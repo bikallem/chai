@@ -5,7 +5,7 @@ fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
 
 ///|
 /// Create a real DOM node from a virtual node
-pub fn[Msg] create_dom_node(
+fn[Msg] create_dom_node(
   vnode : VNode[Msg],
   dispatch : (Msg) -> Unit,
 ) -> @webapi.Node {
@@ -50,7 +50,7 @@ fn[Msg] apply_attrs(
 
 ///|
 /// Diff and patch the DOM in a single pass
-pub fn[Msg] diff(
+fn[Msg] diff(
   parent : @webapi.Node,
   index : Int,
   old : VNode[Msg],
