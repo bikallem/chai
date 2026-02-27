@@ -1,6 +1,6 @@
 import {
-  "blem/mvdom",
-  "blem/mvdom-examples/counters/counter",
+  "blem/chai",
+  "blem/chai-examples/counters/counter",
 }
 
 options(

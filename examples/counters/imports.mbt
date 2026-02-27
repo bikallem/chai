@@ -1,5 +1,5 @@
 ///|
-pub using @mvdom {
+pub using @chai {
   type VNode,
   type Attr,
   type Cmd,
