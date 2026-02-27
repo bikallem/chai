@@ -27,11 +27,11 @@ fn view(model : Model) -> VNode[Msg] {
     div([class_("counters")], [
       div([class_("counter-wrapper")], [
         h2([], [text("Counter A")]),
-        @counter.widget(model.initial_count),
+        counter(model.initial_count),
       ]),
       div([class_("counter-wrapper")], [
         h2([], [text("Counter B")]),
-        @counter.widget(model.initial_count),
+        counter(model.initial_count),
       ]),
     ]),
     button([class_("reset-btn"), on_click(fn(_e) { ResetAll })], [

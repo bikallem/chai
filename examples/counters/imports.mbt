@@ -1,7 +1,6 @@
 ///|
-pub using @chai {
+using @chai {
   type VNode,
-  type Attr,
   type Cmd,
   type Sub,
   start,
@@ -13,3 +12,6 @@ pub using @chai {
   class_,
   on_click,
 }
+
+///|
+using @counter {counter}

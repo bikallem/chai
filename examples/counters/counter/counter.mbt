@@ -32,12 +32,12 @@ pub fn view(model : Model) -> VNode[Msg] {
 }
 
 ///|
-/// Self-contained counter component. When reset_gen changes, the
+/// Self-contained counter component. When initial_count changes, the
 /// framework destroys and remounts the counter (resetting to 0).
-pub fn[ParentMsg] widget(reset_gen : Int) -> VNode[ParentMsg] {
+pub fn[ParentMsg] counter(initial_count : Int) -> VNode[ParentMsg] {
   component(
-    props_fingerprint=reset_gen,
-    init=fn() { ({ count: 0 }, Cmd::none()) },
+    props_fingerprint=initial_count,
+    init=fn() { ({ count: initial_count }, Cmd::none()) },
     update~,
     view~,
   )
