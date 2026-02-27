@@ -8,17 +8,21 @@ import {
 // Values
 pub fn[Msg] a(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] at(String, String) -> Attr[Msg]
+
 pub fn[Msg] button(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] checked_(Bool) -> Attr[Msg]
+pub fn[Msg] checked(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
 
 pub fn[Model, CMsg, Msg] component(props_fingerprint~ : Int, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
-pub fn[Msg] disabled_(Bool) -> Attr[Msg]
+pub fn[Msg] disabled(Bool) -> Attr[Msg]
 
 pub fn[Msg] div(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] el(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] footer(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -32,8 +36,6 @@ pub fn get_target_checked(@webapi.Event) -> Bool
 
 pub fn get_target_value(@webapi.Event) -> String
 
-pub fn[Msg] h(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
-
 pub fn[Msg] h1(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] h2(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
@@ -42,9 +44,9 @@ pub fn[Msg] h3(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] header(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] href_(String) -> Attr[Msg]
+pub fn[Msg] href(String) -> Attr[Msg]
 
-pub fn[Msg] id_(String) -> Attr[Msg]
+pub fn[Msg] id(String) -> Attr[Msg]
 
 pub fn[Msg] input_(Array[Attr[Msg]]) -> VNode[Msg]
 
@@ -66,7 +68,7 @@ pub fn[Msg] on_submit((@webapi.Event) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] p(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] placeholder_(String) -> Attr[Msg]
+pub fn[Msg] placeholder(String) -> Attr[Msg]
 
 pub fn prevent_default(@webapi.Event) -> Unit
 
@@ -76,15 +78,15 @@ pub fn[Msg] span(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Model, Msg] start(init~ : () -> (Model, Cmd[Msg]), update~ : (Model, Msg) -> (Model, Cmd[Msg]), view~ : (Model) -> VNode[Msg], subscriptions~ : (Model) -> Sub[Msg], selector~ : String) -> Unit
 
-pub fn[Msg] style_(String, String) -> Attr[Msg]
+pub fn[Msg] style(String, String) -> Attr[Msg]
 
 pub fn[Msg] text(String) -> VNode[Msg]
 
-pub fn[Msg] type__(String) -> Attr[Msg]
+pub fn[Msg] type_(String) -> Attr[Msg]
 
 pub fn[Msg] ul(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] value_(String) -> Attr[Msg]
+pub fn[Msg] value(String) -> Attr[Msg]
 
 // Errors
 

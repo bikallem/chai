@@ -6,15 +6,6 @@ enum VNode[Msg] {
 }
 
 ///|
-enum Attr[Msg] {
-  Attribute(String, String)
-  Property(String, String)
-  BoolProperty(String, Bool)
-  Event(String, (@webapi.Event) -> Msg)
-  Style(String, String)
-}
-
-///|
 pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
   match self {
     Text(s) => Text(s)
@@ -28,17 +19,140 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
 }
 
 ///|
-pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
-  match self {
-    Attribute(k, v) => Attribute(k, v)
-    Property(k, v) => Property(k, v)
-    BoolProperty(k, v) => BoolProperty(k, v)
-    Event(name, handler) => Event(name, fn(e) { f(handler(e)) })
-    Style(k, v) => Style(k, v)
-  }
+pub fn[Msg] text(s : String) -> VNode[Msg] {
+  Text(s)
 }
 
 ///|
-pub fn[Msg] text(s : String) -> VNode[Msg] {
-  Text(s)
+pub fn[Msg] el(
+  tag : String,
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  Element(tag, attrs, children)
+}
+
+///|
+pub fn[Msg] div(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("div", attrs, children)
+}
+
+///|
+pub fn[Msg] span(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("span", attrs, children)
+}
+
+///|
+pub fn[Msg] button(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("button", attrs, children)
+}
+
+///|
+pub fn[Msg] input_(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
+  el("input", attrs, [])
+}
+
+///|
+pub fn[Msg] h1(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("h1", attrs, children)
+}
+
+///|
+pub fn[Msg] h2(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("h2", attrs, children)
+}
+
+///|
+pub fn[Msg] h3(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("h3", attrs, children)
+}
+
+///|
+pub fn[Msg] p(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("p", attrs, children)
+}
+
+///|
+pub fn[Msg] ul(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("ul", attrs, children)
+}
+
+///|
+pub fn[Msg] li(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("li", attrs, children)
+}
+
+///|
+pub fn[Msg] label(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("label", attrs, children)
+}
+
+///|
+pub fn[Msg] section(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("section", attrs, children)
+}
+
+///|
+pub fn[Msg] header(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("header", attrs, children)
+}
+
+///|
+pub fn[Msg] footer(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("footer", attrs, children)
+}
+
+///|
+pub fn[Msg] a(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("a", attrs, children)
+}
+
+///|
+pub fn[Msg] form(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("form", attrs, children)
 }
