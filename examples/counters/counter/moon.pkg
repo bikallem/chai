@@ -1,0 +1,7 @@
+import {
+  "blem/mvdom",
+}
+
+options(
+  "supported-targets": [ "js" ],
+)

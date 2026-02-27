@@ -2,6 +2,7 @@
 pub(all) enum VNode[Msg] {
   Text(String)
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
+  Embed(Component)
 }
 
 ///|
@@ -22,6 +23,7 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
       let new_children = children.map(fn(c) { c.map(f) })
       Element(tag, new_attrs, new_children)
     }
+    Embed(comp) => Embed(comp)
   }
 }
 

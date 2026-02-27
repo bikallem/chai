@@ -1,0 +1,9 @@
+import {
+  "blem/mvdom",
+  "blem/mvdom-examples/counters/counter",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)

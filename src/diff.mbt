@@ -24,6 +24,7 @@ pub fn[Msg] create_dom_node(
       }
       el_node
     }
+    Embed(comp) => (comp.mount)()
   }
 }
 
@@ -75,6 +76,16 @@ pub fn[Msg] diff(
           Element(new_tag, new_attrs, new_children),
           dispatch,
         )
+        let old_node = get_child(parent, index)
+        parent.replace_child(new_node, old_node) |> ignore
+      }
+    (Embed(old_comp), Embed(new_comp)) =>
+      if old_comp.key == new_comp.key &&
+        old_comp.props_fingerprint == new_comp.props_fingerprint {
+        // Same component, same props — keep existing instance
+        ()
+      } else {
+        let new_node = (new_comp.mount)()
         let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
