@@ -2,7 +2,6 @@
 /// A self-contained component with type-erased internal state.
 /// The component's Model and Msg types are hidden inside the mount closure.
 priv struct Component {
-  key : String
   props_fingerprint : Int
   mount : () -> @webapi.Node
 }
@@ -10,16 +9,15 @@ priv struct Component {
 ///|
 /// Create a self-contained component VNode. The component's Model and CMsg
 /// types are erased via closure capture; the returned VNode works for any
-/// parent Msg type.
+/// parent Msg type. When props_fingerprint changes, the component is
+/// destroyed and remounted.
 pub fn[Model, CMsg, Msg] component(
-  key~ : String,
   props_fingerprint~ : Int,
   init~ : () -> (Model, Cmd[CMsg]),
   update~ : (Model, CMsg) -> (Model, Cmd[CMsg]),
   view~ : (Model) -> VNode[CMsg],
 ) -> VNode[Msg] {
   Embed({
-    key,
     props_fingerprint,
     mount: fn() { mount_component(init, update, view) },
   })

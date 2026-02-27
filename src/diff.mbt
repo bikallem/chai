@@ -80,8 +80,7 @@ fn[Msg] diff(
         parent.replace_child(new_node, old_node) |> ignore
       }
     (Embed(old_comp), Embed(new_comp)) =>
-      if old_comp.key == new_comp.key &&
-        old_comp.props_fingerprint == new_comp.props_fingerprint {
+      if old_comp.props_fingerprint == new_comp.props_fingerprint {
         // Same component, same props — keep existing instance
         ()
       } else {
