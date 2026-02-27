@@ -42,12 +42,3 @@ pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
 pub fn[Msg] text(s : String) -> VNode[Msg] {
   Text(s)
 }
-
-///|
-pub fn[Msg] node(
-  tag : String,
-  attrs : Array[Attr[Msg]],
-  children : Array[VNode[Msg]],
-) -> VNode[Msg] {
-  Element(tag, attrs, children)
-}

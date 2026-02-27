@@ -9,44 +9,43 @@ enum Msg {
 }
 
 ///|
-fn app_init() -> (Model, @mvdom.Cmd[Msg]) {
-  ({ initial_count: 0 }, @mvdom.Cmd::none())
+fn app_init() -> (Model, Cmd[Msg]) {
+  ({ initial_count: 0 }, Cmd::none())
 }
 
 ///|
-fn update(model : Model, msg : Msg) -> (Model, @mvdom.Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
-    ResetAll => ({ initial_count: model.initial_count + 1 }, @mvdom.Cmd::none())
+    ResetAll => ({ initial_count: model.initial_count + 1 }, Cmd::none())
   }
 }
 
 ///|
-fn view(model : Model) -> @mvdom.VNode[Msg] {
-  @mvdom.div([@mvdom.class_("counters-app")], [
-    @mvdom.h1([], [@mvdom.text("Counters")]),
-    @mvdom.div([@mvdom.class_("counters")], [
-      @mvdom.div([@mvdom.class_("counter-wrapper")], [
-        @mvdom.h2([], [@mvdom.text("Counter A")]),
+fn view(model : Model) -> VNode[Msg] {
+  div([class_("counters-app")], [
+    h1([], [text("Counters")]),
+    div([class_("counters")], [
+      div([class_("counter-wrapper")], [
+        h2([], [text("Counter A")]),
         @counter.widget(model.initial_count),
       ]),
-      @mvdom.div([@mvdom.class_("counter-wrapper")], [
-        @mvdom.h2([], [@mvdom.text("Counter B")]),
+      div([class_("counter-wrapper")], [
+        h2([], [text("Counter B")]),
         @counter.widget(model.initial_count),
       ]),
     ]),
-    @mvdom.button(
-      [@mvdom.class_("reset-btn"), @mvdom.on_click(fn(_e) { ResetAll })],
-      [@mvdom.text("Reset All")],
-    ),
+    button([class_("reset-btn"), on_click(fn(_e) { ResetAll })], [
+      text("Reset All"),
+    ]),
   ])
 }
 
 ///|
-fn subscriptions(_model : Model) -> @mvdom.Sub[Msg] {
-  @mvdom.Sub::none()
+fn subscriptions(_model : Model) -> Sub[Msg] {
+  Sub::none()
 }
 
 ///|
 fn main {
-  @mvdom.start(init=app_init, update~, view~, subscriptions~, selector="#app")
+  start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }

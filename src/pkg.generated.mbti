@@ -14,7 +14,7 @@ pub fn[Msg] checked_(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
 
-pub fn[Model, CMsg, Msg] component(key~ : String, props_fingerprint~ : Int, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
+pub fn[Model, CMsg, Msg] component(props_fingerprint~ : Int, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
 pub fn[Msg] disabled_(Bool) -> Attr[Msg]
 
@@ -31,6 +31,8 @@ pub fn get_event_key(@webapi.Event) -> String
 pub fn get_target_checked(@webapi.Event) -> Bool
 
 pub fn get_target_value(@webapi.Event) -> String
+
+pub fn[Msg] h(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] h1(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -49,8 +51,6 @@ pub fn[Msg] input_(Array[Attr[Msg]]) -> VNode[Msg]
 pub fn[Msg] label(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] li(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
-
-pub fn[Msg] node(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] on_change((String) -> Msg) -> Attr[Msg]
 
