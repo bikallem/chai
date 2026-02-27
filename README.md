@@ -12,7 +12,7 @@ A [TEA (The Elm Architecture)](https://guide.elm-lang.org/architecture/) framewo
   - [Events](#events)
   - [Commands](#commands)
   - [Subscriptions](#subscriptions)
-  - [Encapsulated Components](#encapsulated-components)
+  - [Components](#components)
 - [Examples](#examples)
 - [License](#license)
 
@@ -124,9 +124,9 @@ Sub::batch([sub1, sub2])
 sub.map(fn(msg) { Wrapped(msg) })
 ```
 
-### Encapsulated Components
+### Components
 
-Components run their own TEA loop with type-erased internal state:
+Components run their own TEA loop:
 
 ```moonbit
 fn widget[ParentMsg](reset_gen : Int) -> VNode[ParentMsg] {
