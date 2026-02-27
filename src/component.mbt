@@ -32,59 +32,15 @@ pub fn[Msg] embed(spec : Component) -> VNode[Msg] {
 
 ///|
 /// Mount a component: creates a wrapper div with display:contents and
-/// sets up an independent mini TEA runtime inside it.
+/// boots an independent TEA runtime inside it.
 fn[Model, Msg] mount_component(
   init : () -> (Model, Cmd[Msg]),
   update : (Model, Msg) -> (Model, Cmd[Msg]),
   view : (Model) -> VNode[Msg],
 ) -> @webapi.Node {
-  // Wrapper element — invisible to layout
   let wrapper = @webapi.document.create_element("div")
   set_style_ffi(@webapi.TJsValue::to_js(wrapper), "display", "contents")
   let wrapper_node : @webapi.Node = @webapi.TJsValue::to_js(wrapper).into()
-  // Mutable state
-  let (init_model, init_cmd) = init()
-  let state : Ref[Model] = Ref::new(init_model)
-  let current_vdom : Ref[VNode[Msg]] = Ref::new(Text(""))
-  let msg_queue : Array[Msg] = []
-  let is_updating : Ref[Bool] = Ref::new(false)
-  // Forward-declare dispatch
-  let dispatch_ref : Ref[(Msg) -> Unit] = Ref::new(fn(_msg) {  })
-  fn dispatch(msg : Msg) -> Unit {
-    (dispatch_ref.val)(msg)
-  }
-
-  fn process_queue() -> Unit {
-    if is_updating.val {
-      return
-    }
-    is_updating.val = true
-    while msg_queue.length() > 0 {
-      let msg = msg_queue.remove(0)
-      let (new_model, cmd) = update(state.val, msg)
-      state.val = new_model
-      let new_vdom = view(new_model)
-      diff(wrapper_node, 0, current_vdom.val, new_vdom, dispatch)
-      current_vdom.val = new_vdom
-      for task in cmd.tasks {
-        task(dispatch)
-      }
-    }
-    is_updating.val = false
-  }
-
-  dispatch_ref.val = fn(msg) {
-    msg_queue.push(msg)
-    process_queue()
-  }
-  // Initial render
-  let initial_vdom = view(init_model)
-  let dom_node = create_dom_node(initial_vdom, dispatch)
-  wrapper_node.append_child(dom_node) |> ignore
-  current_vdom.val = initial_vdom
-  // Execute initial commands
-  for task in init_cmd.tasks {
-    task(dispatch)
-  }
+  boot(wrapper_node, init, update, view, fn(_model, _dispatch) {  })
   wrapper_node
 }
