@@ -2,6 +2,20 @@
 
 A [TEA (The Elm Architecture)](https://guide.elm-lang.org/architecture/) framework for [MoonBit](https://www.moonbitlang.com/), targeting JavaScript/browser with virtual DOM diffing and encapsulated components.
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [API Reference](#api-reference)
+  - [Elements](#elements)
+  - [Attributes](#attributes)
+  - [Events](#events)
+  - [Commands](#commands)
+  - [Subscriptions](#subscriptions)
+  - [Encapsulated Components](#encapsulated-components)
+- [Examples](#examples)
+- [License](#license)
+
 ## Quick Start
 
 A minimal counter app:
