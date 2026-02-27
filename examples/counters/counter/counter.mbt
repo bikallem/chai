@@ -42,7 +42,7 @@ pub fn view(model : Model) -> @mvdom.VNode[Msg] {
 ///|
 /// Self-contained counter component. When reset_gen changes, the
 /// framework destroys and remounts the counter (resetting to 0).
-pub fn widget(key : String, reset_gen : Int) -> @mvdom.Component {
+pub fn[ParentMsg] widget(key : String, reset_gen : Int) -> @mvdom.VNode[ParentMsg] {
   @mvdom.component(
     key~,
     props_fingerprint=reset_gen,

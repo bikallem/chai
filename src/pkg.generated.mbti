@@ -14,13 +14,11 @@ pub fn[Msg] checked_(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
 
-pub fn[Model, Msg] component(key~ : String, props_fingerprint~ : Int, init~ : () -> (Model, Cmd[Msg]), update~ : (Model, Msg) -> (Model, Cmd[Msg]), view~ : (Model) -> VNode[Msg]) -> Component
+pub fn[Model, CMsg, Msg] component(key~ : String, props_fingerprint~ : Int, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
 pub fn[Msg] disabled_(Bool) -> Attr[Msg]
 
 pub fn[Msg] div(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
-
-pub fn[Msg] embed(Component) -> VNode[Msg]
 
 pub fn[Msg] footer(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -99,8 +97,6 @@ pub fn[Msg] Cmd::batch(Array[Self[Msg]]) -> Self[Msg]
 pub fn[A, B] Cmd::map(Self[A], (A) -> B) -> Self[B]
 pub fn[Msg] Cmd::none() -> Self[Msg]
 pub fn[Msg] Cmd::task(((Msg) -> Unit) -> Unit) -> Self[Msg]
-
-type Component
 
 type Sub[Msg]
 pub fn[Msg] Sub::batch(Array[Self[Msg]]) -> Self[Msg]

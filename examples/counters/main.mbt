@@ -27,11 +27,11 @@ fn view(model : Model) -> @mvdom.VNode[Msg] {
     @mvdom.div([@mvdom.class_("counters")], [
       @mvdom.div([@mvdom.class_("counter-wrapper")], [
         @mvdom.h2([], [@mvdom.text("Counter A")]),
-        @mvdom.embed(@counter.widget("a", model.reset_gen)),
+        @counter.widget("a", model.reset_gen),
       ]),
       @mvdom.div([@mvdom.class_("counter-wrapper")], [
         @mvdom.h2([], [@mvdom.text("Counter B")]),
-        @mvdom.embed(@counter.widget("b", model.reset_gen)),
+        @counter.widget("b", model.reset_gen),
       ]),
     ]),
     @mvdom.button(
