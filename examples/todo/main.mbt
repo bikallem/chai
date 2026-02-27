@@ -88,8 +88,8 @@ fn view_todo(todo : Todo) -> VNode[Msg] {
   li([class_(item_class)], [
     label([class_("todo-label")], [
       input_([
-        type__("checkbox"),
-        checked_(todo.completed),
+        type_("checkbox"),
+        checked(todo.completed),
         on_check(fn(_checked) { ToggleTodo(todo.id) }),
       ]),
       span([class_("todo-text")], [text(todo.text)]),
@@ -129,9 +129,9 @@ fn view(model : Model) -> VNode[Msg] {
       div([class_("input-row")], [
         input_([
           class_("todo-input"),
-          type__("text"),
-          placeholder_("What needs to be done?"),
-          value_(model.input),
+          type_("text"),
+          placeholder("What needs to be done?"),
+          value(model.input),
           on_input(fn(value) { UpdateInput(value) }),
           on_keydown(fn(key) {
             if key == "Enter" {
