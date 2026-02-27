@@ -16,7 +16,7 @@ pub fn[Msg] checked(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
 
-pub fn[Model, CMsg, Msg] component(props_fingerprint~ : Int, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
+pub fn[Model, CMsg, Msg, Props : Hash] component(props~ : Props, init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
 pub fn[Msg] disabled(Bool) -> Attr[Msg]
 
@@ -29,12 +29,6 @@ pub fn[Msg] footer(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 pub fn[Msg] for_(String) -> Attr[Msg]
 
 pub fn[Msg] form(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
-
-pub fn get_event_key(@webapi.Event) -> String
-
-pub fn get_target_checked(@webapi.Event) -> Bool
-
-pub fn get_target_value(@webapi.Event) -> String
 
 pub fn[Msg] h1(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -69,8 +63,6 @@ pub fn[Msg] on_submit((@webapi.Event) -> Msg) -> Attr[Msg]
 pub fn[Msg] p(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] placeholder(String) -> Attr[Msg]
-
-pub fn prevent_default(@webapi.Event) -> Unit
 
 pub fn[Msg] section(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 

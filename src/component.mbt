@@ -9,16 +9,16 @@ priv struct Component {
 ///|
 /// Create a self-contained component VNode. The component's Model and CMsg
 /// types are erased via closure capture; the returned VNode works for any
-/// parent Msg type. When props_fingerprint changes, the component is
+/// parent Msg type. When props change (detected via Hash), the component is
 /// destroyed and remounted.
-pub fn[Model, CMsg, Msg] component(
-  props_fingerprint~ : Int,
+pub fn[Model, CMsg, Msg, Props : Hash] component(
+  props~ : Props,
   init~ : () -> (Model, Cmd[CMsg]),
   update~ : (Model, CMsg) -> (Model, Cmd[CMsg]),
   view~ : (Model) -> VNode[CMsg],
 ) -> VNode[Msg] {
   Embed({
-    props_fingerprint,
+    props_fingerprint: props.hash(),
     mount: fn() { mount_component(init, update, view) },
   })
 }
@@ -32,7 +32,8 @@ fn[Model, Msg] mount_component(
   view : (Model) -> VNode[Msg],
 ) -> @webapi.Node {
   let wrapper = @webapi.document.create_element("div")
-  set_style_ffi(@webapi.TJsValue::to_js(wrapper), "display", "contents")
+  let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(wrapper).into()
+  html_el.style().set_property("display", "contents")
   let wrapper_node : @webapi.Node = @webapi.TJsValue::to_js(wrapper).into()
   boot(wrapper_node, init, update, view, fn(_model, _dispatch) {  })
   wrapper_node

@@ -4,6 +4,21 @@ fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
 }
 
 ///|
+/// Set a DOM Level 0 event handler (e.g., el.onclick = fn)
+extern "js" fn set_event_handler_ffi(
+  el : @webapi.JsValue,
+  name : String,
+  handler : (@webapi.Event) -> Unit,
+) -> Unit = "(el, name, handler) => { el['on' + name] = handler; }"
+
+///|
+/// Remove a DOM Level 0 event handler (e.g., el.onclick = null)
+extern "js" fn remove_event_handler_ffi(
+  el : @webapi.JsValue,
+  name : String,
+) -> Unit = "(el, name) => { el['on' + name] = null; }"
+
+///|
 /// Create a real DOM node from a virtual node
 fn[Msg] create_dom_node(
   vnode : VNode[Msg],
@@ -29,7 +44,7 @@ fn[Msg] create_dom_node(
 }
 
 ///|
-/// Apply attributes, properties, events, and styles to an element
+/// Apply attributes, events, and styles to an element
 fn[Msg] apply_attrs(
   el : @webapi.Element,
   attrs : Array[Attr[Msg]],
@@ -38,13 +53,48 @@ fn[Msg] apply_attrs(
   let js_el = @webapi.TJsValue::to_js(el)
   for attr in attrs {
     match attr {
-      Attribute(name, value) => el.set_attribute(name, value)
-      Property(name, value) => set_property_ffi(js_el, name, value)
-      BoolProperty(name, value) => set_bool_property_ffi(js_el, name, value)
+      Attribute(name, val) => apply_attribute(el, name, val)
       Event(name, handler) =>
         set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
-      Style(name, value) => set_style_ffi(js_el, name, value)
+      Style(name, val) => {
+        let html_el : @webapi.HTMLElement = js_el.into()
+        html_el.style().set_property(name, val)
+      }
     }
+  }
+}
+
+///|
+/// Apply an attribute, using typed webapi setters for DOM properties
+fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
+  if name == "value" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_value(val)
+  } else if name == "checked" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_checked(val == "true")
+  } else if name == "disabled" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_disabled(val == "true")
+  } else {
+    el.set_attribute(name, val)
+  }
+}
+
+///|
+/// Remove an attribute, using typed webapi setters to clear DOM properties
+fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
+  if name == "value" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_value("")
+  } else if name == "checked" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_checked(false)
+  } else if name == "disabled" {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
+    input.set_disabled(false)
+  } else {
+    el.remove_attribute(name)
   }
 }
 
@@ -138,23 +188,17 @@ fn[Msg] diff_attrs(
   let js_el = @webapi.TJsValue::to_js(el)
   // Build maps of old attributes for diffing
   let old_attributes : Map[String, String] = {}
-  let old_properties : Map[String, String] = {}
-  let old_bool_properties : Map[String, Bool] = {}
   let old_events : Map[String, Bool] = {}
   let old_styles : Map[String, String] = {}
   for attr in old_attrs {
     match attr {
       Attribute(k, v) => old_attributes[k] = v
-      Property(k, v) => old_properties[k] = v
-      BoolProperty(k, v) => old_bool_properties[k] = v
       Event(name, _) => old_events[name] = true
       Style(k, v) => old_styles[k] = v
     }
   }
   // Track which old attrs are still present
   let new_attribute_keys : Map[String, Bool] = {}
-  let new_property_keys : Map[String, Bool] = {}
-  let new_bool_property_keys : Map[String, Bool] = {}
   let new_event_keys : Map[String, Bool] = {}
   let new_style_keys : Map[String, Bool] = {}
   // Apply new attributes
@@ -163,28 +207,11 @@ fn[Msg] diff_attrs(
       Attribute(name, value) => {
         new_attribute_keys[name] = true
         match old_attributes.get(name) {
-          Some(old_val) => if old_val != value { el.set_attribute(name, value) }
-          None => el.set_attribute(name, value)
-        }
-      }
-      Property(name, value) => {
-        new_property_keys[name] = true
-        match old_properties.get(name) {
           Some(old_val) =>
             if old_val != value {
-              set_property_ffi(js_el, name, value)
+              apply_attribute(el, name, value)
             }
-          None => set_property_ffi(js_el, name, value)
-        }
-      }
-      BoolProperty(name, value) => {
-        new_bool_property_keys[name] = true
-        match old_bool_properties.get(name) {
-          Some(old_val) =>
-            if old_val != value {
-              set_bool_property_ffi(js_el, name, value)
-            }
-          None => set_bool_property_ffi(js_el, name, value)
+          None => apply_attribute(el, name, value)
         }
       }
       Event(name, handler) => {
@@ -197,9 +224,13 @@ fn[Msg] diff_attrs(
         match old_styles.get(name) {
           Some(old_val) =>
             if old_val != value {
-              set_style_ffi(js_el, name, value)
+              let html_el : @webapi.HTMLElement = js_el.into()
+              html_el.style().set_property(name, value)
             }
-          None => set_style_ffi(js_el, name, value)
+          None => {
+            let html_el : @webapi.HTMLElement = js_el.into()
+            html_el.style().set_property(name, value)
+          }
         }
       }
     }
@@ -207,17 +238,7 @@ fn[Msg] diff_attrs(
   // Remove old attributes that are no longer present
   old_attributes.each(fn(k, _v) {
     if not(new_attribute_keys.contains(k)) {
-      el.remove_attribute(k)
-    }
-  })
-  old_properties.each(fn(k, _v) {
-    if not(new_property_keys.contains(k)) {
-      set_property_ffi(js_el, k, "")
-    }
-  })
-  old_bool_properties.each(fn(k, _v) {
-    if not(new_bool_property_keys.contains(k)) {
-      set_bool_property_ffi(js_el, k, false)
+      remove_attribute_value(el, k)
     }
   })
   old_events.each(fn(k, _v) {
@@ -227,7 +248,8 @@ fn[Msg] diff_attrs(
   })
   old_styles.each(fn(k, _v) {
     if not(new_style_keys.contains(k)) {
-      remove_style_ffi(js_el, k)
+      let html_el : @webapi.HTMLElement = js_el.into()
+      html_el.style().remove_property(k) |> ignore
     }
   })
 }

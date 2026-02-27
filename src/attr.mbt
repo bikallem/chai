@@ -1,8 +1,6 @@
 ///|
 enum Attr[Msg] {
   Attribute(String, String)
-  Property(String, String)
-  BoolProperty(String, Bool)
   Event(String, (@webapi.Event) -> Msg)
   Style(String, String)
 }
@@ -11,8 +9,6 @@ enum Attr[Msg] {
 pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
   match self {
     Attribute(k, v) => Attribute(k, v)
-    Property(k, v) => Property(k, v)
-    BoolProperty(k, v) => BoolProperty(k, v)
     Event(name, handler) => Event(name, fn(e) { f(handler(e)) })
     Style(k, v) => Style(k, v)
   }
@@ -21,6 +17,13 @@ pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
 ///|
 pub fn[Msg] on_click(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
   Event("click", handler)
+}
+
+///|
+/// Get the value from an input event's target
+fn get_target_value(event : @webapi.Event) -> String {
+  let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(event.target()).into()
+  input.value()
 }
 
 ///|
@@ -35,12 +38,18 @@ pub fn[Msg] on_change(handler : (String) -> Msg) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] on_check(handler : (Bool) -> Msg) -> Attr[Msg] {
-  Event("change", fn(e) { handler(get_target_checked(e)) })
+  Event("change", fn(e) {
+    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(e.target()).into()
+    handler(input.checked())
+  })
 }
 
 ///|
 pub fn[Msg] on_keydown(handler : (String) -> Msg) -> Attr[Msg] {
-  Event("keydown", fn(e) { handler(get_event_key(e)) })
+  Event("keydown", fn(e) {
+    let ke : @webapi.KeyboardEvent = @webapi.TJsValue::to_js(e).into()
+    handler(ke.key())
+  })
 }
 
 ///|
@@ -73,12 +82,12 @@ pub fn[Msg] style(name : String, value : String) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] value(value : String) -> Attr[Msg] {
-  Property("value", value)
+  Attribute("value", value)
 }
 
 ///|
 pub fn[Msg] checked(value : Bool) -> Attr[Msg] {
-  BoolProperty("checked", value)
+  Attribute("checked", if value { "true" } else { "false" })
 }
 
 ///|
@@ -93,7 +102,7 @@ pub fn[Msg] type_(value : String) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] disabled(value : Bool) -> Attr[Msg] {
-  BoolProperty("disabled", value)
+  Attribute("disabled", if value { "true" } else { "false" })
 }
 
 ///|
