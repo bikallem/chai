@@ -6,7 +6,7 @@
       "path": "../"
     },
     "bikallem/webapi": {
-      "path": "/home/blem/projects/webapi"
+      "path": "/home/blem/projects/webapi/webapi"
     }
   },
   "preferred-target": "js"
