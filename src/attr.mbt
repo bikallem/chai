@@ -2,6 +2,7 @@
 enum Attr[Msg] {
   Attribute(String, String)
   Event(String, (@webapi.Event) -> Msg)
+  BoundEvent(String, (@webapi.Event) -> Unit)
   Style(String, String)
 }
 
@@ -10,6 +11,7 @@ pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
   match self {
     Attribute(k, v) => Attribute(k, v)
     Event(name, handler) => Event(name, fn(e) { f(handler(e)) })
+    BoundEvent(name, handler) => BoundEvent(name, handler)
     Style(k, v) => Style(k, v)
   }
 }

@@ -1,6 +1,6 @@
 ///|
 fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
-  parent.child_nodes().item(index.reinterpret_as_uint()).unwrap()
+  parent.child_nodes().item(index.reinterpret_as_uint())
 }
 
 ///|
@@ -39,7 +39,10 @@ fn[Msg] create_dom_node(
       }
       el_node
     }
-    Embed(comp) => (comp.mount)()
+    Embed(comp) => {
+      let expanded = component_slots[comp.id].current_expanded.val
+      create_dom_node(expanded, fn(_) {  })
+    }
   }
 }
 
@@ -56,6 +59,7 @@ fn[Msg] apply_attrs(
       Attribute(name, val) => apply_attribute(el, name, val)
       Event(name, handler) =>
         set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
+      BoundEvent(name, handler) => set_event_handler_ffi(js_el, name, handler)
       Style(name, val) => {
         let html_el : @webapi.HTMLElement = js_el.into()
         html_el.style().set_property(name, val)
@@ -130,11 +134,18 @@ fn[Msg] diff(
         parent.replace_child(new_node, old_node) |> ignore
       }
     (Embed(old_comp), Embed(new_comp)) =>
-      if old_comp.props_fingerprint == new_comp.props_fingerprint {
-        // Same component, same props — keep existing instance
-        ()
+      if old_comp.id == new_comp.id {
+        let slot = component_slots[new_comp.id]
+        diff(
+          parent,
+          index,
+          slot.previous_expanded.val,
+          slot.current_expanded.val,
+          fn(_) {  },
+        )
       } else {
-        let new_node = (new_comp.mount)()
+        let noop : (Unit) -> Unit = fn(_) {  }
+        let new_node = create_dom_node(Embed(new_comp), noop)
         let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
@@ -194,6 +205,7 @@ fn[Msg] diff_attrs(
     match attr {
       Attribute(k, v) => old_attributes[k] = v
       Event(name, _) => old_events[name] = true
+      BoundEvent(name, _) => old_events[name] = true
       Style(k, v) => old_styles[k] = v
     }
   }
@@ -218,6 +230,10 @@ fn[Msg] diff_attrs(
         // Always replace event handlers (closures are not comparable)
         new_event_keys[name] = true
         set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
+      }
+      BoundEvent(name, handler) => {
+        new_event_keys[name] = true
+        set_event_handler_ffi(js_el, name, handler)
       }
       Style(name, value) => {
         new_style_keys[name] = true

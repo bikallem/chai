@@ -2,7 +2,7 @@
 enum VNode[Msg] {
   Text(String)
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
-  Embed(Component)
+  Embed(ComponentNode)
 }
 
 ///|
@@ -21,6 +21,32 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
 ///|
 pub fn[Msg] text(s : String) -> VNode[Msg] {
   Text(s)
+}
+
+///|
+/// Convert a typed VNode tree to VNode[Unit] by binding all Event handlers
+/// through a dispatch function, turning them into BoundEvent closures.
+fn[CMsg] bind_events(
+  vnode : VNode[CMsg],
+  dispatch : (CMsg) -> Unit,
+) -> VNode[Unit] {
+  match vnode {
+    Text(s) => Text(s)
+    Element(tag, attrs, children) => {
+      let new_attrs = attrs.map(fn(a) {
+        match a {
+          Attribute(k, v) => Attribute(k, v)
+          Event(name, handler) =>
+            BoundEvent(name, fn(e) { dispatch(handler(e)) })
+          BoundEvent(name, handler) => BoundEvent(name, handler)
+          Style(k, v) => Style(k, v)
+        }
+      })
+      let new_children = children.map(fn(c) { bind_events(c, dispatch) })
+      Element(tag, new_attrs, new_children)
+    }
+    Embed(comp) => Embed(comp)
+  }
 }
 
 ///|
