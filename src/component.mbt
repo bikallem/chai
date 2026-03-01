@@ -108,5 +108,5 @@ pub fn[Model, CMsg, Msg] component(
       })
     }
   }
-  Embed({ id, })
+  Component({ id, })
 }

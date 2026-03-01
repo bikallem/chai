@@ -39,7 +39,7 @@ fn[Msg] create_dom_node(
       }
       el_node
     }
-    Embed(comp) => {
+    Component(comp) => {
       let expanded = component_slots[comp.id].current_expanded.val
       create_dom_node(expanded, fn(_) {  })
     }
@@ -133,7 +133,7 @@ fn[Msg] diff(
         let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
-    (Embed(old_comp), Embed(new_comp)) =>
+    (Component(old_comp), Component(new_comp)) =>
       if old_comp.id == new_comp.id {
         let slot = component_slots[new_comp.id]
         diff(
@@ -145,7 +145,7 @@ fn[Msg] diff(
         )
       } else {
         let noop : (Unit) -> Unit = fn(_) {  }
-        let new_node = create_dom_node(Embed(new_comp), noop)
+        let new_node = create_dom_node(Component(new_comp), noop)
         let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
