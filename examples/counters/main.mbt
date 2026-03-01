@@ -1,6 +1,7 @@
 ///|
 struct Model {
-  reset_key : Int
+  counter_a : Handle[@counter.Msg]
+  counter_b : Handle[@counter.Msg]
 }
 
 ///|
@@ -10,13 +11,20 @@ enum Msg {
 
 ///|
 fn app_init() -> (Model, Cmd[Msg]) {
-  ({ reset_key: 0 }, Cmd::none())
+  ({ counter_a: Handle::new(), counter_b: Handle::new() }, Cmd::none())
 }
 
 ///|
 fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
-    ResetAll => ({ reset_key: model.reset_key + 1 }, Cmd::none())
+    ResetAll =>
+      (
+        model,
+        Cmd::batch([
+          Cmd::send(model.counter_a, @counter.SetValue(0)),
+          Cmd::send(model.counter_b, @counter.SetValue(0)),
+        ]),
+      )
   }
 }
 
@@ -27,11 +35,11 @@ fn view(model : Model) -> VNode[Msg] {
     div([class_("counters")], [
       div([class_("counter-wrapper")], [
         h2([], [text("Counter A")]),
-        counter(key=model.reset_key),
+        counter(handle=model.counter_a),
       ]),
       div([class_("counter-wrapper")], [
         h2([], [text("Counter B")]),
-        counter(key=model.reset_key),
+        counter(handle=model.counter_b),
       ]),
     ]),
     button([class_("reset-btn"), on_click(fn(_e) { ResetAll })], [

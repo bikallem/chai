@@ -5,6 +5,17 @@ priv struct ComponentNode {
 }
 
 ///|
+/// Opaque handle for sending messages into a child component's update loop.
+struct Handle[CMsg] {
+  dispatch : Ref[(CMsg) -> Unit]
+}
+
+///|
+pub fn[CMsg] Handle::new() -> Handle[CMsg] {
+  { dispatch: Ref::new(fn(_) {  }) }
+}
+
+///|
 /// Stores type-erased component state via closure capture.
 priv struct ComponentSlot {
   key : Ref[Int]
@@ -32,6 +43,7 @@ let pending_init_cmds : Array[() -> Unit] = []
 /// parent Msg type. When key changes, the component reinitializes its state.
 pub fn[Model, CMsg, Msg] component(
   key? : Int = 0,
+  handle? : Handle[CMsg],
   init~ : () -> (Model, Cmd[CMsg]),
   update~ : (Model, CMsg) -> (Model, Cmd[CMsg]),
   view~ : (Model) -> VNode[CMsg],
@@ -63,6 +75,10 @@ pub fn[Model, CMsg, Msg] component(
         task(comp_dispatch)
       }
       (trigger_render.val)()
+    }
+    match handle {
+      Some(h) => h.dispatch.val = comp_dispatch
+      None => ()
     }
     let render = fn() -> VNode[Unit] {
       bind_events(view(model_ref.val), comp_dispatch)

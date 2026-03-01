@@ -7,6 +7,7 @@ pub(all) struct Model {
 pub(all) enum Msg {
   Increment
   Decrement
+  SetValue(Int)
 }
 
 ///|
@@ -19,6 +20,7 @@ pub fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
     Increment => ({ count: model.count + 1 }, Cmd::none())
     Decrement => ({ count: model.count - 1 }, Cmd::none())
+    SetValue(n) => ({ count: n }, Cmd::none())
   }
 }
 
@@ -32,8 +34,8 @@ pub fn view(model : Model) -> VNode[Msg] {
 }
 
 ///|
-/// Self-contained counter component. When key changes, the component
-/// reinitializes (resetting count to 0).
-pub fn[ParentMsg] counter(key? : Int) -> VNode[ParentMsg] {
-  component(key?, init=fn() { ({ count: 0 }, Cmd::none()) }, update~, view~)
+/// Self-contained counter component. Optionally accepts a Handle for
+/// parent-to-child messaging (e.g. SetValue).
+pub fn[ParentMsg] counter(handle? : Handle[Msg]) -> VNode[ParentMsg] {
+  component(handle?, init=fn() { ({ count: 0 }, Cmd::none()) }, update~, view~)
 }

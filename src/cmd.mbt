@@ -31,3 +31,9 @@ pub fn[A, B] Cmd::map(self : Cmd[A], f : (A) -> B) -> Cmd[B] {
 pub fn[Msg] Cmd::task(task : ((Msg) -> Unit) -> Unit) -> Cmd[Msg] {
   { tasks: [task] }
 }
+
+///|
+/// Send a message into a child component's update loop via its Handle.
+pub fn[CMsg, Msg] Cmd::send(handle : Handle[CMsg], msg : CMsg) -> Cmd[Msg] {
+  { tasks: [fn(_dispatch) { (handle.dispatch.val)(msg) }] }
+}

@@ -3,6 +3,7 @@ using @chai {
   type VNode,
   type Cmd,
   type Sub,
+  type Handle,
   start,
   div,
   h1,
