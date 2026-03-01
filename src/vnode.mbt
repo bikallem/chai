@@ -3,6 +3,7 @@ enum VNode[Msg] {
   Text(String)
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
   Component(ComponentNode)
+  Keyed(String, VNode[Msg])
 }
 
 ///|
@@ -15,6 +16,7 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
       Element(tag, new_attrs, new_children)
     }
     Component(comp) => Component(comp)
+    Keyed(k, child) => Keyed(k, child.map(f))
   }
 }
 
@@ -46,7 +48,22 @@ fn[CMsg] bind_events(
       Element(tag, new_attrs, new_children)
     }
     Component(comp) => Component(comp)
+    Keyed(k, child) => Keyed(k, bind_events(child, dispatch))
   }
+}
+
+///|
+pub fn[Msg] keyed(key : String, child : VNode[Msg]) -> VNode[Msg] {
+  Keyed(key, child)
+}
+
+///|
+/// Wrap an array of (key, vnode) pairs into Keyed vnodes for use as
+/// children of any container element: `ul([], keyed_list(items))`
+pub fn[Msg] keyed_list(
+  items : Array[(String, VNode[Msg])],
+) -> Array[VNode[Msg]] {
+  items.map(fn(pair) { Keyed(pair.0, pair.1) })
 }
 
 ///|

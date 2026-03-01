@@ -26,4 +26,5 @@ pub using @chai {
   on_input,
   on_check,
   on_keydown,
+  keyed_list,
 }

@@ -145,7 +145,12 @@ fn view(model : Model) -> VNode[Msg] {
       ]),
     ]),
     section([class_("todo-list-section")], [
-      ul([class_("todo-list")], visible_todos.map(fn(t) { view_todo(t) })),
+      ul(
+        [class_("todo-list")],
+        keyed_list(
+          visible_todos.map(fn(t) { (t.id.to_string(), view_todo(t)) }),
+        ),
+      ),
     ]),
     footer([class_("todo-footer")], [
       span([class_("todo-count")], [

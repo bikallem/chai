@@ -12,6 +12,10 @@ extern "js" fn set_event_handler_ffi(
 ) -> Unit = "(el, name, handler) => { el['on' + name] = handler; }"
 
 ///|
+/// Check if two DOM nodes are the same object (referential equality)
+extern "js" fn node_is_same(a : @webapi.Node, b : @webapi.Node) -> Bool = "(a, b) => a === b"
+
+///|
 /// Remove a DOM Level 0 event handler (e.g., el.onclick = null)
 extern "js" fn remove_event_handler_ffi(
   el : @webapi.JsValue,
@@ -39,10 +43,15 @@ fn[Msg] create_dom_node(
       }
       el_node
     }
-    Component(comp) => {
-      let expanded = component_slots[comp.id].current_expanded.val
-      create_dom_node(expanded, fn(_) {  })
-    }
+    Component(comp) =>
+      match component_slots.get(comp.id) {
+        Some(slot) => create_dom_node(slot.current_expanded.val, fn(_) {  })
+        None => {
+          let empty : VNode[Msg] = Text("")
+          create_dom_node(empty, dispatch)
+        }
+      }
+    Keyed(_k, child) => create_dom_node(child, dispatch)
   }
 }
 
@@ -133,16 +142,21 @@ fn[Msg] diff(
         let old_node = get_child(parent, index)
         parent.replace_child(new_node, old_node) |> ignore
       }
+    (Keyed(_, old_inner), Keyed(_, new_inner)) =>
+      diff(parent, index, old_inner, new_inner, dispatch)
     (Component(old_comp), Component(new_comp)) =>
       if old_comp.id == new_comp.id {
-        let slot = component_slots[new_comp.id]
-        diff(
-          parent,
-          index,
-          slot.previous_expanded.val,
-          slot.current_expanded.val,
-          fn(_) {  },
-        )
+        match component_slots.get(new_comp.id) {
+          Some(slot) =>
+            diff(
+              parent,
+              index,
+              slot.previous_expanded.val,
+              slot.current_expanded.val,
+              fn(_) {  },
+            )
+          None => ()
+        }
       } else {
         let noop : (Unit) -> Unit = fn(_) {  }
         let new_node = create_dom_node(Component(new_comp), noop)
@@ -165,6 +179,16 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
+  // Detect keyed mode from new children
+  if new_children.length() > 0 {
+    match new_children[0] {
+      Keyed(_) => {
+        diff_children_keyed(parent, old_children, new_children, dispatch)
+        return
+      }
+      _ => ()
+    }
+  }
   let old_len = old_children.length()
   let new_len = new_children.length()
   let min_len = if old_len < new_len { old_len } else { new_len }
@@ -184,6 +208,74 @@ fn[Msg] diff_children(
     for i = old_len; i < new_len; i = i + 1 {
       let new_node = create_dom_node(new_children[i], dispatch)
       parent.append_child(new_node) |> ignore
+    }
+  }
+}
+
+///|
+/// Diff children using key-based reconciliation. Each child must be a
+/// Keyed(key, vnode) wrapper. Matches old and new children by key,
+/// moves reused DOM nodes into place, and removes unused ones.
+fn[Msg] diff_children_keyed(
+  parent : @webapi.Node,
+  old_children : Array[VNode[Msg]],
+  new_children : Array[VNode[Msg]],
+  dispatch : (Msg) -> Unit,
+) -> Unit {
+  let old_len = old_children.length()
+  let new_len = new_children.length()
+  // Build old key -> index map
+  let old_key_map : Map[String, Int] = {}
+  for i = 0; i < old_len; i = i + 1 {
+    match old_children[i] {
+      Keyed(k, _) => old_key_map[k] = i
+      _ => ()
+    }
+  }
+  // Snapshot old DOM child nodes
+  let old_dom : Array[@webapi.Node] = []
+  for i = 0; i < old_len; i = i + 1 {
+    old_dom.push(get_child(parent, i))
+  }
+  // Track which old indices are reused
+  let used : Array[Bool] = []
+  for i = 0; i < old_len; i = i + 1 {
+    used.push(false)
+  }
+  // Process new children left to right
+  for i = 0; i < new_len; i = i + 1 {
+    match new_children[i] {
+      Keyed(new_key, new_inner) =>
+        match old_key_map.get(new_key) {
+          Some(old_idx) => {
+            used[old_idx] = true
+            let dom_node = old_dom[old_idx]
+            // Ensure the node is at position i
+            let ref_node = get_child(parent, i)
+            if not(node_is_same(dom_node, ref_node)) {
+              parent.insert_before(dom_node, ref_node) |> ignore
+            }
+            // Diff old vs new inner vnode (node is now at position i)
+            match old_children[old_idx] {
+              Keyed(_, old_inner) =>
+                diff(parent, i, old_inner, new_inner, dispatch)
+              _ => ()
+            }
+          }
+          None => {
+            // New key — create and insert at position i
+            let new_node = create_dom_node(new_inner, dispatch)
+            let ref_node = get_child(parent, i)
+            parent.insert_before(new_node, ref_node) |> ignore
+          }
+        }
+      _ => ()
+    }
+  }
+  // Remove unused old nodes
+  for i = 0; i < old_len; i = i + 1 {
+    if not(used[i]) {
+      parent.remove_child(old_dom[i]) |> ignore
     }
   }
 }

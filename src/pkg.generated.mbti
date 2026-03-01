@@ -16,7 +16,7 @@ pub fn[Msg] checked(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
 
-pub fn[Model, CMsg, Msg] component(key? : Int, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
+pub fn[Model, CMsg, Msg] component(key? : Int, id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
 pub fn[Msg] disabled(Bool) -> Attr[Msg]
 
@@ -43,6 +43,10 @@ pub fn[Msg] href(String) -> Attr[Msg]
 pub fn[Msg] id(String) -> Attr[Msg]
 
 pub fn[Msg] input_(Array[Attr[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] keyed(String, VNode[Msg]) -> VNode[Msg]
+
+pub fn[Msg] keyed_list(Array[(String, VNode[Msg])]) -> Array[VNode[Msg]]
 
 pub fn[Msg] label(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
