@@ -21,12 +21,18 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
 }
 
 ///|
-fn view(_model : Model) -> VNode[Msg] {
+fn view(model : Model) -> VNode[Msg] {
   div([class_("counters-app")], [
     h1([], [text("Counters")]),
     div([class_("counters")], [
-      div([class_("counter-wrapper")], [h2([], [text("Counter A")]), counter()]),
-      div([class_("counter-wrapper")], [h2([], [text("Counter B")]), counter()]),
+      div([class_("counter-wrapper")], [
+        h2([], [text("Counter A")]),
+        counter(key=model.reset_key),
+      ]),
+      div([class_("counter-wrapper")], [
+        h2([], [text("Counter B")]),
+        counter(key=model.reset_key),
+      ]),
     ]),
     button([class_("reset-btn"), on_click(fn(_e) { ResetAll })], [
       text("Reset All"),
