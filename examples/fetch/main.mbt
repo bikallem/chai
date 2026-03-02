@@ -49,10 +49,7 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
       ({ ..model, status: Loading }, Cmd::http_get(url, fn(r) { GotResult(r) }))
     }
     GotResult(Ok(body)) =>
-      (
-        { post_id: model.post_id + 1, status: Loaded(body) },
-        Cmd::none(),
-      )
+      ({ post_id: model.post_id + 1, status: Loaded(body) }, Cmd::none())
     GotResult(Err(msg)) => ({ ..model, status: Failed(msg) }, Cmd::none())
   }
 }
@@ -62,9 +59,7 @@ fn view(model : Model) -> VNode[Msg] {
   div([class("fetch-app")], [
     h1([], [text("Post Viewer")]),
     p([class("post-id")], [text("Post #" + model.post_id.to_string())]),
-    button([class("fetch-btn"), on_click(fn(_e) { FetchPost })], [
-      text("Fetch"),
-    ]),
+    button([class("fetch-btn"), on_click(fn(_e) { FetchPost })], [text("Fetch")]),
     div([class("status")], [
       match model.status {
         Idle => p([class("hint")], [text("Click Fetch to load a post")])

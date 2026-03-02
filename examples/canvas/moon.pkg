@@ -1,0 +1,9 @@
+import {
+  "blem/chai",
+  "bikallem/webapi",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)
