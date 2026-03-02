@@ -10,7 +10,7 @@ pub using @chai {
   p,
   button,
   text,
-  class_,
+  class,
   on_click,
 }
 
@@ -61,18 +61,16 @@ fn format_time(seconds : Int) -> String {
 
 ///|
 fn view(model : Model) -> VNode[Msg] {
-  div([class_("clock-app")], [
+  div([class("clock-app")], [
     h1([], [text("Stopwatch")]),
-    div([class_("display")], [text(format_time(model.seconds))]),
-    div([class_("controls")], [
-      button([class_("control-btn"), on_click(fn(_e) { Toggle })], [
+    div([class("display")], [text(format_time(model.seconds))]),
+    div([class("controls")], [
+      button([class("control-btn"), on_click(fn(_e) { Toggle })], [
         text(if model.running { "Stop" } else { "Start" }),
       ]),
-      button([class_("control-btn"), on_click(fn(_e) { Reset })], [
-        text("Reset"),
-      ]),
+      button([class("control-btn"), on_click(fn(_e) { Reset })], [text("Reset")]),
     ]),
-    p([class_("hint")], [text("Space = start/stop, R = reset")]),
+    p([class("hint")], [text("Space = start/stop, R = reset")]),
   ])
 }
 

@@ -16,7 +16,7 @@ pub fn[Msg] button(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] checked(Bool) -> Attr[Msg]
 
-pub fn[Msg] class_(String) -> Attr[Msg]
+pub fn[Msg] class(String) -> Attr[Msg]
 
 pub fn[Msg] class_list(Array[(String, Bool)]) -> Attr[Msg]
 

@@ -1,4 +1,19 @@
 ///|
+pub using @chai {
+  type VNode,
+  type Attr,
+  type Cmd,
+  type Handle,
+  div,
+  span,
+  button,
+  text,
+  class,
+  on_click,
+  component,
+}
+
+///|
 pub(all) struct Model {
   count : Int
 }
@@ -21,10 +36,10 @@ pub fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
 
 ///|
 pub fn view(model : Model) -> VNode[Msg] {
-  div([class_("counter")], [
-    button([class_("counter-btn"), on_click(fn(_e) { Decrement })], [text("-")]),
-    span([class_("counter-value")], [text(model.count.to_string())]),
-    button([class_("counter-btn"), on_click(fn(_e) { Increment })], [text("+")]),
+  div([class("counter")], [
+    button([class("counter-btn"), on_click(fn(_e) { Decrement })], [text("-")]),
+    span([class("counter-value")], [text(model.count.to_string())]),
+    button([class("counter-btn"), on_click(fn(_e) { Increment })], [text("+")]),
   ])
 }
 

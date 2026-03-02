@@ -1,4 +1,35 @@
 ///|
+pub using @chai {
+  type VNode,
+  type Attr,
+  type Cmd,
+  type Sub,
+  start,
+  div,
+  h1,
+  span,
+  button,
+  input_,
+  ul,
+  li,
+  label,
+  header,
+  section,
+  footer,
+  text,
+  class,
+  type_,
+  checked,
+  placeholder,
+  value,
+  on_click,
+  on_input,
+  on_check,
+  on_keydown,
+  keyed_list,
+}
+
+///|
 pub(all) enum Filter {
   All
   Active
@@ -85,16 +116,16 @@ fn view_todo(todo : Todo) -> VNode[Msg] {
   } else {
     "todo-item"
   }
-  li([class_(item_class)], [
-    label([class_("todo-label")], [
+  li([class(item_class)], [
+    label([class("todo-label")], [
       input_([
         type_("checkbox"),
         checked(todo.completed),
         on_check(fn(_checked) { ToggleTodo(todo.id) }),
       ]),
-      span([class_("todo-text")], [text(todo.text)]),
+      span([class("todo-text")], [text(todo.text)]),
     ]),
-    button([class_("delete-btn"), on_click(fn(_e) { DeleteTodo(todo.id) })], [
+    button([class("delete-btn"), on_click(fn(_e) { DeleteTodo(todo.id) })], [
       text("\u{00D7}"),
     ]),
   ])
@@ -107,7 +138,7 @@ fn view_filter_btn(
   label_text : String,
 ) -> VNode[Msg] {
   let cls = if current == filter { "filter-btn active" } else { "filter-btn" }
-  button([class_(cls), on_click(fn(_e) { SetFilter(filter) })], [
+  button([class(cls), on_click(fn(_e) { SetFilter(filter) })], [
     text(label_text),
   ])
 }
@@ -123,12 +154,12 @@ fn view(model : Model) -> VNode[Msg] {
   })
   let items_left = model.todos.filter(fn(t) { not(t.completed) }).length()
   let items_text = if items_left == 1 { "item left" } else { "items left" }
-  div([class_("todo-app")], [
-    header([class_("todo-header")], [
+  div([class("todo-app")], [
+    header([class("todo-header")], [
       h1([], [text("todos")]),
-      div([class_("input-row")], [
+      div([class("input-row")], [
         input_([
-          class_("todo-input"),
+          class("todo-input"),
           type_("text"),
           placeholder("What needs to be done?"),
           value(model.input),
@@ -141,27 +172,27 @@ fn view(model : Model) -> VNode[Msg] {
             }
           }),
         ]),
-        button([class_("add-btn"), on_click(fn(_e) { AddTodo })], [text("Add")]),
+        button([class("add-btn"), on_click(fn(_e) { AddTodo })], [text("Add")]),
       ]),
     ]),
-    section([class_("todo-list-section")], [
+    section([class("todo-list-section")], [
       ul(
-        [class_("todo-list")],
+        [class("todo-list")],
         keyed_list(
           visible_todos.map(fn(t) { (t.id.to_string(), view_todo(t)) }),
         ),
       ),
     ]),
-    footer([class_("todo-footer")], [
-      span([class_("todo-count")], [
+    footer([class("todo-footer")], [
+      span([class("todo-count")], [
         text(items_left.to_string() + " " + items_text),
       ]),
-      div([class_("filters")], [
+      div([class("filters")], [
         view_filter_btn(model.filter, All, "All"),
         view_filter_btn(model.filter, Active, "Active"),
         view_filter_btn(model.filter, Completed, "Completed"),
       ]),
-      button([class_("clear-btn"), on_click(fn(_e) { ClearCompleted })], [
+      button([class("clear-btn"), on_click(fn(_e) { ClearCompleted })], [
         text("Clear completed"),
       ]),
     ]),

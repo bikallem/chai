@@ -1,4 +1,23 @@
 ///|
+using @chai {
+  type VNode,
+  type Cmd,
+  type Sub,
+  type Handle,
+  start,
+  div,
+  h1,
+  h2,
+  button,
+  text,
+  class,
+  on_click,
+}
+
+///|
+using @counter {counter}
+
+///|
 struct Model {
   counter_a : Handle[@counter.Msg]
   counter_b : Handle[@counter.Msg]
@@ -30,19 +49,19 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
 
 ///|
 fn view(model : Model) -> VNode[Msg] {
-  div([class_("counters-app")], [
+  div([class("counters-app")], [
     h1([], [text("Counters")]),
-    div([class_("counters")], [
-      div([class_("counter-wrapper")], [
+    div([class("counters")], [
+      div([class("counter-wrapper")], [
         h2([], [text("Counter A")]),
         counter(handle=model.counter_a),
       ]),
-      div([class_("counter-wrapper")], [
+      div([class("counter-wrapper")], [
         h2([], [text("Counter B")]),
         counter(handle=model.counter_b),
       ]),
     ]),
-    button([class_("reset-btn"), on_click(fn(_e) { ResetAll })], [
+    button([class("reset-btn"), on_click(fn(_e) { ResetAll })], [
       text("Reset All"),
     ]),
   ])
