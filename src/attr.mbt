@@ -10,7 +10,7 @@ enum Attr[Msg] {
 pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
   match self {
     Attribute(k, v) => Attribute(k, v)
-    Event(name, handler) => Event(name, fn(e) { f(handler(e)) })
+    Event(name, handler) => on(name, fn(e) { f(handler(e)) })
     BoundEvent(name, handler) => BoundEvent(name, handler)
     Style(k, v) => Style(k, v)
   }
@@ -18,45 +18,45 @@ pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
 
 ///|
 pub fn[Msg] on_click(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
-  Event("click", handler)
+  on("click", handler)
 }
 
 ///|
 /// Get the value from an input event's target
 fn get_target_value(event : @webapi.Event) -> String {
-  let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(event.target()).into()
+  let input : @webapi.HTMLInputElement = event.target().into()
   input.value()
 }
 
 ///|
 pub fn[Msg] on_input(handler : (String) -> Msg) -> Attr[Msg] {
-  Event("input", fn(e) { handler(get_target_value(e)) })
+  on("input", fn(e) { handler(get_target_value(e)) })
 }
 
 ///|
 pub fn[Msg] on_change(handler : (String) -> Msg) -> Attr[Msg] {
-  Event("change", fn(e) { handler(get_target_value(e)) })
+  on("change", fn(e) { handler(get_target_value(e)) })
 }
 
 ///|
 pub fn[Msg] on_check(handler : (Bool) -> Msg) -> Attr[Msg] {
-  Event("change", fn(e) {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(e.target()).into()
+  on("change", fn(e) {
+    let input : @webapi.HTMLInputElement = e.target().into()
     handler(input.checked())
   })
 }
 
 ///|
 pub fn[Msg] on_keydown(handler : (String) -> Msg) -> Attr[Msg] {
-  Event("keydown", fn(e) {
-    let ke : @webapi.KeyboardEvent = @webapi.TJsValue::to_js(e).into()
+  on("keydown", fn(e) {
+    let ke : @webapi.KeyboardEvent = e.into()
     handler(ke.key())
   })
 }
 
 ///|
 pub fn[Msg] on_submit(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
-  Event("submit", fn(e) {
+  on("submit", fn(e) {
     e.prevent_default()
     handler(e)
   })
