@@ -40,9 +40,9 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
     Reset => ({ seconds: 0, running: false }, Cmd::none())
     KeyDown(key) =>
       if key == " " {
-        ({ ..model, running: not(model.running) }, Cmd::none())
+        update(model, Toggle)
       } else if key == "r" || key == "R" {
-        ({ seconds: 0, running: false }, Cmd::none())
+        update(model, Reset)
       } else {
         (model, Cmd::none())
       }

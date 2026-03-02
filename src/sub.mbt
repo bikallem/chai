@@ -82,11 +82,12 @@ pub fn[Msg] Sub::on_key_down(
 ) -> Sub[Msg] {
   Sub::sub(key, fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(e) {
+      let ke : @webapi.KeyboardEvent = e.into()
+      let pressed = ke.key()
       if prevent_default {
         e.prevent_default()
       }
-      let ke : @webapi.KeyboardEvent = @webapi.TJsValue::to_js(e).into()
-      dispatch(to_msg(ke.key()))
+      dispatch(to_msg(pressed))
     }
     let doc = @webapi.TJsValue::to_js(@webapi.document)
     add_event_listener_ffi(doc, "keydown", handler)

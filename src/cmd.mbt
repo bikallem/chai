@@ -51,6 +51,9 @@ pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
 }
 
 ///|
+extern "js" fn js_error_message(reason : @webapi.JsValue) -> String = "(r) => r instanceof Error ? r.message : String(r)"
+
+///|
 /// Perform an HTTP GET request. Dispatches `on_result(Ok(body))` on success
 /// or `on_result(Err(message))` on failure.
 pub fn[Msg] Cmd::http_get(
@@ -60,7 +63,9 @@ pub fn[Msg] Cmd::http_get(
   Cmd::task(fn(dispatch) {
     @webapi.window
     .fetch(url)
-    .then(fn(response : @webapi.Response) -> @webapi.JsValue {
+    .then(fn(
+      response : @webapi.Response,
+    ) -> @webapi.JsPromise[@webapi.JsValue] {
       if response.ok() {
         response
         .text()
@@ -68,15 +73,14 @@ pub fn[Msg] Cmd::http_get(
           dispatch(on_result(Ok(body)))
           @webapi.JsValue::undefined()
         })
-        |> ignore
       } else {
         dispatch(on_result(Err("HTTP " + response.status().to_string())))
+        @webapi.JsPromise::resolve(@webapi.JsValue::undefined())
       }
-      @webapi.JsValue::undefined()
     })
-    .catch_(fn(_reason : @webapi.JsValue) -> @webapi.JsValue {
-      dispatch(on_result(Err("Network error")))
-      @webapi.JsValue::undefined()
+    .catch_(fn(reason : @webapi.JsValue) -> @webapi.JsPromise[@webapi.JsValue] {
+      dispatch(on_result(Err(js_error_message(reason))))
+      @webapi.JsPromise::resolve(@webapi.JsValue::undefined())
     })
     |> ignore
   })
