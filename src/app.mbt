@@ -1,9 +1,4 @@
 ///|
-extern "js" fn console_error_ffi(
-  msg : String,
-) -> Unit = "(msg) => console.error(msg)"
-
-///|
 /// Active subscription with its cleanup function
 priv struct ActiveSub {
   cleanup : () -> Unit
@@ -95,8 +90,7 @@ pub fn[Model, Msg] start(
 ) -> Unit {
   let root_el = @webapi.document.query_selector_opt(selector)
   guard root_el is Some(el) else {
-    console_error_ffi("chai: no element matches selector \"" + selector + "\"")
-    return
+    abort("chai: no element matches selector \"" + selector + "\"")
   }
   let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
   let active_subs : Map[String, ActiveSub] = {}

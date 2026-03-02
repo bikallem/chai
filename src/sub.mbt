@@ -52,16 +52,11 @@ pub fn[Msg] Sub::every(
   to_msg : () -> Msg,
 ) -> Sub[Msg] {
   Sub::sub(key, fn(dispatch) {
-    let id = set_interval_ffi(fn() { dispatch(to_msg()) }, ms)
-    fn() { clear_interval_ffi(id) }
+    let handler = @webapi.Function::new(fn(_) {
+      dispatch(to_msg())
+      @webapi.JsValue::undefined()
+    })
+    let id = @webapi.window.set_interval(handler, timeout=ms, [])
+    fn() { @webapi.window.clear_interval(id=id) }
   })
 }
-
-///|
-extern "js" fn set_interval_ffi(
-  f : () -> Unit,
-  ms : Int,
-) -> Int = "(f, ms) => setInterval(f, ms)"
-
-///|
-extern "js" fn clear_interval_ffi(id : Int) -> Unit = "(id) => clearInterval(id)"

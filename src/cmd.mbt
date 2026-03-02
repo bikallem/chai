@@ -41,11 +41,11 @@ pub fn[CMsg, Msg] Cmd::send(handle : Handle[CMsg], msg : CMsg) -> Cmd[Msg] {
 ///|
 /// Dispatch a message after a delay in milliseconds.
 pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
-  Cmd::task(fn(dispatch) { set_timeout_ffi(fn() { dispatch(msg) }, ms) })
+  Cmd::task(fn(dispatch) {
+    let handler = @webapi.Function::new(fn(_) {
+      dispatch(msg)
+      @webapi.JsValue::undefined()
+    })
+    @webapi.window.set_timeout(handler, timeout=ms, []) |> ignore
+  })
 }
-
-///|
-extern "js" fn set_timeout_ffi(
-  f : () -> Unit,
-  ms : Int,
-) -> Unit = "(f, ms) => setTimeout(f, ms)"
