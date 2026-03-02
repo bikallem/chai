@@ -58,20 +58,6 @@ pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
 }
 
 ///|
-extern "js" fn add_event_listener_ffi(
-  target : @webapi.JsValue,
-  event : String,
-  handler : (@webapi.Event) -> Unit,
-) -> Unit = "(t, e, h) => t.addEventListener(e, h)"
-
-///|
-extern "js" fn remove_event_listener_ffi(
-  target : @webapi.JsValue,
-  event : String,
-  handler : (@webapi.Event) -> Unit,
-) -> Unit = "(t, e, h) => t.removeEventListener(e, h)"
-
-///|
 /// Subscribe to `keydown` events on the document.
 /// Set `prevent_default` to stop the browser from also activating focused
 /// buttons or scrolling when shortcut keys are pressed.
@@ -89,9 +75,8 @@ pub fn[Msg] Sub::on_key_down(
       }
       dispatch(to_msg(pressed))
     }
-    let doc = @webapi.TJsValue::to_js(@webapi.document)
-    add_event_listener_ffi(doc, "keydown", handler)
-    fn() { remove_event_listener_ffi(doc, "keydown", handler) }
+    @webapi.document.add_event_listener("keydown", handler)
+    fn() { @webapi.document.remove_event_listener("keydown", handler) }
   })
 }
 
@@ -107,8 +92,7 @@ pub fn[Msg] Sub::on_window_resize(
         to_msg(@webapi.window.inner_width(), @webapi.window.inner_height()),
       )
     }
-    let win = @webapi.TJsValue::to_js(@webapi.window)
-    add_event_listener_ffi(win, "resize", handler)
-    fn() { remove_event_listener_ffi(win, "resize", handler) }
+    @webapi.window.add_event_listener("resize", handler)
+    fn() { @webapi.window.remove_event_listener("resize", handler) }
   })
 }
