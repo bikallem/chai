@@ -74,17 +74,19 @@ fn[Msg] apply_attrs(
 }
 
 ///|
+fn as_input(el : @webapi.Element) -> @webapi.HTMLInputElement {
+  @webapi.TJsValue::to_js(el).into()
+}
+
+///|
 /// Apply an attribute, using typed webapi setters for DOM properties
 fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
   if name == "value" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_value(val)
+    as_input(el).set_value(val)
   } else if name == "checked" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_checked(val == "true")
+    as_input(el).set_checked(val == "true")
   } else if name == "disabled" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_disabled(val == "true")
+    as_input(el).set_disabled(val == "true")
   } else {
     el.set_attribute(name, val)
   }
@@ -94,17 +96,26 @@ fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
 /// Remove an attribute, using typed webapi setters to clear DOM properties
 fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
   if name == "value" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_value("")
+    as_input(el).set_value("")
   } else if name == "checked" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_checked(false)
+    as_input(el).set_checked(false)
   } else if name == "disabled" {
-    let input : @webapi.HTMLInputElement = @webapi.TJsValue::to_js(el).into()
-    input.set_disabled(false)
+    as_input(el).set_disabled(false)
   } else {
     el.remove_attribute(name)
   }
+}
+
+///|
+fn[Msg] replace_child_at(
+  parent : @webapi.Node,
+  index : Int,
+  new_ : VNode[Msg],
+  dispatch : (Msg) -> Unit,
+) -> Unit {
+  let new_node = create_dom_node(new_, dispatch)
+  let old_node = get_child(parent, index)
+  parent.replace_child(new_node, old_node) |> ignore
 }
 
 ///|
@@ -131,12 +142,7 @@ fn[Msg] diff(
         diff_attrs(el, old_attrs, new_attrs, dispatch)
         diff_children(child, old_children, new_children, dispatch)
       } else {
-        let new_node = create_dom_node(
-          Element(new_tag, new_attrs, new_children),
-          dispatch,
-        )
-        let old_node = get_child(parent, index)
-        parent.replace_child(new_node, old_node) |> ignore
+        replace_child_at(parent, index, Element(new_tag, new_attrs, new_children), dispatch)
       }
     (Keyed(_, old_inner), Keyed(_, new_inner)) =>
       diff(parent, index, old_inner, new_inner, dispatch)
@@ -155,15 +161,9 @@ fn[Msg] diff(
         }
       } else {
         let noop : (Unit) -> Unit = fn(_) {  }
-        let new_node = create_dom_node(Component(new_comp), noop)
-        let old_node = get_child(parent, index)
-        parent.replace_child(new_node, old_node) |> ignore
+        replace_child_at(parent, index, Component(new_comp), noop)
       }
-    _ => {
-      let new_node = create_dom_node(new_, dispatch)
-      let old_node = get_child(parent, index)
-      parent.replace_child(new_node, old_node) |> ignore
-    }
+    _ => replace_child_at(parent, index, new_, dispatch)
   }
 }
 
@@ -209,6 +209,23 @@ fn[Msg] diff_children(
 }
 
 ///|
+/// Insert a node at the given child index, or append if past the end.
+fn insert_at(
+  parent : @webapi.Node,
+  index : Int,
+  node : @webapi.Node,
+) -> Unit {
+  if index < parent.child_nodes().length().reinterpret_as_int() {
+    let ref_node = get_child(parent, index)
+    if not(node.is_same_node(ref_node)) {
+      parent.insert_before(node, ref_node) |> ignore
+    }
+  } else {
+    parent.append_child(node) |> ignore
+  }
+}
+
+///|
 /// Diff children using key-based reconciliation. Each child must be a
 /// Keyed(key, vnode) wrapper. Matches old and new children by key,
 /// moves reused DOM nodes into place, and removes unused ones.
@@ -245,26 +262,12 @@ fn[Msg] diff_children_keyed(
         match old_key_map.get(new_key) {
           Some((old_idx, old_inner)) => {
             used[old_idx] = true
-            let dom_node = old_dom[old_idx]
-            if i < parent.child_nodes().length().reinterpret_as_int() {
-              let ref_node = get_child(parent, i)
-              if not(dom_node.is_same_node(ref_node)) {
-                parent.insert_before(dom_node, ref_node) |> ignore
-              }
-            } else {
-              parent.append_child(dom_node) |> ignore
-            }
+            insert_at(parent, i, old_dom[old_idx])
             diff(parent, i, old_inner, new_inner, dispatch)
           }
           None => {
-            // New key — create and insert at position i
             let new_node = create_dom_node(new_inner, dispatch)
-            if i < parent.child_nodes().length().reinterpret_as_int() {
-              let ref_node = get_child(parent, i)
-              parent.insert_before(new_node, ref_node) |> ignore
-            } else {
-              parent.append_child(new_node) |> ignore
-            }
+            insert_at(parent, i, new_node)
           }
         }
       _ => ()
@@ -327,16 +330,9 @@ fn[Msg] diff_attrs(
       }
       Style(name, value) => {
         new_style_keys[name] = true
-        match old_styles.get(name) {
-          Some(old_val) =>
-            if old_val != value {
-              let html_el : @webapi.HTMLElement = js_el.into()
-              html_el.style().set_property(name, value)
-            }
-          None => {
-            let html_el : @webapi.HTMLElement = js_el.into()
-            html_el.style().set_property(name, value)
-          }
+        if old_styles.get(name) != Some(value) {
+          let html_el : @webapi.HTMLElement = js_el.into()
+          html_el.style().set_property(name, value)
         }
       }
     }

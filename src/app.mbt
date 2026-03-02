@@ -31,11 +31,7 @@ fn[Model, Msg] boot(
     diff(root_node, 0, current_vdom.val, new_vdom, dispatch)
     current_vdom.val = new_vdom
     remove_unused_component_slots()
-    // Process any init cmds from newly created components
-    while pending_init_cmds.length() > 0 {
-      let cmd_fn = pending_init_cmds.remove(0)
-      cmd_fn()
-    }
+    drain_pending_init_cmds()
     after_update(state.val, dispatch)
   }
 
@@ -78,11 +74,7 @@ fn[Model, Msg] boot(
   let dom_node = create_dom_node(initial_vdom, dispatch)
   root_node.append_child(dom_node) |> ignore
   current_vdom.val = initial_vdom
-  // Process init cmds from components created during initial render
-  while pending_init_cmds.length() > 0 {
-    let cmd_fn = pending_init_cmds.remove(0)
-    cmd_fn()
-  }
+  drain_pending_init_cmds()
   for task in init_cmd.tasks {
     task(dispatch)
   }
@@ -114,6 +106,9 @@ fn[Msg] update_subs(
   active_subs : Map[String, ActiveSub],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
+  if new_sub.subs.length() == 0 && active_subs.length() == 0 {
+    return
+  }
   // Collect new sub keys
   let new_keys : Map[String, Bool] = {}
   for sd in new_sub.subs {

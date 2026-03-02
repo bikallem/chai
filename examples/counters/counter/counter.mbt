@@ -11,11 +11,6 @@ pub(all) enum Msg {
 }
 
 ///|
-pub fn counter_init() -> (Model, Cmd[Msg]) {
-  ({ count: 0 }, Cmd::none())
-}
-
-///|
 pub fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
     Increment => ({ count: model.count + 1 }, Cmd::none())

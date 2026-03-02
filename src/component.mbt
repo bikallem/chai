@@ -106,6 +106,14 @@ pub fn[Model, CMsg, Msg] component(
 }
 
 ///|
+fn drain_pending_init_cmds() -> Unit {
+  while pending_init_cmds.length() > 0 {
+    let cmd_fn = pending_init_cmds.remove(0)
+    cmd_fn()
+  }
+}
+
+///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots() -> Unit {
   let to_remove : Array[String] = []
