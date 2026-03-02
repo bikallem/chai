@@ -74,33 +74,44 @@ fn[Msg] apply_attrs(
 }
 
 ///|
-fn as_input(el : @webapi.Element) -> @webapi.HTMLInputElement {
-  @webapi.TJsValue::to_js(el).into()
-}
+extern "js" fn set_prop_string(
+  el : @webapi.JsValue,
+  name : String,
+  val : String,
+) -> Unit = "(el, name, val) => { el[name] = val; }"
 
 ///|
-/// Apply an attribute, using typed webapi setters for DOM properties
+extern "js" fn set_prop_bool(
+  el : @webapi.JsValue,
+  name : String,
+  val : Bool,
+) -> Unit = "(el, name, val) => { el[name] = val; }"
+
+///|
+/// Apply an attribute, using property setters for DOM properties
 fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
+  let js_el = @webapi.TJsValue::to_js(el)
   if name == "value" {
-    as_input(el).set_value(val)
+    set_prop_string(js_el, "value", val)
   } else if name == "checked" {
-    as_input(el).set_checked(val == "true")
+    set_prop_bool(js_el, "checked", val == "true")
   } else if name == "disabled" {
-    as_input(el).set_disabled(val == "true")
+    set_prop_bool(js_el, "disabled", val == "true")
   } else {
     el.set_attribute(name, val)
   }
 }
 
 ///|
-/// Remove an attribute, using typed webapi setters to clear DOM properties
+/// Remove an attribute, using property setters to clear DOM properties
 fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
+  let js_el = @webapi.TJsValue::to_js(el)
   if name == "value" {
-    as_input(el).set_value("")
+    set_prop_string(js_el, "value", "")
   } else if name == "checked" {
-    as_input(el).set_checked(false)
+    set_prop_bool(js_el, "checked", false)
   } else if name == "disabled" {
-    as_input(el).set_disabled(false)
+    set_prop_bool(js_el, "disabled", false)
   } else {
     el.remove_attribute(name)
   }
@@ -180,15 +191,11 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  // Detect keyed mode from new children
-  if new_children.length() > 0 {
-    match new_children[0] {
-      Keyed(_) => {
-        diff_children_keyed(parent, old_children, new_children, dispatch)
-        return
-      }
-      _ => ()
-    }
+  // Detect keyed mode: use keyed diff only if ALL new children are Keyed
+  if new_children.length() > 0 &&
+    new_children.iter().all(fn(c) { match c { Keyed(_) => true; _ => false } }) {
+    diff_children_keyed(parent, old_children, new_children, dispatch)
+    return
   }
   let old_len = old_children.length()
   let new_len = new_children.length()

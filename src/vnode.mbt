@@ -199,3 +199,114 @@ pub fn[Msg] form(
 ) -> VNode[Msg] {
   el("form", attrs, children)
 }
+
+///|
+pub fn[Msg] textarea(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("textarea", attrs, children)
+}
+
+///|
+pub fn[Msg] select(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("select", attrs, children)
+}
+
+///|
+pub fn[Msg] option(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("option", attrs, children)
+}
+
+///|
+pub fn[Msg] img(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
+  el("img", attrs, [])
+}
+
+///|
+pub fn[Msg] br(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
+  el("br", attrs, [])
+}
+
+///|
+pub fn[Msg] hr(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
+  el("hr", attrs, [])
+}
+
+///|
+pub fn[Msg] table(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("table", attrs, children)
+}
+
+///|
+pub fn[Msg] tr(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("tr", attrs, children)
+}
+
+///|
+pub fn[Msg] td(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("td", attrs, children)
+}
+
+///|
+pub fn[Msg] th(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("th", attrs, children)
+}
+
+///|
+pub fn[Msg] nav(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("nav", attrs, children)
+}
+
+///|
+pub fn[Msg] pre(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("pre", attrs, children)
+}
+
+///|
+pub fn[Msg] code(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("code", attrs, children)
+}
+
+///|
+pub fn[Msg] em(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("em", attrs, children)
+}
+
+///|
+pub fn[Msg] strong(
+  attrs : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  el("strong", attrs, children)
+}

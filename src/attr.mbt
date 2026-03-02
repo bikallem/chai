@@ -56,7 +56,28 @@ pub fn[Msg] on_keydown(handler : (String) -> Msg) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] on_submit(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
-  Event("submit", handler)
+  Event("submit", fn(e) {
+    e.prevent_default()
+    handler(e)
+  })
+}
+
+///|
+/// Generic event handler for any event name not covered by helpers.
+pub fn[Msg] on(name : String, handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  Event(name, handler)
+}
+
+///|
+/// Build a class string from conditional class names.
+pub fn[Msg] class_list(classes : Array[(String, Bool)]) -> Attr[Msg] {
+  let parts : Array[String] = []
+  for pair in classes {
+    if pair.1 {
+      parts.push(pair.0)
+    }
+  }
+  Attribute("class", parts.join(" "))
 }
 
 ///|

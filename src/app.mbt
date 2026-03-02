@@ -1,4 +1,9 @@
 ///|
+extern "js" fn console_error_ffi(
+  msg : String,
+) -> Unit = "(msg) => console.error(msg)"
+
+///|
 /// Active subscription with its cleanup function
 priv struct ActiveSub {
   cleanup : () -> Unit
@@ -26,7 +31,7 @@ fn[Model, Msg] boot(
   }
 
   fn do_render() -> Unit {
-    component_counter.val = 0
+    begin_render_pass()
     let new_vdom = view(state.val)
     diff(root_node, 0, current_vdom.val, new_vdom, dispatch)
     current_vdom.val = new_vdom
@@ -66,9 +71,7 @@ fn[Model, Msg] boot(
     needs_render.val = true
     process_queue()
   }
-  // Clear component state for fresh start
-  component_slots.clear()
-  component_counter.val = 0
+  reset_component_state()
   // Initial render
   let initial_vdom = view(init_model)
   let dom_node = create_dom_node(initial_vdom, dispatch)
@@ -91,7 +94,10 @@ pub fn[Model, Msg] start(
   selector~ : String,
 ) -> Unit {
   let root_el = @webapi.document.query_selector_opt(selector)
-  guard root_el is Some(el) else { return }
+  guard root_el is Some(el) else {
+    console_error_ffi("chai: no element matches selector \"" + selector + "\"")
+    return
+  }
   let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
   let active_subs : Map[String, ActiveSub] = {}
   boot(root_node, init, update, view, fn(model, dispatch) {

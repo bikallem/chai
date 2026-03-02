@@ -114,6 +114,21 @@ fn drain_pending_init_cmds() -> Unit {
 }
 
 ///|
+/// Reset all component state for a fresh start.
+fn reset_component_state() -> Unit {
+  component_slots.clear()
+  component_counter.val = 0
+  seen_slots.clear()
+}
+
+///|
+/// Prepare for a new render pass.
+fn begin_render_pass() -> Unit {
+  component_counter.val = 0
+  seen_slots.clear()
+}
+
+///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots() -> Unit {
   let to_remove : Array[String] = []
@@ -125,5 +140,4 @@ fn remove_unused_component_slots() -> Unit {
   for k in to_remove {
     component_slots.remove(k)
   }
-  seen_slots.clear()
 }

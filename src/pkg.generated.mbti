@@ -10,11 +10,17 @@ pub fn[Msg] a(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] at(String, String) -> Attr[Msg]
 
+pub fn[Msg] br(Array[Attr[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] button(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] checked(Bool) -> Attr[Msg]
 
 pub fn[Msg] class_(String) -> Attr[Msg]
+
+pub fn[Msg] class_list(Array[(String, Bool)]) -> Attr[Msg]
+
+pub fn[Msg] code(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Model, CMsg, Msg] component(id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
@@ -23,6 +29,8 @@ pub fn[Msg] disabled(Bool) -> Attr[Msg]
 pub fn[Msg] div(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] el(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] em(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] footer(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -38,9 +46,13 @@ pub fn[Msg] h3(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] header(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] hr(Array[Attr[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] href(String) -> Attr[Msg]
 
 pub fn[Msg] id(String) -> Attr[Msg]
+
+pub fn[Msg] img(Array[Attr[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] input_(Array[Attr[Msg]]) -> VNode[Msg]
 
@@ -51,6 +63,10 @@ pub fn[Msg] keyed_list(Array[(String, VNode[Msg])]) -> Array[VNode[Msg]]
 pub fn[Msg] label(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] li(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] nav(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] on(String, (@webapi.Event) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] on_change((String) -> Msg) -> Attr[Msg]
 
@@ -64,19 +80,37 @@ pub fn[Msg] on_keydown((String) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] on_submit((@webapi.Event) -> Msg) -> Attr[Msg]
 
+pub fn[Msg] option(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] p(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] placeholder(String) -> Attr[Msg]
 
+pub fn[Msg] pre(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] section(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] select(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] span(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Model, Msg] start(init~ : () -> (Model, Cmd[Msg]), update~ : (Model, Msg) -> (Model, Cmd[Msg]), view~ : (Model) -> VNode[Msg], subscriptions~ : (Model) -> Sub[Msg], selector~ : String) -> Unit
 
+pub fn[Msg] strong(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] style(String, String) -> Attr[Msg]
 
+pub fn[Msg] table(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] td(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] text(String) -> VNode[Msg]
+
+pub fn[Msg] textarea(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] th(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] tr(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] type_(String) -> Attr[Msg]
 
@@ -91,6 +125,7 @@ type Attr[Msg]
 pub fn[A, B] Attr::map(Self[A], (A) -> B) -> Self[B]
 
 type Cmd[Msg]
+pub fn[Msg] Cmd::after(Int, Msg) -> Self[Msg]
 pub fn[Msg] Cmd::batch(Array[Self[Msg]]) -> Self[Msg]
 pub fn[A, B] Cmd::map(Self[A], (A) -> B) -> Self[B]
 pub fn[Msg] Cmd::none() -> Self[Msg]
@@ -102,6 +137,7 @@ pub fn[CMsg] Handle::new() -> Self[CMsg]
 
 type Sub[Msg]
 pub fn[Msg] Sub::batch(Array[Self[Msg]]) -> Self[Msg]
+pub fn[Msg] Sub::every(Int, String, () -> Msg) -> Self[Msg]
 pub fn[A, B] Sub::map(Self[A], (A) -> B) -> Self[B]
 pub fn[Msg] Sub::none() -> Self[Msg]
 pub fn[Msg] Sub::sub(String, ((Msg) -> Unit) -> () -> Unit) -> Self[Msg]

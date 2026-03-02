@@ -43,3 +43,25 @@ pub fn[Msg] Sub::sub(
 ) -> Sub[Msg] {
   { subs: [{ key, start }] }
 }
+
+///|
+/// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
+pub fn[Msg] Sub::every(
+  ms : Int,
+  key : String,
+  to_msg : () -> Msg,
+) -> Sub[Msg] {
+  Sub::sub(key, fn(dispatch) {
+    let id = set_interval_ffi(fn() { dispatch(to_msg()) }, ms)
+    fn() { clear_interval_ffi(id) }
+  })
+}
+
+///|
+extern "js" fn set_interval_ffi(
+  f : () -> Unit,
+  ms : Int,
+) -> Int = "(f, ms) => setInterval(f, ms)"
+
+///|
+extern "js" fn clear_interval_ffi(id : Int) -> Unit = "(id) => clearInterval(id)"
