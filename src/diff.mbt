@@ -193,7 +193,14 @@ fn[Msg] diff_children(
 ) -> Unit {
   // Detect keyed mode: use keyed diff only if ALL new children are Keyed
   if new_children.length() > 0 &&
-    new_children.iter().all(fn(c) { match c { Keyed(_) => true; _ => false } }) {
+    new_children
+    .iter()
+    .all(fn(c) {
+      match c {
+        Keyed(_) => true
+        _ => false
+      }
+    }) {
     diff_children_keyed(parent, old_children, new_children, dispatch)
     return
   }

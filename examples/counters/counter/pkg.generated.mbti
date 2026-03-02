@@ -11,11 +11,9 @@ pub fn[Msg] button(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNo
 
 pub fn[Msg] class_(String) -> @chai.Attr[Msg]
 
-pub fn[Model, CMsg, Msg] component(key? : Int, id? : String, handle? : @chai.Handle[CMsg], init~ : () -> (Model, @chai.Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, @chai.Cmd[CMsg]), view~ : (Model) -> @chai.VNode[CMsg]) -> @chai.VNode[Msg]
+pub fn[Model, CMsg, Msg] component(id? : String, handle? : @chai.Handle[CMsg], init~ : () -> (Model, @chai.Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, @chai.Cmd[CMsg]), view~ : (Model) -> @chai.VNode[CMsg]) -> @chai.VNode[Msg]
 
 pub fn[ParentMsg] counter(handle? : @chai.Handle[Msg]) -> @chai.VNode[ParentMsg]
-
-pub fn counter_init() -> (Model, @chai.Cmd[Msg])
 
 pub fn[Msg] div(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 

@@ -49,3 +49,35 @@ pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
     @webapi.window.set_timeout(handler, timeout=ms, []) |> ignore
   })
 }
+
+///|
+/// Perform an HTTP GET request. Dispatches `on_result(Ok(body))` on success
+/// or `on_result(Err(message))` on failure.
+pub fn[Msg] Cmd::http_get(
+  url : String,
+  on_result : (Result[String, String]) -> Msg,
+) -> Cmd[Msg] {
+  Cmd::task(fn(dispatch) {
+    @webapi.window
+    .fetch(url)
+    .then(fn(response : @webapi.Response) -> @webapi.JsValue {
+      if response.ok() {
+        response
+        .text()
+        .then(fn(body : String) -> @webapi.JsValue {
+          dispatch(on_result(Ok(body)))
+          @webapi.JsValue::undefined()
+        })
+        |> ignore
+      } else {
+        dispatch(on_result(Err("HTTP " + response.status().to_string())))
+      }
+      @webapi.JsValue::undefined()
+    })
+    .catch_(fn(_reason : @webapi.JsValue) -> @webapi.JsValue {
+      dispatch(on_result(Err("Network error")))
+      @webapi.JsValue::undefined()
+    })
+    |> ignore
+  })
+}

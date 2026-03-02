@@ -1,0 +1,8 @@
+import {
+  "blem/chai",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)

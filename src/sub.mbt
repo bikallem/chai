@@ -46,17 +46,68 @@ pub fn[Msg] Sub::sub(
 
 ///|
 /// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
-pub fn[Msg] Sub::every(
-  ms : Int,
-  key : String,
-  to_msg : () -> Msg,
-) -> Sub[Msg] {
+pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
   Sub::sub(key, fn(dispatch) {
     let handler = @webapi.Function::new(fn(_) {
       dispatch(to_msg())
       @webapi.JsValue::undefined()
     })
     let id = @webapi.window.set_interval(handler, timeout=ms, [])
-    fn() { @webapi.window.clear_interval(id=id) }
+    fn() { @webapi.window.clear_interval(id~) }
+  })
+}
+
+///|
+extern "js" fn add_event_listener_ffi(
+  target : @webapi.JsValue,
+  event : String,
+  handler : (@webapi.Event) -> Unit,
+) -> Unit = "(t, e, h) => t.addEventListener(e, h)"
+
+///|
+extern "js" fn remove_event_listener_ffi(
+  target : @webapi.JsValue,
+  event : String,
+  handler : (@webapi.Event) -> Unit,
+) -> Unit = "(t, e, h) => t.removeEventListener(e, h)"
+
+///|
+/// Subscribe to `keydown` events on the document.
+/// Set `prevent_default` to stop the browser from also activating focused
+/// buttons or scrolling when shortcut keys are pressed.
+pub fn[Msg] Sub::on_key_down(
+  key : String,
+  to_msg : (String) -> Msg,
+  prevent_default? : Bool = false,
+) -> Sub[Msg] {
+  Sub::sub(key, fn(dispatch) {
+    let handler : (@webapi.Event) -> Unit = fn(e) {
+      if prevent_default {
+        e.prevent_default()
+      }
+      let ke : @webapi.KeyboardEvent = @webapi.TJsValue::to_js(e).into()
+      dispatch(to_msg(ke.key()))
+    }
+    let doc = @webapi.TJsValue::to_js(@webapi.document)
+    add_event_listener_ffi(doc, "keydown", handler)
+    fn() { remove_event_listener_ffi(doc, "keydown", handler) }
+  })
+}
+
+///|
+/// Subscribe to `resize` events on the window.
+pub fn[Msg] Sub::on_window_resize(
+  key : String,
+  to_msg : (Int, Int) -> Msg,
+) -> Sub[Msg] {
+  Sub::sub(key, fn(dispatch) {
+    let handler : (@webapi.Event) -> Unit = fn(_e) {
+      dispatch(
+        to_msg(@webapi.window.inner_width(), @webapi.window.inner_height()),
+      )
+    }
+    let win = @webapi.TJsValue::to_js(@webapi.window)
+    add_event_listener_ffi(win, "resize", handler)
+    fn() { remove_event_listener_ffi(win, "resize", handler) }
   })
 }
