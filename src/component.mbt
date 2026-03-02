@@ -18,10 +18,8 @@ pub fn[CMsg] Handle::new() -> Handle[CMsg] {
 ///|
 /// Stores type-erased component state via closure capture.
 priv struct ComponentSlot {
-  key : Ref[Int]
   current_expanded : Ref[VNode[Unit]]
   previous_expanded : Ref[VNode[Unit]]
-  reinit : () -> Unit
   render : () -> VNode[Unit]
 }
 
@@ -40,10 +38,8 @@ let pending_init_cmds : Array[() -> Unit] = []
 ///|
 /// Create a self-contained component VNode. The component's Model and CMsg
 /// types are erased via closure capture; the returned VNode works for any
-/// parent Msg type. When key changes, the component reinitializes its state.
-/// Pass id~ for stable identity in keyed lists (state survives reordering).
+/// parent Msg type. Pass id~ for stable identity in keyed lists.
 pub fn[Model, CMsg, Msg] component(
-  key? : Int = 0,
   id? : String,
   handle? : Handle[CMsg],
   init~ : () -> (Model, Cmd[CMsg]),
@@ -60,10 +56,6 @@ pub fn[Model, CMsg, Msg] component(
   }
   match component_slots.get(slot_key) {
     Some(slot) => {
-      if slot.key.val != key {
-        slot.key.val = key
-        (slot.reinit)()
-      }
       slot.previous_expanded.val = slot.current_expanded.val
       slot.current_expanded.val = (slot.render)()
     }
@@ -90,19 +82,10 @@ pub fn[Model, CMsg, Msg] component(
       let render = fn() -> VNode[Unit] {
         bind_events(view(model_ref.val), comp_dispatch)
       }
-      let reinit = fn() {
-        let (m, cmd) = init()
-        model_ref.val = m
-        for task in cmd.tasks {
-          task(comp_dispatch)
-        }
-      }
       let expanded = render()
       let slot : ComponentSlot = {
-        key: Ref::new(key),
         current_expanded: Ref::new(expanded),
         previous_expanded: Ref::new(expanded),
-        reinit,
         render,
       }
       component_slots[slot_key] = slot
