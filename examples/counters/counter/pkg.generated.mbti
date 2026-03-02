@@ -9,7 +9,7 @@ import {
 // Values
 pub fn[Msg] button(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
-pub fn[Msg] class_(String) -> @chai.Attr[Msg]
+pub fn[Msg] class(String) -> @chai.Attr[Msg]
 
 pub fn[Model, CMsg, Msg] component(id? : String, handle? : @chai.Handle[CMsg], init~ : () -> (Model, @chai.Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, @chai.Cmd[CMsg]), view~ : (Model) -> @chai.VNode[CMsg]) -> @chai.VNode[Msg]
 
