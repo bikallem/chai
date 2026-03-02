@@ -110,9 +110,9 @@ fn[Msg] update_subs(
     return
   }
   // Collect new sub keys
-  let new_keys : Map[String, Bool] = {}
+  let new_keys : @hashset.HashSet[String] = @hashset.new()
   for sd in new_sub.subs {
-    new_keys[sd.key] = true
+    new_keys.add(sd.key)
     // Start new subscriptions that aren't already active
     if not(active_subs.contains(sd.key)) {
       let cleanup = (sd.start)(dispatch)

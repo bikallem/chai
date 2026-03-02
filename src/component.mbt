@@ -36,7 +36,7 @@ let trigger_render : Ref[() -> Unit] = Ref::new(fn() {  })
 let pending_init_cmds : Array[() -> Unit] = []
 
 ///|
-let seen_slots : Map[String, Bool] = {}
+let seen_slots : @hashset.HashSet[String] = @hashset.new()
 
 ///|
 /// Create a self-contained component VNode. The component's Model and CMsg
@@ -57,7 +57,7 @@ pub fn[Model, CMsg, Msg] component(
       "pos:" + c.to_string()
     }
   }
-  seen_slots[slot_key] = true
+  seen_slots.add(slot_key)
   match component_slots.get(slot_key) {
     Some(slot) => {
       slot.previous_expanded.val = slot.current_expanded.val

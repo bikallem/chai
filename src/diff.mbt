@@ -142,7 +142,12 @@ fn[Msg] diff(
         diff_attrs(el, old_attrs, new_attrs, dispatch)
         diff_children(child, old_children, new_children, dispatch)
       } else {
-        replace_child_at(parent, index, Element(new_tag, new_attrs, new_children), dispatch)
+        replace_child_at(
+          parent,
+          index,
+          Element(new_tag, new_attrs, new_children),
+          dispatch,
+        )
       }
     (Keyed(_, old_inner), Keyed(_, new_inner)) =>
       diff(parent, index, old_inner, new_inner, dispatch)
@@ -210,11 +215,7 @@ fn[Msg] diff_children(
 
 ///|
 /// Insert a node at the given child index, or append if past the end.
-fn insert_at(
-  parent : @webapi.Node,
-  index : Int,
-  node : @webapi.Node,
-) -> Unit {
+fn insert_at(parent : @webapi.Node, index : Int, node : @webapi.Node) -> Unit {
   if index < parent.child_nodes().length().reinterpret_as_int() {
     let ref_node = get_child(parent, index)
     if not(node.is_same_node(ref_node)) {
@@ -292,25 +293,25 @@ fn[Msg] diff_attrs(
   let js_el = @webapi.TJsValue::to_js(el)
   // Build maps of old attributes for diffing
   let old_attributes : Map[String, String] = {}
-  let old_events : Map[String, Bool] = {}
+  let old_events : @hashset.HashSet[String] = @hashset.new()
   let old_styles : Map[String, String] = {}
   for attr in old_attrs {
     match attr {
       Attribute(k, v) => old_attributes[k] = v
-      Event(name, _) => old_events[name] = true
-      BoundEvent(name, _) => old_events[name] = true
+      Event(name, _) => old_events.add(name)
+      BoundEvent(name, _) => old_events.add(name)
       Style(k, v) => old_styles[k] = v
     }
   }
   // Track which old attrs are still present
-  let new_attribute_keys : Map[String, Bool] = {}
-  let new_event_keys : Map[String, Bool] = {}
-  let new_style_keys : Map[String, Bool] = {}
+  let new_attribute_keys : @hashset.HashSet[String] = @hashset.new()
+  let new_event_keys : @hashset.HashSet[String] = @hashset.new()
+  let new_style_keys : @hashset.HashSet[String] = @hashset.new()
   // Apply new attributes
   for attr in new_attrs {
     match attr {
       Attribute(name, value) => {
-        new_attribute_keys[name] = true
+        new_attribute_keys.add(name)
         match old_attributes.get(name) {
           Some(old_val) =>
             if old_val != value {
@@ -321,15 +322,15 @@ fn[Msg] diff_attrs(
       }
       Event(name, handler) => {
         // Always replace event handlers (closures are not comparable)
-        new_event_keys[name] = true
+        new_event_keys.add(name)
         set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
       }
       BoundEvent(name, handler) => {
-        new_event_keys[name] = true
+        new_event_keys.add(name)
         set_event_handler_ffi(js_el, name, handler)
       }
       Style(name, value) => {
-        new_style_keys[name] = true
+        new_style_keys.add(name)
         if old_styles.get(name) != Some(value) {
           let html_el : @webapi.HTMLElement = js_el.into()
           html_el.style().set_property(name, value)
@@ -343,7 +344,7 @@ fn[Msg] diff_attrs(
       remove_attribute_value(el, k)
     }
   })
-  old_events.each(fn(k, _v) {
+  old_events.each(fn(k) {
     if not(new_event_keys.contains(k)) {
       remove_event_handler_ffi(js_el, k)
     }
