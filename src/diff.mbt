@@ -12,10 +12,6 @@ extern "js" fn set_event_handler_ffi(
 ) -> Unit = "(el, name, handler) => { el['on' + name] = handler; }"
 
 ///|
-/// Check if two DOM nodes are the same object (referential equality)
-extern "js" fn node_is_same(a : @webapi.Node, b : @webapi.Node) -> Bool = "(a, b) => a === b"
-
-///|
 /// Remove a DOM Level 0 event handler (e.g., el.onclick = null)
 extern "js" fn remove_event_handler_ffi(
   el : @webapi.JsValue,
@@ -224,11 +220,11 @@ fn[Msg] diff_children_keyed(
 ) -> Unit {
   let old_len = old_children.length()
   let new_len = new_children.length()
-  // Build old key -> index map
-  let old_key_map : Map[String, Int] = {}
+  // Build old key -> (index, inner vnode) map
+  let old_key_map : Map[String, (Int, VNode[Msg])] = {}
   for i = 0; i < old_len; i = i + 1 {
     match old_children[i] {
-      Keyed(k, _) => old_key_map[k] = i
+      Keyed(k, inner) => old_key_map[k] = (i, inner)
       _ => ()
     }
   }
@@ -247,26 +243,28 @@ fn[Msg] diff_children_keyed(
     match new_children[i] {
       Keyed(new_key, new_inner) =>
         match old_key_map.get(new_key) {
-          Some(old_idx) => {
+          Some((old_idx, old_inner)) => {
             used[old_idx] = true
             let dom_node = old_dom[old_idx]
-            // Ensure the node is at position i
-            let ref_node = get_child(parent, i)
-            if not(node_is_same(dom_node, ref_node)) {
-              parent.insert_before(dom_node, ref_node) |> ignore
+            if i < parent.child_nodes().length().reinterpret_as_int() {
+              let ref_node = get_child(parent, i)
+              if not(dom_node.is_same_node(ref_node)) {
+                parent.insert_before(dom_node, ref_node) |> ignore
+              }
+            } else {
+              parent.append_child(dom_node) |> ignore
             }
-            // Diff old vs new inner vnode (node is now at position i)
-            match old_children[old_idx] {
-              Keyed(_, old_inner) =>
-                diff(parent, i, old_inner, new_inner, dispatch)
-              _ => ()
-            }
+            diff(parent, i, old_inner, new_inner, dispatch)
           }
           None => {
             // New key — create and insert at position i
             let new_node = create_dom_node(new_inner, dispatch)
-            let ref_node = get_child(parent, i)
-            parent.insert_before(new_node, ref_node) |> ignore
+            if i < parent.child_nodes().length().reinterpret_as_int() {
+              let ref_node = get_child(parent, i)
+              parent.insert_before(new_node, ref_node) |> ignore
+            } else {
+              parent.append_child(new_node) |> ignore
+            }
           }
         }
       _ => ()

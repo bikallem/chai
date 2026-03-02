@@ -30,6 +30,7 @@ fn[Model, Msg] boot(
     let new_vdom = view(state.val)
     diff(root_node, 0, current_vdom.val, new_vdom, dispatch)
     current_vdom.val = new_vdom
+    remove_unused_component_slots()
     // Process any init cmds from newly created components
     while pending_init_cmds.length() > 0 {
       let cmd_fn = pending_init_cmds.remove(0)

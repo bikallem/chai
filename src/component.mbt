@@ -36,6 +36,9 @@ let trigger_render : Ref[() -> Unit] = Ref::new(fn() {  })
 let pending_init_cmds : Array[() -> Unit] = []
 
 ///|
+let seen_slots : Map[String, Bool] = {}
+
+///|
 /// Create a self-contained component VNode. The component's Model and CMsg
 /// types are erased via closure capture; the returned VNode works for any
 /// parent Msg type. Pass id~ for stable identity in keyed lists.
@@ -54,6 +57,7 @@ pub fn[Model, CMsg, Msg] component(
       "pos:" + c.to_string()
     }
   }
+  seen_slots[slot_key] = true
   match component_slots.get(slot_key) {
     Some(slot) => {
       slot.previous_expanded.val = slot.current_expanded.val
@@ -99,4 +103,19 @@ pub fn[Model, CMsg, Msg] component(
     }
   }
   Component({ id: slot_key })
+}
+
+///|
+/// Remove component slots that were not visited during the last render.
+fn remove_unused_component_slots() -> Unit {
+  let to_remove : Array[String] = []
+  component_slots.each(fn(k, _) {
+    if not(seen_slots.contains(k)) {
+      to_remove.push(k)
+    }
+  })
+  for k in to_remove {
+    component_slots.remove(k)
+  }
+  seen_slots.clear()
 }
