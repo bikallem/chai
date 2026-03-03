@@ -9,9 +9,8 @@ pub struct Url {
 fn parse_path(pathname : String) -> Array[String] {
   let segments : Array[String] = []
   for s in pathname.split("/") {
-    let str = s.to_string()
-    if str.length() > 0 {
-      segments.push(str)
+    if s.char_length() > 0 {
+      segments.push(s.to_string())
     }
   }
   segments
@@ -84,15 +83,23 @@ pub fn[Msg] Cmd::push_hash(hash : String) -> Cmd[Msg] {
 }
 
 ///|
+fn[Msg] on_window_event(
+  key : String,
+  event : String,
+  parse : () -> Url,
+  to_msg : (Url) -> Msg,
+) -> Sub[Msg] {
+  Sub::sub(key, fn(dispatch) {
+    let handler : (@webapi.Event) -> Unit = fn(_e) { dispatch(to_msg(parse())) }
+    @webapi.window.add_event_listener(event, handler)
+    fn() { @webapi.window.remove_event_listener(event, handler) }
+  })
+}
+
+///|
 /// Subscribe to URL changes (popstate events) for pushState-based routing.
 pub fn[Msg] Sub::on_url_change(key : String, to_msg : (Url) -> Msg) -> Sub[Msg] {
-  Sub::sub(key, fn(dispatch) {
-    let handler : (@webapi.Event) -> Unit = fn(_e) {
-      dispatch(to_msg(url_from_location()))
-    }
-    @webapi.window.add_event_listener("popstate", handler)
-    fn() { @webapi.window.remove_event_listener("popstate", handler) }
-  })
+  on_window_event(key, "popstate", fn() { url_from_location() }, to_msg)
 }
 
 ///|
@@ -101,13 +108,7 @@ pub fn[Msg] Sub::on_hash_change(
   key : String,
   to_msg : (Url) -> Msg,
 ) -> Sub[Msg] {
-  Sub::sub(key, fn(dispatch) {
-    let handler : (@webapi.Event) -> Unit = fn(_e) {
-      dispatch(to_msg(url_from_hash()))
-    }
-    @webapi.window.add_event_listener("hashchange", handler)
-    fn() { @webapi.window.remove_event_listener("hashchange", handler) }
-  })
+  on_window_event(key, "hashchange", fn() { url_from_hash() }, to_msg)
 }
 
 ///|
