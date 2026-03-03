@@ -91,14 +91,11 @@ extern "js" fn set_prop_bool(
 /// Apply an attribute, using property setters for DOM properties
 fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
   let js_el = @webapi.TJsValue::to_js(el)
-  if name == "value" {
-    set_prop_string(js_el, "value", val)
-  } else if name == "checked" {
-    set_prop_bool(js_el, "checked", val == "true")
-  } else if name == "disabled" {
-    set_prop_bool(js_el, "disabled", val == "true")
-  } else {
-    el.set_attribute(name, val)
+  match name {
+    "value" => set_prop_string(js_el, "value", val)
+    "checked" => set_prop_bool(js_el, "checked", val == "true")
+    "disabled" => set_prop_bool(js_el, "disabled", val == "true")
+    _ => el.set_attribute(name, val)
   }
 }
 
@@ -106,14 +103,11 @@ fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
 /// Remove an attribute, using property setters to clear DOM properties
 fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
   let js_el = @webapi.TJsValue::to_js(el)
-  if name == "value" {
-    set_prop_string(js_el, "value", "")
-  } else if name == "checked" {
-    set_prop_bool(js_el, "checked", false)
-  } else if name == "disabled" {
-    set_prop_bool(js_el, "disabled", false)
-  } else {
-    el.remove_attribute(name)
+  match name {
+    "value" => set_prop_string(js_el, "value", "")
+    "checked" => set_prop_bool(js_el, "checked", false)
+    "disabled" => set_prop_bool(js_el, "disabled", false)
+    _ => el.remove_attribute(name)
   }
 }
 
