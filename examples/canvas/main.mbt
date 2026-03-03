@@ -78,9 +78,10 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
     Move(x, y) =>
       if model.drawing && model.strokes.length() > 0 {
         let strokes = model.strokes.copy()
-        let last = strokes[strokes.length() - 1].copy()
+        let i = strokes.length() - 1
+        let last = strokes[i].copy()
         last.push((x, y))
-        strokes[strokes.length() - 1] = last
+        strokes[i] = last
         let m = { ..model, strokes }
         (m, redraw(m))
       } else {

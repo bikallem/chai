@@ -185,25 +185,20 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  // Detect keyed mode
+  // Detect keyed mode via single pass: check if first child is Keyed,
+  // then verify all siblings match (all keyed or all non-keyed).
   if new_children.length() > 0 {
-    let has_keyed = new_children.iter().any(fn(c) {
-      match c {
-        Keyed(_) => true
-        _ => false
-      }
-    })
-    if has_keyed {
-      let all_keyed = new_children.iter().all(fn(c) {
-        match c {
-          Keyed(_) => true
-          _ => false
+    let first_keyed = match new_children[0] {
+      Keyed(_) => true
+      _ => false
+    }
+    if first_keyed {
+      for i = 1; i < new_children.length(); i = i + 1 {
+        guard new_children[i] is Keyed(_) else {
+          abort(
+            "chai: children mix Keyed and non-Keyed vnodes. Wrap all siblings with keyed() or none.",
+          )
         }
-      })
-      guard all_keyed else {
-        abort(
-          "chai: children mix Keyed and non-Keyed vnodes. Wrap all siblings with keyed() or none.",
-        )
       }
       diff_children_keyed(parent, old_children, new_children, dispatch)
       return
