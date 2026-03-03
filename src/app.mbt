@@ -43,11 +43,14 @@ fn[Model, Msg] boot(
     while msg_queue.length() > 0 || needs_render.val {
       // Process all queued messages first
       while msg_queue.length() > 0 {
-        let msg = msg_queue.remove(0)
-        let (new_model, cmd) = update(state.val, msg)
-        state.val = new_model
-        for task in cmd.tasks {
-          task(dispatch)
+        let batch = msg_queue.copy()
+        msg_queue.clear()
+        for msg in batch {
+          let (new_model, cmd) = update(state.val, msg)
+          state.val = new_model
+          for task in cmd.tasks {
+            task(dispatch)
+          }
         }
       }
       // Render once after processing messages (or if component triggered render)

@@ -108,8 +108,11 @@ pub fn[Model, CMsg, Msg] component(
 ///|
 fn drain_pending_init_cmds() -> Unit {
   while pending_init_cmds.length() > 0 {
-    let cmd_fn = pending_init_cmds.remove(0)
-    cmd_fn()
+    let batch = pending_init_cmds.copy()
+    pending_init_cmds.clear()
+    for cmd_fn in batch {
+      cmd_fn()
+    }
   }
 }
 
