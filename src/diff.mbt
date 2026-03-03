@@ -4,19 +4,24 @@ fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
 }
 
 ///|
+/// Cast a closure to JsValue (on the JS target, closures are JS functions).
+fn handler_to_js(handler : (@webapi.Event) -> Unit) -> @webapi.JsValue = "%identity"
+
+///|
 /// Set a DOM Level 0 event handler (e.g., el.onclick = fn)
-extern "js" fn set_event_handler_ffi(
-  el : @webapi.JsValue,
+fn set_event_handler(
+  el : @webapi.Element,
   name : String,
   handler : (@webapi.Event) -> Unit,
-) -> Unit = "(el, name, handler) => { el['on' + name] = handler; }"
+) -> Unit {
+  set_prop(el, "on" + name, handler_to_js(handler))
+}
 
 ///|
 /// Remove a DOM Level 0 event handler (e.g., el.onclick = null)
-extern "js" fn remove_event_handler_ffi(
-  el : @webapi.JsValue,
-  name : String,
-) -> Unit = "(el, name) => { el['on' + name] = null; }"
+fn remove_event_handler(el : @webapi.Element, name : String) -> Unit {
+  set_prop(el, "on" + name, @webapi.JsValue::null())
+}
 
 ///|
 /// Create a real DOM node from a virtual node
@@ -58,15 +63,14 @@ fn[Msg] apply_attrs(
   attrs : Array[Attr[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  let js_el = @webapi.TJsValue::to_js(el)
   for attr in attrs {
     match attr {
       Attribute(name, val) => apply_attribute(el, name, val)
       Event(name, handler) =>
-        set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
-      BoundEvent(name, handler) => set_event_handler_ffi(js_el, name, handler)
+        set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
+      BoundEvent(name, handler) => set_event_handler(el, name, handler)
       Style(name, val) => {
-        let html_el : @webapi.HTMLElement = js_el.into()
+        let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
         html_el.style().set_property(name, val)
       }
     }
@@ -74,27 +78,19 @@ fn[Msg] apply_attrs(
 }
 
 ///|
-extern "js" fn set_prop_string(
-  el : @webapi.JsValue,
-  name : String,
-  val : String,
-) -> Unit = "(el, name, val) => { el[name] = val; }"
-
-///|
-extern "js" fn set_prop_bool(
-  el : @webapi.JsValue,
-  name : String,
-  val : Bool,
-) -> Unit = "(el, name, val) => { el[name] = val; }"
+fn set_prop(el : @webapi.Element, name : String, val : @webapi.JsValue) -> Unit {
+  let obj : @webapi.JsObject = @webapi.TJsValue::to_js(el).into()
+  obj.set(name, val) |> ignore
+}
 
 ///|
 /// Apply an attribute, using property setters for DOM properties
 fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
-  let js_el = @webapi.TJsValue::to_js(el)
   match name {
-    "value" => set_prop_string(js_el, "value", val)
-    "checked" => set_prop_bool(js_el, "checked", val == "true")
-    "disabled" => set_prop_bool(js_el, "disabled", val == "true")
+    "value" => set_prop(el, "value", @webapi.TJsValue::to_js(val))
+    "checked" => set_prop(el, "checked", @webapi.TJsValue::to_js(val == "true"))
+    "disabled" =>
+      set_prop(el, "disabled", @webapi.TJsValue::to_js(val == "true"))
     _ => el.set_attribute(name, val)
   }
 }
@@ -102,11 +98,10 @@ fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
 ///|
 /// Remove an attribute, using property setters to clear DOM properties
 fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
-  let js_el = @webapi.TJsValue::to_js(el)
   match name {
-    "value" => set_prop_string(js_el, "value", "")
-    "checked" => set_prop_bool(js_el, "checked", false)
-    "disabled" => set_prop_bool(js_el, "disabled", false)
+    "value" => set_prop(el, "value", @webapi.TJsValue::to_js(""))
+    "checked" => set_prop(el, "checked", @webapi.TJsValue::to_js(false))
+    "disabled" => set_prop(el, "disabled", @webapi.TJsValue::to_js(false))
     _ => el.remove_attribute(name)
   }
 }
@@ -304,7 +299,6 @@ fn[Msg] diff_attrs(
   new_attrs : Array[Attr[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  let js_el = @webapi.TJsValue::to_js(el)
   // Build maps of old attributes for diffing
   let old_attributes : Map[String, String] = {}
   let old_events : @hashset.HashSet[String] = @hashset.new()
@@ -337,16 +331,16 @@ fn[Msg] diff_attrs(
       Event(name, handler) => {
         // Always replace event handlers (closures are not comparable)
         new_event_keys.add(name)
-        set_event_handler_ffi(js_el, name, fn(e) { dispatch(handler(e)) })
+        set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
       }
       BoundEvent(name, handler) => {
         new_event_keys.add(name)
-        set_event_handler_ffi(js_el, name, handler)
+        set_event_handler(el, name, handler)
       }
       Style(name, value) => {
         new_style_keys.add(name)
         if old_styles.get(name) != Some(value) {
-          let html_el : @webapi.HTMLElement = js_el.into()
+          let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
           html_el.style().set_property(name, value)
         }
       }
@@ -360,12 +354,12 @@ fn[Msg] diff_attrs(
   })
   old_events.each(fn(k) {
     if not(new_event_keys.contains(k)) {
-      remove_event_handler_ffi(js_el, k)
+      remove_event_handler(el, k)
     }
   })
   old_styles.each(fn(k, _v) {
     if not(new_style_keys.contains(k)) {
-      let html_el : @webapi.HTMLElement = js_el.into()
+      let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
       html_el.style().remove_property(k) |> ignore
     }
   })
