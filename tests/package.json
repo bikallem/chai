@@ -1,5 +1,5 @@
 {
-  "name": "mvdom-tests",
+  "name": "chai-tests",
   "private": true,
   "scripts": {
     "test": "cd ../examples && moon build --target js --release && cd ../tests && playwright test"
