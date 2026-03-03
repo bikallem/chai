@@ -12,6 +12,7 @@ A [TEA (The Elm Architecture)](https://guide.elm-lang.org/architecture/) framewo
   - [Events](#events)
   - [Commands](#commands)
   - [Subscriptions](#subscriptions)
+  - [Routing](#routing)
   - [Components](#components)
 - [Examples](#examples)
 - [License](#license)
@@ -102,7 +103,7 @@ disabled(true)           // disabled (property)
 href("/page")            // link href
 for_("input-id")         // label for
 style("color", "red")    // inline style
-at("data-x", "value")   // any attribute
+attr("data-x", "value") // any attribute
 ```
 
 ### Events
@@ -133,6 +134,9 @@ Cmd::task(fn(dispatch) { ... })   // custom async task
 Cmd::after(500, DelayedMsg)       // dispatch after delay (ms)
 Cmd::http_get(url, fn(result) { GotResponse(result) }) // HTTP GET
 Cmd::send(handle, child_msg)      // send message to child component
+Cmd::push_url("/path")            // pushState navigation (see Routing)
+Cmd::replace_url("/path")         // replaceState navigation (see Routing)
+Cmd::push_hash("/path")           // hash navigation (see Routing)
 cmd.map(fn(msg) { Wrapped(msg) }) // transform message type
 ```
 
@@ -146,6 +150,8 @@ Sub::batch([sub1, sub2])
 Sub::every(1000, "tick", fn() { Tick })  // recurring timer (ms)
 Sub::on_key_down("keys", fn(key) { KeyDown(key) }) // document keydown
 Sub::on_window_resize("resize", fn(w, h) { Resized(w, h) }) // window resize
+Sub::on_hash_change("url", fn(url) { UrlChanged(url) })    // hash routing (see Routing)
+Sub::on_url_change("url", fn(url) { UrlChanged(url) })     // pushState routing (see Routing)
 sub.map(fn(msg) { Wrapped(msg) })        // transform message type
 ```
 
@@ -160,6 +166,71 @@ Sub::sub("my-sub", fn(dispatch) {
   // set up listener, return cleanup function
   fn() { /* cleanup */ }
 })
+```
+
+### Routing
+
+Chai provides hash-based and pushState-based routing as subscriptions and commands.
+
+#### Hash-based routing (recommended for static hosting)
+
+```moonbit
+// Read the initial URL
+fn app_init() -> (Model, Cmd[Msg]) {
+  ({ route: to_route(hash_url()) }, Cmd::none())
+}
+
+// Subscribe to hash changes
+fn subscriptions(_model : Model) -> Sub[Msg] {
+  Sub::on_hash_change("url", fn(url) { UrlChanged(url) })
+}
+
+// Navigate with hash links
+hash_link("/about", [class("nav-link")], [text("About")])
+
+// Or navigate programmatically
+Cmd::push_hash("/about")
+```
+
+#### pushState routing (requires server-side URL rewriting)
+
+```moonbit
+fn app_init() -> (Model, Cmd[Msg]) {
+  ({ route: to_route(url()) }, Cmd::none())
+}
+
+fn subscriptions(_model : Model) -> Sub[Msg] {
+  Sub::on_url_change("url", fn(url) { UrlChanged(url) })
+}
+
+link("/about", [class("nav-link")], [text("About")], on_nav=GoAbout)
+Cmd::push_url("/about")
+Cmd::replace_url("/about")
+```
+
+#### Url type
+
+The `Url` struct is passed to your message handler on every navigation:
+
+```moonbit
+pub struct Url {
+  path : Array[String]   // "/foo/bar" → ["foo", "bar"]
+  query : String          // "?x=1" (raw, including ?)
+  hash : String           // "#section" (raw, including #)
+}
+```
+
+Match on `url.path` to select routes:
+
+```moonbit
+fn to_route(url : Url) -> Route {
+  match url.path {
+    [] => Home
+    ["about"] => About
+    ["posts", id] => Post(id)
+    _ => NotFound
+  }
+}
 ```
 
 ### Components
@@ -191,6 +262,9 @@ See the [`examples/`](examples/) directory:
 - **todo** — TodoMVC-style app with input, filtering, and keyed list diffing
 - **counters** — Encapsulated counter components with parent-to-child messaging via `Handle`
 - **clock** — Stopwatch demonstrating `Sub::every`, `Sub::on_key_down`, and `Cmd::after`
+- **router** — Hash-based routing with `Sub::on_hash_change` and `hash_link`
+- **fetch** — HTTP requests with `Cmd::http_get`
+- **canvas** — Canvas drawing with mouse event subscriptions
 
 ## License
 
