@@ -8,7 +8,7 @@ import {
 // Values
 pub fn[Msg] a(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] at(String, String) -> Attr[Msg]
+pub fn[Msg] attr(String, String) -> Attr[Msg]
 
 pub fn[Msg] br(Array[Attr[Msg]]) -> VNode[Msg]
 

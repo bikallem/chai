@@ -84,7 +84,7 @@ pub fn[Msg] class_list(classes : Array[(String, Bool)]) -> Attr[Msg] {
 /// A generic attribute function for any attribute name and value. 
 /// For specific attributes, it's better to use the provided helper 
 /// functions like `class`, `id`, etc.
-pub fn[Msg] at(attr_name : String, value : String) -> Attr[Msg] {
+pub fn[Msg] attr(attr_name : String, value : String) -> Attr[Msg] {
   Attribute(attr_name, value)
 }
 

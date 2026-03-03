@@ -13,7 +13,7 @@ using @chai {
   id,
   on_click,
   on,
-  at,
+  attr,
   style,
 }
 
@@ -102,8 +102,8 @@ fn view(model : Model) -> VNode[Msg] {
       "canvas",
       [
         id("draw-canvas"),
-        at("width", "600"),
-        at("height", "400"),
+        attr("width", "600"),
+        attr("height", "400"),
         class("draw-canvas"),
         on("mousedown", fn(e) {
           let me : @webapi.MouseEvent = e.into()
