@@ -70,16 +70,19 @@ fn redraw(model : Model) -> Cmd[Msg] {
 fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
     Down(x, y) => {
-      let strokes = model.strokes
+      let strokes = model.strokes.copy()
       strokes.push([(x, y)])
       let m = { strokes, drawing: true }
       (m, redraw(m))
     }
     Move(x, y) =>
       if model.drawing && model.strokes.length() > 0 {
-        let last = model.strokes[model.strokes.length() - 1]
+        let strokes = model.strokes.copy()
+        let last = strokes[strokes.length() - 1].copy()
         last.push((x, y))
-        (model, redraw(model))
+        strokes[strokes.length() - 1] = last
+        let m = { ..model, strokes }
+        (m, redraw(m))
       } else {
         (model, Cmd::none())
       }
