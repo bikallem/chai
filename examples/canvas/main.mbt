@@ -82,7 +82,7 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
         let last = strokes[i].copy()
         last.push((x, y))
         strokes[i] = last
-        let m = { ..model, strokes }
+        let m = { ..model, strokes, }
         (m, redraw(m))
       } else {
         (model, Cmd::none())

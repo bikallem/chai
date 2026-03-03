@@ -67,9 +67,7 @@ pub fn[Msg] Cmd::http_get(
       if response.ok() {
         response
         .text()
-        .then(fn(body : String) {
-          dispatch(on_result(Ok(body)))
-        })
+        .then(fn(body : String) { dispatch(on_result(Ok(body))) })
         .catch_(fn(reason : @webapi.JsValue) {
           dispatch(on_result(Err(js_error_message(reason))))
         })
