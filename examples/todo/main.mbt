@@ -29,14 +29,14 @@ using @chai {
 }
 
 ///|
-pub(all) enum Filter {
+enum Filter {
   All
   Active
   Completed
 } derive(Eq)
 
 ///|
-pub(all) struct Todo {
+struct Todo {
   id : Int
   text : String
   completed : Bool
@@ -51,7 +51,7 @@ struct Model {
 }
 
 ///|
-pub(all) enum Msg {
+enum Msg {
   UpdateInput(String)
   AddTodo
   ToggleTodo(Int)
