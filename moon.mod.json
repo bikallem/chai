@@ -10,5 +10,6 @@
   "repository": "github.com/bikallem/chai",
   "description": "Chai is TEA (The Elm Architecture) framework for MoonBit",
   "source": "src",
-  "preferred-target": "js"
+  "preferred-target": "js",
+  "warn-list": "@27"
 }

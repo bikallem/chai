@@ -9,5 +9,6 @@
       "path": "/home/blem/projects/webapi/webapi"
     }
   },
-  "preferred-target": "js"
+  "preferred-target": "js",
+  "warn-list": "@27"
 }
