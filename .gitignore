@@ -3,3 +3,4 @@ _build
 .claude
 node_modules
 tests/test-results
+test-results/.last-run.json
