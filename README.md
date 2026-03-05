@@ -14,6 +14,7 @@ A [TEA (The Elm Architecture)](https://guide.elm-lang.org/architecture/) framewo
   - [Subscriptions](#subscriptions)
   - [Routing](#routing)
   - [Components](#components)
+- [Testing](#testing)
 - [Examples](#examples)
 - [License](#license)
 
@@ -254,6 +255,22 @@ let handle = Handle::new()
 // In view: component(handle~, init~, update~, view~)
 // In update: Cmd::send(handle, ChildMsg)
 ```
+
+## Testing
+
+Fast local unit checks:
+
+```bash
+./scripts/test-unit.sh
+```
+
+Full local suite (unit + Playwright smoke tests):
+
+```bash
+./scripts/test-all.sh
+```
+
+Detailed unit coverage and regression mapping live in [`docs/testing-matrix.md`](docs/testing-matrix.md).
 
 ## Examples
 

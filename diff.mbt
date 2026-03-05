@@ -197,6 +197,35 @@ fn[Msg] child_list_mode(
 }
 
 ///|
+fn[Msg] should_replace_children_on_mode_switch(
+  old_children : Array[VNode[Msg]],
+  new_children : Array[VNode[Msg]],
+) -> Bool {
+  let old_mode = child_list_mode(old_children, "old children")
+  let new_mode = child_list_mode(new_children, "new children")
+  let old_is_keyed = old_mode == AllKeyed
+  let new_is_keyed = new_mode == AllKeyed
+  old_is_keyed != new_is_keyed && old_mode != Empty && new_mode != Empty
+}
+
+///|
+fn[Msg] first_duplicate_key(children : Array[VNode[Msg]]) -> String? {
+  let seen : @hashset.HashSet[String] = @hashset.new()
+  for child in children {
+    match child {
+      Keyed(k, _) => {
+        if seen.contains(k) {
+          return Some(k)
+        }
+        seen.add(k)
+      }
+      _ => ()
+    }
+  }
+  None
+}
+
+///|
 fn[Msg] replace_children(
   parent : @webapi.Node,
   new_children : Array[VNode[Msg]],
@@ -220,16 +249,13 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  let old_mode = child_list_mode(old_children, "old children")
-  let new_mode = child_list_mode(new_children, "new children")
-  let old_is_keyed = old_mode == AllKeyed
-  let new_is_keyed = new_mode == AllKeyed
   // If sibling mode switches between keyed and non-keyed, replace the list to
   // keep DOM order/state correct.
-  if old_is_keyed != new_is_keyed && old_mode != Empty && new_mode != Empty {
+  if should_replace_children_on_mode_switch(old_children, new_children) {
     replace_children(parent, new_children, dispatch)
     return
   }
+  let new_is_keyed = child_list_mode(new_children, "new children") == AllKeyed
   if new_is_keyed {
     diff_children_keyed(parent, old_children, new_children, dispatch)
     return
@@ -280,22 +306,26 @@ fn[Msg] diff_children_keyed(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
+  match first_duplicate_key(old_children) {
+    Some(k) =>
+      abort("chai: duplicate keyed child \"" + k + "\" in old children")
+    None => ()
+  }
+  match first_duplicate_key(new_children) {
+    Some(k) =>
+      abort("chai: duplicate keyed child \"" + k + "\" in new children")
+    None => ()
+  }
   let old_len = old_children.length()
   let new_len = new_children.length()
   // Build old key -> (index, inner vnode) map
   let old_key_map : Map[String, (Int, VNode[Msg])] = {}
   for i = 0; i < old_len; i = i + 1 {
     match old_children[i] {
-      Keyed(k, inner) => {
-        if old_key_map.contains(k) {
-          abort("chai: duplicate keyed child \"" + k + "\" in old children")
-        }
-        old_key_map[k] = (i, inner)
-      }
+      Keyed(k, inner) => old_key_map[k] = (i, inner)
       _ => ()
     }
   }
-  let seen_new_keys : @hashset.HashSet[String] = @hashset.new()
   // Snapshot old DOM child nodes
   let old_dom : Array[@webapi.Node] = []
   for i = 0; i < old_len; i = i + 1 {
@@ -304,13 +334,7 @@ fn[Msg] diff_children_keyed(
   // Process new children left to right, removing matched keys from old_key_map
   for i = 0; i < new_len; i = i + 1 {
     match new_children[i] {
-      Keyed(new_key, new_inner) => {
-        if seen_new_keys.contains(new_key) {
-          abort(
-            "chai: duplicate keyed child \"" + new_key + "\" in new children",
-          )
-        }
-        seen_new_keys.add(new_key)
+      Keyed(new_key, new_inner) =>
         match old_key_map.get(new_key) {
           Some((old_idx, old_inner)) => {
             old_key_map.remove(new_key)
@@ -322,7 +346,6 @@ fn[Msg] diff_children_keyed(
             insert_at(parent, i, new_node)
           }
         }
-      }
       _ => ()
     }
   }
