@@ -75,11 +75,11 @@ fn view(model : Model) -> VNode[Msg] {
 
 ///|
 fn subscriptions(model : Model) -> Sub[Msg] {
-  let key_sub = Sub::on_key_down(
-    "global-keydown",
-    fn(key) { KeyDown(key) },
-    prevent_default=true,
-  )
+  let key_sub = Sub::on_key_down("global-keydown", fn(key) { KeyDown(key) }, prevent_default=fn(
+    key,
+  ) {
+    key == " " || key == "r" || key == "R"
+  })
   if model.running {
     Sub::batch([Sub::every(1000, "tick-timer", fn() { Tick }), key_sub])
   } else {

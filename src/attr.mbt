@@ -1,6 +1,7 @@
 ///|
 enum Attr[Msg] {
   Attribute(String, String)
+  Property(String, @webapi.JsValue)
   Event(String, (@webapi.Event) -> Msg)
   BoundEvent(String, (@webapi.Event) -> Unit)
   Style(String, String)
@@ -10,6 +11,7 @@ enum Attr[Msg] {
 pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
   match self {
     Attribute(k, v) => Attribute(k, v)
+    Property(k, v) => Property(k, v)
     Event(name, handler) => on(name, fn(e) { f(handler(e)) })
     BoundEvent(name, handler) => BoundEvent(name, handler)
     Style(k, v) => Style(k, v)
@@ -22,28 +24,33 @@ pub fn[Msg] on_click(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
 }
 
 ///|
-/// Get the value from an input event's target
+fn get_target_input(event : @webapi.Event) -> @webapi.HTMLInputElement {
+  event.target().into()
+}
+
+///|
 fn get_target_value(event : @webapi.Event) -> String {
-  let input : @webapi.HTMLInputElement = event.target().into()
-  input.value()
+  get_target_input(event).value()
+}
+
+///|
+fn[Msg] on_target_value(event : String, handler : (String) -> Msg) -> Attr[Msg] {
+  on(event, fn(e) { handler(get_target_value(e)) })
 }
 
 ///|
 pub fn[Msg] on_input(handler : (String) -> Msg) -> Attr[Msg] {
-  on("input", fn(e) { handler(get_target_value(e)) })
+  on_target_value("input", handler)
 }
 
 ///|
 pub fn[Msg] on_change(handler : (String) -> Msg) -> Attr[Msg] {
-  on("change", fn(e) { handler(get_target_value(e)) })
+  on_target_value("change", handler)
 }
 
 ///|
 pub fn[Msg] on_check(handler : (Bool) -> Msg) -> Attr[Msg] {
-  on("change", fn(e) {
-    let input : @webapi.HTMLInputElement = e.target().into()
-    handler(input.checked())
-  })
+  on("change", fn(e) { handler(get_target_input(e).checked()) })
 }
 
 ///|
@@ -105,12 +112,12 @@ pub fn[Msg] style(name : String, value : String) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] value(value : String) -> Attr[Msg] {
-  Attribute("value", value)
+  Property("value", @webapi.TJsValue::to_js(value))
 }
 
 ///|
 pub fn[Msg] checked(value : Bool) -> Attr[Msg] {
-  Attribute("checked", if value { "true" } else { "false" })
+  Property("checked", @webapi.TJsValue::to_js(value))
 }
 
 ///|
@@ -125,7 +132,7 @@ pub fn[Msg] type_(value : String) -> Attr[Msg] {
 
 ///|
 pub fn[Msg] disabled(value : Bool) -> Attr[Msg] {
-  Attribute("disabled", if value { "true" } else { "false" })
+  Property("disabled", @webapi.TJsValue::to_js(value))
 }
 
 ///|

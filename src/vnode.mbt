@@ -38,6 +38,7 @@ fn[CMsg] bind_events(
       let new_attrs = attrs.map(fn(a) {
         match a {
           Attribute(k, v) => Attribute(k, v)
+          Property(k, v) => Property(k, v)
           Event(name, handler) =>
             BoundEvent(name, fn(e) { dispatch(handler(e)) })
           BoundEvent(name, handler) => BoundEvent(name, handler)

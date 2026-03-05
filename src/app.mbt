@@ -48,9 +48,7 @@ fn[Model, Msg] boot(
         for msg in batch {
           let (new_model, cmd) = update(state.val, msg)
           state.val = new_model
-          for task in cmd.tasks {
-            task(dispatch)
-          }
+          cmd.run(dispatch)
         }
       }
       // Render once after processing messages (or if component triggered render)
@@ -76,9 +74,7 @@ fn[Model, Msg] boot(
   root_node.append_child(dom_node) |> ignore
   current_vdom.val = initial_vdom
   drain_pending_init_cmds()
-  for task in init_cmd.tasks {
-    task(dispatch)
-  }
+  init_cmd.run(dispatch)
   after_update(init_model, dispatch)
 }
 
@@ -131,11 +127,9 @@ fn[Msg] update_subs(
   })
   for key in to_remove {
     match active_subs.get(key) {
-      Some(sub) => {
-        (sub.cleanup)()
-        active_subs.remove(key)
-      }
+      Some(sub) => (sub.cleanup)()
       None => ()
     }
+    active_subs.remove(key)
   }
 }

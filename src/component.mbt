@@ -66,17 +66,29 @@ pub fn[Model, CMsg, Msg] component(
     None => {
       let (init_model, init_cmd) = init()
       let model_ref : Ref[Model] = Ref::new(init_model)
+      let msg_queue : Array[CMsg] = []
+      let is_updating : Ref[Bool] = Ref::new(false)
       let comp_dispatch_ref : Ref[(CMsg) -> Unit] = Ref::new(fn(_) {  })
       fn comp_dispatch(cmsg : CMsg) -> Unit {
         (comp_dispatch_ref.val)(cmsg)
       }
 
       comp_dispatch_ref.val = fn(cmsg) {
-        let (new_model, cmd) = update(model_ref.val, cmsg)
-        model_ref.val = new_model
-        for task in cmd.tasks {
-          task(comp_dispatch)
+        msg_queue.push(cmsg)
+        if is_updating.val {
+          return
         }
+        is_updating.val = true
+        while msg_queue.length() > 0 {
+          let batch = msg_queue.copy()
+          msg_queue.clear()
+          for m in batch {
+            let (new_model, cmd) = update(model_ref.val, m)
+            model_ref.val = new_model
+            cmd.run(comp_dispatch)
+          }
+        }
+        is_updating.val = false
         (trigger_render.val)()
       }
       match handle {
@@ -94,11 +106,7 @@ pub fn[Model, CMsg, Msg] component(
       }
       component_slots[slot_key] = slot
       if init_cmd.tasks.length() > 0 {
-        pending_init_cmds.push(fn() {
-          for task in init_cmd.tasks {
-            task(comp_dispatch)
-          }
-        })
+        pending_init_cmds.push(fn() { init_cmd.run(comp_dispatch) })
       }
     }
   }
@@ -132,15 +140,19 @@ fn begin_render_pass() -> Unit {
 }
 
 ///|
+fn[V] remove_unless(
+  map : Map[String, V],
+  keep : @hashset.HashSet[String],
+) -> Unit {
+  let to_remove : Array[String] = []
+  map.each(fn(k, _) { if not(keep.contains(k)) { to_remove.push(k) } })
+  for k in to_remove {
+    map.remove(k)
+  }
+}
+
+///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots() -> Unit {
-  let to_remove : Array[String] = []
-  component_slots.each(fn(k, _) {
-    if not(seen_slots.contains(k)) {
-      to_remove.push(k)
-    }
-  })
-  for k in to_remove {
-    component_slots.remove(k)
-  }
+  remove_unless(component_slots, seen_slots)
 }

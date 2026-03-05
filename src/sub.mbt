@@ -48,30 +48,32 @@ pub fn[Msg] Sub::sub(
 /// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
 pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
   Sub::sub(key, fn(dispatch) {
-    let handler = @webapi.Function::new(fn(_) {
-      dispatch(to_msg())
-      @webapi.JsValue::undefined()
-    })
-    let id = @webapi.window.set_interval(handler, timeout=ms, [])
+    let id = @webapi.window.set_interval(
+      js_callback(fn() { dispatch(to_msg()) }),
+      timeout=ms,
+      [],
+    )
     fn() { @webapi.window.clear_interval(id~) }
   })
 }
 
 ///|
 /// Subscribe to `keydown` events on the document.
-/// Set `prevent_default` to stop the browser from also activating focused
-/// buttons or scrolling when shortcut keys are pressed.
+/// When `prevent_default` is given, only keys matching the predicate will
+/// have their default browser action suppressed (e.g., scrolling, button
+/// activation). Without it, no defaults are prevented.
 pub fn[Msg] Sub::on_key_down(
   key : String,
   to_msg : (String) -> Msg,
-  prevent_default? : Bool = false,
+  prevent_default? : (String) -> Bool,
 ) -> Sub[Msg] {
   Sub::sub(key, fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(e) {
       let ke : @webapi.KeyboardEvent = e.into()
       let pressed = ke.key()
-      if prevent_default {
-        e.prevent_default()
+      match prevent_default {
+        Some(pred) => if pred(pressed) { e.prevent_default() }
+        None => ()
       }
       dispatch(to_msg(pressed))
     }

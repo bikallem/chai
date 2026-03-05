@@ -65,7 +65,8 @@ fn[Msg] apply_attrs(
 ) -> Unit {
   for attr in attrs {
     match attr {
-      Attribute(name, val) => apply_attribute(el, name, val)
+      Attribute(name, val) => el.set_attribute(name, val)
+      Property(name, val) => set_prop(el, name, val)
       Event(name, handler) =>
         set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
       BoundEvent(name, handler) => set_event_handler(el, name, handler)
@@ -81,29 +82,6 @@ fn[Msg] apply_attrs(
 fn set_prop(el : @webapi.Element, name : String, val : @webapi.JsValue) -> Unit {
   let obj : @webapi.JsObject = @webapi.TJsValue::to_js(el).into()
   obj.set(name, val) |> ignore
-}
-
-///|
-/// Apply an attribute, using property setters for DOM properties
-fn apply_attribute(el : @webapi.Element, name : String, val : String) -> Unit {
-  match name {
-    "value" => set_prop(el, "value", @webapi.TJsValue::to_js(val))
-    "checked" => set_prop(el, "checked", @webapi.TJsValue::to_js(val == "true"))
-    "disabled" =>
-      set_prop(el, "disabled", @webapi.TJsValue::to_js(val == "true"))
-    _ => el.set_attribute(name, val)
-  }
-}
-
-///|
-/// Remove an attribute, using property setters to clear DOM properties
-fn remove_attribute_value(el : @webapi.Element, name : String) -> Unit {
-  match name {
-    "value" => set_prop(el, "value", @webapi.TJsValue::to_js(""))
-    "checked" => set_prop(el, "checked", @webapi.TJsValue::to_js(false))
-    "disabled" => set_prop(el, "disabled", @webapi.TJsValue::to_js(false))
-    _ => el.remove_attribute(name)
-  }
 }
 
 ///|
@@ -260,18 +238,13 @@ fn[Msg] diff_children_keyed(
   for i = 0; i < old_len; i = i + 1 {
     old_dom.push(get_child(parent, i))
   }
-  // Track which old indices are reused
-  let used : Array[Bool] = []
-  for i = 0; i < old_len; i = i + 1 {
-    used.push(false)
-  }
-  // Process new children left to right
+  // Process new children left to right, removing matched keys from old_key_map
   for i = 0; i < new_len; i = i + 1 {
     match new_children[i] {
       Keyed(new_key, new_inner) =>
         match old_key_map.get(new_key) {
           Some((old_idx, old_inner)) => {
-            used[old_idx] = true
+            old_key_map.remove(new_key)
             insert_at(parent, i, old_dom[old_idx])
             diff(parent, i, old_inner, new_inner, dispatch)
           }
@@ -283,12 +256,8 @@ fn[Msg] diff_children_keyed(
       _ => ()
     }
   }
-  // Remove unused old nodes
-  for i = 0; i < old_len; i = i + 1 {
-    if not(used[i]) {
-      parent.remove_child(old_dom[i]) |> ignore
-    }
-  }
+  // Remove unused old nodes (those still in old_key_map)
+  old_key_map.each(fn(_k, v) { parent.remove_child(old_dom[v.0]) |> ignore })
 }
 
 ///|
@@ -299,20 +268,26 @@ fn[Msg] diff_attrs(
   new_attrs : Array[Attr[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
+  if old_attrs.length() == 0 && new_attrs.length() == 0 {
+    return
+  }
   // Build maps of old attributes for diffing
   let old_attributes : Map[String, String] = {}
+  let old_properties : @hashset.HashSet[String] = @hashset.new()
   let old_events : @hashset.HashSet[String] = @hashset.new()
   let old_styles : Map[String, String] = {}
   for attr in old_attrs {
     match attr {
       Attribute(k, v) => old_attributes[k] = v
+      Property(k, _) => old_properties.add(k)
       Event(name, _) => old_events.add(name)
       BoundEvent(name, _) => old_events.add(name)
       Style(k, v) => old_styles[k] = v
     }
   }
-  // Track which old attrs are still present
+  // Track which old keys are still present
   let new_attribute_keys : @hashset.HashSet[String] = @hashset.new()
+  let new_property_keys : @hashset.HashSet[String] = @hashset.new()
   let new_event_keys : @hashset.HashSet[String] = @hashset.new()
   let new_style_keys : @hashset.HashSet[String] = @hashset.new()
   // Apply new attributes
@@ -321,12 +296,14 @@ fn[Msg] diff_attrs(
       Attribute(name, value) => {
         new_attribute_keys.add(name)
         match old_attributes.get(name) {
-          Some(old_val) =>
-            if old_val != value {
-              apply_attribute(el, name, value)
-            }
-          None => apply_attribute(el, name, value)
+          Some(old_val) => if old_val != value { el.set_attribute(name, value) }
+          None => el.set_attribute(name, value)
         }
+      }
+      Property(name, value) => {
+        // Always set properties (JsValue not comparable)
+        new_property_keys.add(name)
+        set_prop(el, name, value)
       }
       Event(name, handler) => {
         // Always replace event handlers (closures are not comparable)
@@ -349,7 +326,12 @@ fn[Msg] diff_attrs(
   // Remove old attributes that are no longer present
   old_attributes.each(fn(k, _v) {
     if not(new_attribute_keys.contains(k)) {
-      remove_attribute_value(el, k)
+      el.remove_attribute(k)
+    }
+  })
+  old_properties.each(fn(k) {
+    if not(new_property_keys.contains(k)) {
+      set_prop(el, k, @webapi.JsValue::null())
     }
   })
   old_events.each(fn(k) {

@@ -33,20 +33,36 @@ pub fn[Msg] Cmd::task(task : ((Msg) -> Unit) -> Unit) -> Cmd[Msg] {
 }
 
 ///|
+fn[Msg] Cmd::run(self : Cmd[Msg], dispatch : (Msg) -> Unit) -> Unit {
+  for task in self.tasks {
+    task(dispatch)
+  }
+}
+
+///|
 /// Send a message into a child component's update loop via its Handle.
 pub fn[CMsg, Msg] Cmd::send(handle : Handle[CMsg], msg : CMsg) -> Cmd[Msg] {
   { tasks: [fn(_dispatch) { (handle.dispatch.val)(msg) }] }
 }
 
 ///|
+fn js_callback(f : () -> Unit) -> @webapi.Function {
+  @webapi.Function::new(fn(_) {
+    f()
+    @webapi.JsValue::undefined()
+  })
+}
+
+///|
 /// Dispatch a message after a delay in milliseconds.
 pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
   Cmd::task(fn(dispatch) {
-    let handler = @webapi.Function::new(fn(_) {
-      dispatch(msg)
-      @webapi.JsValue::undefined()
-    })
-    @webapi.window.set_timeout(handler, timeout=ms, []) |> ignore
+    @webapi.window.set_timeout(
+      js_callback(fn() { dispatch(msg) }),
+      timeout=ms,
+      [],
+    )
+    |> ignore
   })
 }
 
