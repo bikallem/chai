@@ -57,3 +57,4 @@
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-05T18:24:49Z","event_type":"created","id":57,"issue_id":"chai-8gy","new_value":"","old_value":""}
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-05T18:24:51Z","event_type":"created","id":58,"issue_id":"chai-1zs","new_value":"","old_value":""}
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-05T18:24:53Z","event_type":"created","id":59,"issue_id":"chai-3vy","new_value":"","old_value":""}
+{"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-05T19:39:49Z","event_type":"closed","id":60,"issue_id":"chai-pnz","new_value":"error_message logic was actually correct; original null check was the right guard. Reviewed and confirmed.","old_value":""}
