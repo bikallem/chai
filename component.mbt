@@ -93,13 +93,13 @@ pub fn[Model, CMsg, Msg] component(
           return
         }
         is_updating.val = true
-        for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
-          let m = msg_queue[cursor]
-          let (new_model, cmd) = update(model_ref.val, m)
-          model_ref.val = new_model
-          cmd.run(comp_dispatch)
-        }
-        if msg_queue.length() > 0 {
+        while msg_queue.length() > 0 {
+          for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
+            let m = msg_queue[cursor]
+            let (new_model, cmd) = update(model_ref.val, m)
+            model_ref.val = new_model
+            cmd.run(comp_dispatch)
+          }
           msg_queue.clear()
         }
         is_updating.val = false
@@ -134,13 +134,10 @@ pub fn[Model, CMsg, Msg] component(
 
 ///|
 fn drain_pending_init_cmds() -> Unit {
-  for cursor = 0; cursor < pending_init_cmds.length(); cursor = cursor + 1 {
-    let cmd_fn = pending_init_cmds[cursor]
+  for cmd_fn in pending_init_cmds {
     cmd_fn()
   }
-  if pending_init_cmds.length() > 0 {
-    pending_init_cmds.clear()
-  }
+  pending_init_cmds.clear()
 }
 
 ///|
@@ -160,24 +157,19 @@ fn begin_render_pass() -> Unit {
 }
 
 ///|
-fn[V] remove_unless(
-  map : Map[String, V],
-  keep : @hashset.HashSet[String],
-  on_remove : (V) -> Unit,
-) -> Unit {
-  let to_remove : Array[String] = []
-  map.each(fn(k, _) { if not(keep.contains(k)) { to_remove.push(k) } })
-  for k in to_remove {
-    match map.get(k) {
-      Some(v) => on_remove(v)
-      None => ()
-    }
-    map.remove(k)
-  }
-}
-
-///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots() -> Unit {
-  remove_unless(component_slots, seen_slots, fn(slot) { (slot.teardown)() })
+  let to_remove : Array[String] = []
+  component_slots.each(fn(k, _) {
+    if not(seen_slots.contains(k)) {
+      to_remove.push(k)
+    }
+  })
+  for k in to_remove {
+    match component_slots.get(k) {
+      Some(slot) => (slot.teardown)()
+      None => ()
+    }
+    component_slots.remove(k)
+  }
 }

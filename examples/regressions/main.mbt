@@ -112,7 +112,10 @@ fn view_item(item : Item) -> VNode[Msg] {
 fn view_list(model : Model) -> VNode[Msg] {
   let children = if model.mode == Keyed {
     if model.duplicate_keys {
-      keyed_list([("dup", view_item(model.items[0])), ("dup", view_item(model.items[1]))])
+      keyed_list([
+        ("dup", view_item(model.items[0])),
+        ("dup", view_item(model.items[1])),
+      ])
     } else {
       keyed_list(model.items.map(fn(item) { (item.key, view_item(item)) }))
     }

@@ -319,7 +319,7 @@ fn[Msg] diff_children_keyed(
   let old_len = old_children.length()
   let new_len = new_children.length()
   // Build old key -> (index, inner vnode) map
-  let old_key_map : Map[String, (Int, VNode[Msg])] = {}
+  let old_key_map : @hashmap.HashMap[String, (Int, VNode[Msg])] = @hashmap.new()
   for i = 0; i < old_len; i = i + 1 {
     match old_children[i] {
       Keyed(k, inner) => old_key_map[k] = (i, inner)
@@ -364,11 +364,82 @@ fn[Msg] diff_attrs(
   if old_attrs.length() == 0 && new_attrs.length() == 0 {
     return
   }
+  // Fast path: same-length attrs, apply new values directly without maps.
+  // Events/properties are always re-set (not comparable), attributes/styles
+  // are compared pairwise.
+  if old_attrs.length() == new_attrs.length() {
+    let mut fast_ok = true
+    for i = 0; i < new_attrs.length() && fast_ok; i = i + 1 {
+      match (old_attrs[i], new_attrs[i]) {
+        (Attribute(ok, ov), Attribute(nk, nv)) =>
+          if ok == nk {
+            if ov != nv {
+              el.set_attribute(nk, nv)
+            }
+          } else {
+            fast_ok = false
+          }
+        (Property(ok, _), Property(nk, nv)) =>
+          if ok == nk {
+            set_prop(el, nk, nv)
+          } else {
+            fast_ok = false
+          }
+        (Event(ok, _), Event(nk, handler)) =>
+          if ok == nk {
+            set_event_handler(el, nk, fn(e) { dispatch(handler(e)) })
+          } else {
+            fast_ok = false
+          }
+        (EventMaybe(ok, _), EventMaybe(nk, handler)) =>
+          if ok == nk {
+            set_event_handler(el, nk, fn(e) {
+              match handler(e) {
+                Some(msg) => dispatch(msg)
+                None => ()
+              }
+            })
+          } else {
+            fast_ok = false
+          }
+        (BoundEvent(ok, _), BoundEvent(nk, handler)) =>
+          if ok == nk {
+            set_event_handler(el, nk, handler)
+          } else {
+            fast_ok = false
+          }
+        (Style(ok, ov), Style(nk, nv)) =>
+          if ok == nk {
+            if ov != nv {
+              let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
+              html_el.style().set_property(nk, nv)
+            }
+          } else {
+            fast_ok = false
+          }
+        _ => fast_ok = false
+      }
+    }
+    if fast_ok {
+      return
+    }
+  }
   // Build maps of old attributes for diffing
   let old_attributes : Map[String, String] = {}
   let old_properties : @hashset.HashSet[String] = @hashset.new()
   let old_events : @hashset.HashSet[String] = @hashset.new()
   let old_styles : Map[String, String] = {}
+  let html_el_ref : Ref[@webapi.HTMLElement?] = Ref::new(None)
+  fn get_html_el() -> @webapi.HTMLElement {
+    match html_el_ref.val {
+      Some(h) => h
+      None => {
+        let h : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
+        html_el_ref.val = Some(h)
+        h
+      }
+    }
+  }
   for attr in old_attrs {
     match attr {
       Attribute(k, v) => old_attributes[k] = v
@@ -420,8 +491,7 @@ fn[Msg] diff_attrs(
       Style(name, value) => {
         new_style_keys.add(name)
         if old_styles.get(name) != Some(value) {
-          let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
-          html_el.style().set_property(name, value)
+          get_html_el().style().set_property(name, value)
         }
       }
     }
@@ -444,8 +514,7 @@ fn[Msg] diff_attrs(
   })
   old_styles.each(fn(k, _v) {
     if not(new_style_keys.contains(k)) {
-      let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
-      html_el.style().remove_property(k) |> ignore
+      get_html_el().style().remove_property(k) |> ignore
     }
   })
 }

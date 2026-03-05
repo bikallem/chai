@@ -9,8 +9,9 @@ pub struct Url {
 fn parse_path(pathname : String) -> Array[String] {
   let segments : Array[String] = []
   for s in pathname.split("/") {
-    if s.char_length() > 0 {
-      segments.push(s.to_string())
+    let seg = s.to_string()
+    if seg.length() > 0 {
+      segments.push(seg)
     }
   }
   segments
@@ -132,6 +133,18 @@ fn should_intercept_link_click(e : @webapi.Event) -> Bool {
 }
 
 ///|
+fn[Msg] a_with_attrs(
+  prefix : Array[Attr[Msg]],
+  user : Array[Attr[Msg]],
+  children : Array[VNode[Msg]],
+) -> VNode[Msg] {
+  for attr in user {
+    prefix.push(attr)
+  }
+  a(prefix, children)
+}
+
+///|
 /// Create a link that uses pushState navigation. Intercepts only plain primary
 /// clicks in the same tab and dispatches the given message.
 pub fn[Msg] link(
@@ -140,21 +153,21 @@ pub fn[Msg] link(
   children : Array[VNode[Msg]],
   on_nav~ : Msg,
 ) -> VNode[Msg] {
-  let all_attrs = [
-    href(url),
-    EventMaybe("click", fn(e) {
-      if should_intercept_link_click(e) {
-        e.prevent_default()
-        Some(on_nav)
-      } else {
-        None
-      }
-    }),
-  ]
-  for attr in attrs {
-    all_attrs.push(attr)
-  }
-  a(all_attrs, children)
+  a_with_attrs(
+    [
+      href(url),
+      EventMaybe("click", fn(e) {
+        if should_intercept_link_click(e) {
+          e.prevent_default()
+          Some(on_nav)
+        } else {
+          None
+        }
+      }),
+    ],
+    attrs,
+    children,
+  )
 }
 
 ///|
@@ -164,9 +177,5 @@ pub fn[Msg] hash_link(
   attrs : Array[Attr[Msg]],
   children : Array[VNode[Msg]],
 ) -> VNode[Msg] {
-  let all_attrs : Array[Attr[Msg]] = [href("#" + hash)]
-  for attr in attrs {
-    all_attrs.push(attr)
-  }
-  a(all_attrs, children)
+  a_with_attrs([href("#" + hash)], attrs, children)
 }

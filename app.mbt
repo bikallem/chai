@@ -5,15 +5,20 @@ priv struct ActiveSub {
 }
 
 ///|
-/// Core TEA runtime loop. Sets up state, dispatch, message queue, and
-/// initial render into the given root node.
-fn[Model, Msg] boot(
-  root_node : @webapi.Node,
-  init : () -> (Model, Cmd[Msg]),
-  update : (Model, Msg) -> (Model, Cmd[Msg]),
-  view : (Model) -> VNode[Msg],
-  after_update : (Model, (Msg) -> Unit) -> Unit,
+/// Start a TEA application
+pub fn[Model, Msg] start(
+  init~ : () -> (Model, Cmd[Msg]),
+  update~ : (Model, Msg) -> (Model, Cmd[Msg]),
+  view~ : (Model) -> VNode[Msg],
+  subscriptions~ : (Model) -> Sub[Msg],
+  selector~ : String,
 ) -> Unit {
+  let root_el = @webapi.document.query_selector_opt(selector)
+  guard root_el is Some(el) else {
+    abort("chai: no element matches selector \"" + selector + "\"")
+  }
+  let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
+  let active_subs : Map[String, ActiveSub] = {}
   let (init_model, init_cmd) = init()
   let state : Ref[Model] = Ref::new(init_model)
   let current_vdom : Ref[VNode[Msg]] = Ref::new(Text(""))
@@ -32,7 +37,7 @@ fn[Model, Msg] boot(
     current_vdom.val = new_vdom
     remove_unused_component_slots()
     drain_pending_init_cmds()
-    after_update(state.val, dispatch)
+    update_subs(subscriptions(state.val), active_subs, dispatch)
   }
 
   fn process_queue() -> Unit {
@@ -41,17 +46,13 @@ fn[Model, Msg] boot(
     }
     is_updating.val = true
     while msg_queue.length() > 0 || needs_render.val {
-      // Process all queued messages first
       for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
         let msg = msg_queue[cursor]
         let (new_model, cmd) = update(state.val, msg)
         state.val = new_model
         cmd.run(dispatch)
       }
-      if msg_queue.length() > 0 {
-        msg_queue.clear()
-      }
-      // Render once after processing messages (or if component triggered render)
+      msg_queue.clear()
       needs_render.val = false
       do_render()
     }
@@ -62,40 +63,18 @@ fn[Model, Msg] boot(
     msg_queue.push(msg)
     process_queue()
   }
-  // Set trigger_render so components can request re-renders
   trigger_render.val = fn() {
     needs_render.val = true
     process_queue()
   }
   reset_component_state()
-  // Initial render
   let initial_vdom = view(init_model)
   let dom_node = create_dom_node(initial_vdom, dispatch)
   root_node.append_child(dom_node) |> ignore
   current_vdom.val = initial_vdom
   drain_pending_init_cmds()
   init_cmd.run(dispatch)
-  after_update(init_model, dispatch)
-}
-
-///|
-/// Start a TEA application
-pub fn[Model, Msg] start(
-  init~ : () -> (Model, Cmd[Msg]),
-  update~ : (Model, Msg) -> (Model, Cmd[Msg]),
-  view~ : (Model) -> VNode[Msg],
-  subscriptions~ : (Model) -> Sub[Msg],
-  selector~ : String,
-) -> Unit {
-  let root_el = @webapi.document.query_selector_opt(selector)
-  guard root_el is Some(el) else {
-    abort("chai: no element matches selector \"" + selector + "\"")
-  }
-  let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
-  let active_subs : Map[String, ActiveSub] = {}
-  boot(root_node, init, update, view, fn(model, dispatch) {
-    update_subs(subscriptions(model), active_subs, dispatch)
-  })
+  update_subs(subscriptions(init_model), active_subs, dispatch)
 }
 
 ///|
@@ -108,17 +87,14 @@ fn[Msg] update_subs(
   if new_sub.subs.length() == 0 && active_subs.length() == 0 {
     return
   }
-  // Collect new sub keys
   let new_keys : @hashset.HashSet[String] = @hashset.new()
   for sd in new_sub.subs {
     new_keys.add(sd.key)
-    // Start new subscriptions that aren't already active
     if not(active_subs.contains(sd.key)) {
       let cleanup = (sd.start)(dispatch)
       active_subs[sd.key] = { cleanup, }
     }
   }
-  // Stop subscriptions that are no longer present
   let to_remove : Array[String] = []
   active_subs.each(fn(k, _v) {
     if not(new_keys.contains(k)) {
