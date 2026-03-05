@@ -21,6 +21,7 @@ priv struct ComponentSlot {
   current_expanded : Ref[VNode[Unit]]
   previous_expanded : Ref[VNode[Unit]]
   render : () -> VNode[Unit]
+  teardown : () -> Unit
 }
 
 ///|
@@ -37,6 +38,19 @@ let pending_init_cmds : Array[() -> Unit] = []
 
 ///|
 let seen_slots : @hashset.HashSet[String] = @hashset.new()
+
+///|
+fn[CMsg] disconnected_handle_dispatch() -> (CMsg) -> Unit {
+  let warned : Ref[Bool] = Ref::new(false)
+  fn(_msg) {
+    if not(warned.val) {
+      warned.val = true
+      @webapi.Console::warn([
+        "chai: Cmd::send ignored because component handle is unmounted",
+      ])
+    }
+  }
+}
 
 ///|
 /// Create a self-contained component VNode. The component's Model and CMsg
@@ -95,6 +109,10 @@ pub fn[Model, CMsg, Msg] component(
         Some(h) => h.dispatch.val = comp_dispatch
         None => ()
       }
+      let teardown = match handle {
+        Some(h) => fn() { h.dispatch.val = disconnected_handle_dispatch() }
+        None => fn() {  }
+      }
       let render = fn() -> VNode[Unit] {
         bind_events(view(model_ref.val), comp_dispatch)
       }
@@ -103,6 +121,7 @@ pub fn[Model, CMsg, Msg] component(
         current_expanded: Ref::new(expanded),
         previous_expanded: Ref::new(expanded),
         render,
+        teardown,
       }
       component_slots[slot_key] = slot
       if init_cmd.tasks.length() > 0 {
@@ -127,6 +146,7 @@ fn drain_pending_init_cmds() -> Unit {
 ///|
 /// Reset all component state for a fresh start.
 fn reset_component_state() -> Unit {
+  component_slots.each(fn(_, slot) { (slot.teardown)() })
   component_slots.clear()
   component_counter.val = 0
   seen_slots.clear()
@@ -143,10 +163,15 @@ fn begin_render_pass() -> Unit {
 fn[V] remove_unless(
   map : Map[String, V],
   keep : @hashset.HashSet[String],
+  on_remove : (V) -> Unit,
 ) -> Unit {
   let to_remove : Array[String] = []
   map.each(fn(k, _) { if not(keep.contains(k)) { to_remove.push(k) } })
   for k in to_remove {
+    match map.get(k) {
+      Some(v) => on_remove(v)
+      None => ()
+    }
     map.remove(k)
   }
 }
@@ -154,5 +179,5 @@ fn[V] remove_unless(
 ///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots() -> Unit {
-  remove_unless(component_slots, seen_slots)
+  remove_unless(component_slots, seen_slots, fn(slot) { (slot.teardown)() })
 }

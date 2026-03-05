@@ -1,0 +1,8 @@
+import {
+  "bikallem/chai",
+}
+
+options(
+  "is-main": true,
+  "supported-targets": [ "js" ],
+)

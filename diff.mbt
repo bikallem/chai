@@ -69,6 +69,13 @@ fn[Msg] apply_attrs(
       Property(name, val) => set_prop(el, name, val)
       Event(name, handler) =>
         set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
+      EventMaybe(name, handler) =>
+        set_event_handler(el, name, fn(e) {
+          match handler(e) {
+            Some(msg) => dispatch(msg)
+            None => ()
+          }
+        })
       BoundEvent(name, handler) => set_event_handler(el, name, handler)
       Style(name, val) => {
         let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
@@ -151,6 +158,60 @@ fn[Msg] diff(
 }
 
 ///|
+priv enum ChildListMode {
+  Empty
+  NonKeyed
+  AllKeyed
+} derive(Eq)
+
+///|
+fn[Msg] child_list_mode(
+  children : Array[VNode[Msg]],
+  label : String,
+) -> ChildListMode {
+  if children.length() == 0 {
+    return Empty
+  }
+  let first_is_keyed = match children[0] {
+    Keyed(_, _) => true
+    _ => false
+  }
+  for i = 1; i < children.length(); i = i + 1 {
+    let is_keyed = match children[i] {
+      Keyed(_, _) => true
+      _ => false
+    }
+    if is_keyed != first_is_keyed {
+      abort(
+        "chai: " + label +
+        " mix Keyed and non-Keyed vnodes. Wrap all siblings with keyed() or none.",
+      )
+    }
+  }
+  if first_is_keyed {
+    AllKeyed
+  } else {
+    NonKeyed
+  }
+}
+
+///|
+fn[Msg] replace_children(
+  parent : @webapi.Node,
+  new_children : Array[VNode[Msg]],
+  dispatch : (Msg) -> Unit,
+) -> Unit {
+  let old_len = parent.child_nodes().length().reinterpret_as_int()
+  for i = old_len - 1; i >= 0; i = i - 1 {
+    let child = get_child(parent, i)
+    parent.remove_child(child) |> ignore
+  }
+  for child in new_children {
+    parent.append_child(create_dom_node(child, dispatch)) |> ignore
+  }
+}
+
+///|
 /// Diff children using sequential index-based comparison
 fn[Msg] diff_children(
   parent : @webapi.Node,
@@ -158,24 +219,19 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  // Detect keyed mode via single pass: check if first child is Keyed,
-  // then verify all siblings match (all keyed or all non-keyed).
-  if new_children.length() > 0 {
-    let first_keyed = match new_children[0] {
-      Keyed(_) => true
-      _ => false
-    }
-    if first_keyed {
-      for i = 1; i < new_children.length(); i = i + 1 {
-        guard new_children[i] is Keyed(_) else {
-          abort(
-            "chai: children mix Keyed and non-Keyed vnodes. Wrap all siblings with keyed() or none.",
-          )
-        }
-      }
-      diff_children_keyed(parent, old_children, new_children, dispatch)
-      return
-    }
+  let old_mode = child_list_mode(old_children, "old children")
+  let new_mode = child_list_mode(new_children, "new children")
+  let old_is_keyed = old_mode == AllKeyed
+  let new_is_keyed = new_mode == AllKeyed
+  // If sibling mode switches between keyed and non-keyed, replace the list to
+  // keep DOM order/state correct.
+  if old_is_keyed != new_is_keyed && old_mode != Empty && new_mode != Empty {
+    replace_children(parent, new_children, dispatch)
+    return
+  }
+  if new_is_keyed {
+    diff_children_keyed(parent, old_children, new_children, dispatch)
+    return
   }
   let old_len = old_children.length()
   let new_len = new_children.length()
@@ -229,10 +285,16 @@ fn[Msg] diff_children_keyed(
   let old_key_map : Map[String, (Int, VNode[Msg])] = {}
   for i = 0; i < old_len; i = i + 1 {
     match old_children[i] {
-      Keyed(k, inner) => old_key_map[k] = (i, inner)
+      Keyed(k, inner) => {
+        if old_key_map.contains(k) {
+          abort("chai: duplicate keyed child \"" + k + "\" in old children")
+        }
+        old_key_map[k] = (i, inner)
+      }
       _ => ()
     }
   }
+  let seen_new_keys : @hashset.HashSet[String] = @hashset.new()
   // Snapshot old DOM child nodes
   let old_dom : Array[@webapi.Node] = []
   for i = 0; i < old_len; i = i + 1 {
@@ -241,7 +303,11 @@ fn[Msg] diff_children_keyed(
   // Process new children left to right, removing matched keys from old_key_map
   for i = 0; i < new_len; i = i + 1 {
     match new_children[i] {
-      Keyed(new_key, new_inner) =>
+      Keyed(new_key, new_inner) => {
+        if seen_new_keys.contains(new_key) {
+          abort("chai: duplicate keyed child \"" + new_key + "\" in new children")
+        }
+        seen_new_keys.add(new_key)
         match old_key_map.get(new_key) {
           Some((old_idx, old_inner)) => {
             old_key_map.remove(new_key)
@@ -253,6 +319,7 @@ fn[Msg] diff_children_keyed(
             insert_at(parent, i, new_node)
           }
         }
+      }
       _ => ()
     }
   }
@@ -281,6 +348,7 @@ fn[Msg] diff_attrs(
       Attribute(k, v) => old_attributes[k] = v
       Property(k, _) => old_properties.add(k)
       Event(name, _) => old_events.add(name)
+      EventMaybe(name, _) => old_events.add(name)
       BoundEvent(name, _) => old_events.add(name)
       Style(k, v) => old_styles[k] = v
     }
@@ -309,6 +377,15 @@ fn[Msg] diff_attrs(
         // Always replace event handlers (closures are not comparable)
         new_event_keys.add(name)
         set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
+      }
+      EventMaybe(name, handler) => {
+        new_event_keys.add(name)
+        set_event_handler(el, name, fn(e) {
+          match handler(e) {
+            Some(msg) => dispatch(msg)
+            None => ()
+          }
+        })
       }
       BoundEvent(name, handler) => {
         new_event_keys.add(name)

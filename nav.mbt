@@ -112,8 +112,28 @@ pub fn[Msg] Sub::on_hash_change(
 }
 
 ///|
-/// Create a link that uses pushState navigation. Prevents default click behavior
-/// and dispatches the given message instead.
+fn is_plain_primary_click(e : @webapi.Event) -> Bool {
+  let me : @webapi.MouseEvent = e.into()
+  me.button() == 0 &&
+  not(me.meta_key()) &&
+  not(me.ctrl_key()) &&
+  not(me.shift_key()) &&
+  not(me.alt_key())
+}
+
+///|
+fn should_intercept_link_click(e : @webapi.Event) -> Bool {
+  if e.default_prevented() || not(is_plain_primary_click(e)) {
+    return false
+  }
+  let anchor : @webapi.HTMLAnchorElement = e.current_target().into()
+  let target = anchor.target()
+  target == "" || target == "_self"
+}
+
+///|
+/// Create a link that uses pushState navigation. Intercepts only plain primary
+/// clicks in the same tab and dispatches the given message.
 pub fn[Msg] link(
   url : String,
   attrs : Array[Attr[Msg]],
@@ -122,9 +142,13 @@ pub fn[Msg] link(
 ) -> VNode[Msg] {
   let all_attrs = [
     href(url),
-    on("click", fn(e) {
-      e.prevent_default()
-      on_nav
+    EventMaybe("click", fn(e) {
+      if should_intercept_link_click(e) {
+        e.prevent_default()
+        Some(on_nav)
+      } else {
+        None
+      }
     }),
   ]
   for attr in attrs {

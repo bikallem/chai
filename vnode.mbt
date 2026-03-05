@@ -41,6 +41,13 @@ fn[CMsg] bind_events(
           Property(k, v) => Property(k, v)
           Event(name, handler) =>
             BoundEvent(name, fn(e) { dispatch(handler(e)) })
+          EventMaybe(name, handler) =>
+            BoundEvent(name, fn(e) {
+              match handler(e) {
+                Some(msg) => dispatch(msg)
+                None => ()
+              }
+            })
           BoundEvent(name, handler) => BoundEvent(name, handler)
           Style(k, v) => Style(k, v)
         }
