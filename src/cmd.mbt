@@ -51,7 +51,15 @@ pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
 }
 
 ///|
-extern "js" fn js_error_message(reason : @webapi.JsValue) -> String = "(r) => r instanceof Error ? r.message : String(r)"
+fn error_message(reason : @webapi.JsValue) -> String {
+  let obj : @webapi.JsObject = reason.into()
+  let msg = obj.get("message")
+  if msg.is_null() {
+    reason.to_string()
+  } else {
+    msg.to_string()
+  }
+}
 
 ///|
 /// Perform an HTTP GET request. Dispatches `on_result(Ok(body))` on success
@@ -69,7 +77,7 @@ pub fn[Msg] Cmd::http_get(
         .text()
         .then(fn(body : String) { dispatch(on_result(Ok(body))) })
         .catch_(fn(reason : @webapi.JsValue) {
-          dispatch(on_result(Err(js_error_message(reason))))
+          dispatch(on_result(Err(error_message(reason))))
         })
         |> ignore
       } else {
@@ -77,7 +85,7 @@ pub fn[Msg] Cmd::http_get(
       }
     })
     .catch_(fn(reason : @webapi.JsValue) {
-      dispatch(on_result(Err(js_error_message(reason))))
+      dispatch(on_result(Err(error_message(reason))))
     })
     |> ignore
   })
