@@ -56,3 +56,12 @@ test("network error displays error message", async ({ page }) => {
   await page.locator(".fetch-btn").click();
   await expect(page.locator(".error")).toBeVisible();
 });
+
+test("nullish fetch rejection still dispatches error", async ({ page }) => {
+  await page.evaluate(() => {
+    window.fetch = () => Promise.reject();
+  });
+
+  await page.locator(".fetch-btn").click();
+  await expect(page.locator(".error")).toHaveText("undefined");
+});
