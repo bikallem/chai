@@ -183,7 +183,8 @@ fn[Msg] child_list_mode(
     }
     if is_keyed != first_is_keyed {
       abort(
-        "chai: " + label +
+        "chai: " +
+        label +
         " mix Keyed and non-Keyed vnodes. Wrap all siblings with keyed() or none.",
       )
     }
@@ -305,7 +306,9 @@ fn[Msg] diff_children_keyed(
     match new_children[i] {
       Keyed(new_key, new_inner) => {
         if seen_new_keys.contains(new_key) {
-          abort("chai: duplicate keyed child \"" + new_key + "\" in new children")
+          abort(
+            "chai: duplicate keyed child \"" + new_key + "\" in new children",
+          )
         }
         seen_new_keys.add(new_key)
         match old_key_map.get(new_key) {

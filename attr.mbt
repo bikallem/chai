@@ -14,12 +14,13 @@ pub fn[A, B] Attr::map(self : Attr[A], f : (A) -> B) -> Attr[B] {
     Attribute(k, v) => Attribute(k, v)
     Property(k, v) => Property(k, v)
     Event(name, handler) => on(name, fn(e) { f(handler(e)) })
-    EventMaybe(name, handler) => EventMaybe(name, fn(e) {
-      match handler(e) {
-        Some(msg) => Some(f(msg))
-        None => None
-      }
-    })
+    EventMaybe(name, handler) =>
+      EventMaybe(name, fn(e) {
+        match handler(e) {
+          Some(msg) => Some(f(msg))
+          None => None
+        }
+      })
     BoundEvent(name, handler) => BoundEvent(name, handler)
     Style(k, v) => Style(k, v)
   }
