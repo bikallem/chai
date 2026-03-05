@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bikallem/chai/examples/todo"
+
+// Values
+
+// Errors
+
+// Types and methods
+type Filter
+pub impl Eq for Filter
+
+type Model
+
+type Msg
+
+type Todo
+
+// Type aliases
+
+// Traits
+

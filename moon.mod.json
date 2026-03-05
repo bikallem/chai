@@ -1,5 +1,5 @@
 {
-  "name": "blem/chai",
+  "name": "bikallem/chai",
   "version": "0.1.0",
   "deps": {
     "bikallem/webapi": {
@@ -9,7 +9,11 @@
   "license": "MIT",
   "repository": "github.com/bikallem/chai",
   "description": "Chai is TEA (The Elm Architecture) framework for MoonBit",
-  "source": "src",
   "preferred-target": "js",
-  "warn-list": "@27"
+  "warn-list": "@27",
+  "exclude": [
+    "examples",
+    "tests",
+    "test-results"
+  ]
 }

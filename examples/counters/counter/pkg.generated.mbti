@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "blem/chai-examples/counters/counter"
+package "bikallem/chai/examples/counters/counter"
 
 import {
+  "bikallem/chai",
   "bikallem/webapi",
-  "blem/chai",
 }
 
 // Values
@@ -41,8 +41,6 @@ pub(all) enum Msg {
 }
 
 // Type aliases
-pub using @chai {type Attr}
-
 pub using @chai {type Cmd}
 
 pub using @chai {type Handle}

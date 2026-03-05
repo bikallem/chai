@@ -2,7 +2,7 @@
   "name": "chai-tests",
   "private": true,
   "scripts": {
-    "test": "cd ../examples && moon build --target js --release && cd ../tests && playwright test"
+    "test": "moon build --target js --release && cd ../tests && playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0"

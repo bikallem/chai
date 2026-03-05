@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "blem/chai"
+package "bikallem/chai"
 
 import {
   "bikallem/webapi",
@@ -153,7 +153,7 @@ pub fn[Msg] Sub::every(Int, String, () -> Msg) -> Self[Msg]
 pub fn[A, B] Sub::map(Self[A], (A) -> B) -> Self[B]
 pub fn[Msg] Sub::none() -> Self[Msg]
 pub fn[Msg] Sub::on_hash_change(String, (Url) -> Msg) -> Self[Msg]
-pub fn[Msg] Sub::on_key_down(String, (String) -> Msg, prevent_default? : Bool) -> Self[Msg]
+pub fn[Msg] Sub::on_key_down(String, (String) -> Msg, prevent_default? : (String) -> Bool) -> Self[Msg]
 pub fn[Msg] Sub::on_url_change(String, (Url) -> Msg) -> Self[Msg]
 pub fn[Msg] Sub::on_window_resize(String, (Int, Int) -> Msg) -> Self[Msg]
 pub fn[Msg] Sub::sub(String, ((Msg) -> Unit) -> () -> Unit) -> Self[Msg]
