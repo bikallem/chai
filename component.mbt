@@ -93,14 +93,14 @@ pub fn[Model, CMsg, Msg] component(
           return
         }
         is_updating.val = true
-        while msg_queue.length() > 0 {
-          let batch = msg_queue.copy()
+        for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
+          let m = msg_queue[cursor]
+          let (new_model, cmd) = update(model_ref.val, m)
+          model_ref.val = new_model
+          cmd.run(comp_dispatch)
+        }
+        if msg_queue.length() > 0 {
           msg_queue.clear()
-          for m in batch {
-            let (new_model, cmd) = update(model_ref.val, m)
-            model_ref.val = new_model
-            cmd.run(comp_dispatch)
-          }
         }
         is_updating.val = false
         (trigger_render.val)()
@@ -134,12 +134,12 @@ pub fn[Model, CMsg, Msg] component(
 
 ///|
 fn drain_pending_init_cmds() -> Unit {
-  while pending_init_cmds.length() > 0 {
-    let batch = pending_init_cmds.copy()
+  for cursor = 0; cursor < pending_init_cmds.length(); cursor = cursor + 1 {
+    let cmd_fn = pending_init_cmds[cursor]
+    cmd_fn()
+  }
+  if pending_init_cmds.length() > 0 {
     pending_init_cmds.clear()
-    for cmd_fn in batch {
-      cmd_fn()
-    }
   }
 }
 

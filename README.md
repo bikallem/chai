@@ -157,7 +157,7 @@ sub.map(fn(msg) { Wrapped(msg) })        // transform message type
 
 Each subscription takes a `key` string for identity — subscriptions with the same key are kept alive across renders, and removed when no longer returned.
 
-For `on_key_down`, pass `prevent_default=true` to stop the browser from also activating focused buttons or scrolling.
+For `on_key_down`, pass `prevent_default=fn(key) { ... }` to selectively prevent default browser behavior (for example, `fn(key) { key == " " }` to stop spacebar scrolling).
 
 For custom subscriptions, use `Sub::sub` directly:
 
