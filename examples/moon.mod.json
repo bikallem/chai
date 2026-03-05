@@ -1,0 +1,14 @@
+{
+  "name": "blem/chai-examples",
+  "version": "0.1.0",
+  "deps": {
+    "bikallem/chai": {
+      "path": "../"
+    },
+    "bikallem/webapi": {
+      "path": "/home/blem/projects/webapi/webapi"
+    }
+  },
+  "preferred-target": "js",
+  "warn-list": "@27"
+}

@@ -1,6 +1,6 @@
 import {
   "bikallem/chai",
-  "bikallem/chai/examples/counters/counter",
+  "blem/chai-examples/counters/counter",
 }
 
 options(
