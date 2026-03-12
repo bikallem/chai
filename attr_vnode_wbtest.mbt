@@ -28,6 +28,35 @@ test "on_input and on_check extract values from event target" {
 }
 
 ///|
+test "on_input/on_change work for textarea and select value events" {
+  let textarea_vnode = textarea([on_input(fn(value) { value })], [])
+  match textarea_vnode {
+    Element("textarea", attrs, children) => {
+      assert_eq(children.length(), 0)
+      match attrs[0] {
+        Event("input", handler) =>
+          assert_eq(handler(make_input_event("notes", false)), "notes")
+        _ => panic()
+      }
+    }
+    _ => panic()
+  }
+
+  let select_vnode = select([on_change(fn(value) { value })], [option([], [text("A")])])
+  match select_vnode {
+    Element("select", attrs, children) => {
+      assert_eq(children.length(), 1)
+      match attrs[0] {
+        Event("change", handler) =>
+          assert_eq(handler(make_input_event("selected", false)), "selected")
+        _ => panic()
+      }
+    }
+    _ => panic()
+  }
+}
+
+///|
 test "on_keydown and on_submit decode event payloads" {
   let key_attr = on_keydown(fn(k) { k })
   match key_attr {

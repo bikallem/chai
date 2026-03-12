@@ -31,8 +31,14 @@ fn get_target_input(event : @webapi.Event) -> @webapi.HTMLInputElement {
 }
 
 ///|
+fn get_target_prop(event : @webapi.Event, name : String) -> @webapi.JsValue {
+  let target : @webapi.JsObject = @webapi.TJsValue::to_js(event.target()).into()
+  target.get(name)
+}
+
+///|
 fn get_target_value(event : @webapi.Event) -> String {
-  get_target_input(event).value()
+  get_target_prop(event, "value").to_string()
 }
 
 ///|
