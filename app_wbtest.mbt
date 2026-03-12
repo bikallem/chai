@@ -42,19 +42,14 @@ test "update_subs refreshes same-identity subscriptions in place" {
   let trigger : Ref[() -> Unit] = Ref::new(fn() {  })
 
   fn refreshable(value : Int) -> Sub[Int] {
-    refreshable_sub(
-      "timer",
-      "every:10",
-      value,
-      fn(dispatch, behavior_ref) {
-        starts.val += 1
-        trigger.val = fn() { dispatch(behavior_ref.val) }
-        fn() {
-          cleans.val += 1
-          trigger.val = fn() {  }
-        }
-      },
-    )
+    refreshable_sub("timer", "every:10", value, fn(dispatch, behavior_ref) {
+      starts.val += 1
+      trigger.val = fn() { dispatch(behavior_ref.val) }
+      fn() {
+        cleans.val += 1
+        trigger.val = fn() {  }
+      }
+    })
   }
 
   update_subs(refreshable(1), active, fn(msg) { received.push(msg) })

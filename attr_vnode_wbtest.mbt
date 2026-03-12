@@ -42,7 +42,9 @@ test "on_input/on_change work for textarea and select value events" {
     _ => panic()
   }
 
-  let select_vnode = select([on_change(fn(value) { value })], [option([], [text("A")])])
+  let select_vnode = select([on_change(fn(value) { value })], [
+    option([], [text("A")]),
+  ])
   match select_vnode {
     Element("select", attrs, children) => {
       assert_eq(children.length(), 1)

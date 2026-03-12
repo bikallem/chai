@@ -105,17 +105,20 @@ pub fn[Model, CMsg, Msg] component(
   }
   runtime.seen_slots.add(slot_key)
   match runtime.component_slots.get(slot_key) {
-    Some(slot) => (slot.refresh)(
-      erase_component_value(update),
-      erase_component_value(view),
-      erase_component_value(handle),
-    )
+    Some(slot) =>
+      (slot.refresh)(
+        erase_component_value(update),
+        erase_component_value(view),
+        erase_component_value(handle),
+      )
     None => {
       let (init_model, init_cmd) = init()
       let model_ref : Ref[Model] = Ref::new(init_model)
       let msg_queue : Array[CMsg] = []
       let is_updating : Ref[Bool] = Ref::new(false)
-      let update_ref : Ref[(Model, CMsg) -> (Model, Cmd[CMsg])] = Ref::new(update)
+      let update_ref : Ref[(Model, CMsg) -> (Model, Cmd[CMsg])] = Ref::new(
+        update,
+      )
       let view_ref : Ref[(Model) -> VNode[CMsg]] = Ref::new(view)
       let comp_dispatch_ref : Ref[(CMsg) -> Unit] = Ref::new(fn(_) {  })
       let handle_teardown_ref : Ref[() -> Unit] = Ref::new(fn() {  })
@@ -152,10 +155,9 @@ pub fn[Model, CMsg, Msg] component(
         }
       }
       let render = fn() -> VNode[Unit] {
-        with_component_runtime(
-          runtime,
-          fn() { bind_events((view_ref.val)(model_ref.val), comp_dispatch) },
-        )
+        with_component_runtime(runtime, fn() {
+          bind_events((view_ref.val)(model_ref.val), comp_dispatch)
+        })
       }
       let expanded = render()
       let current_expanded_ref : Ref[VNode[Unit]] = Ref::new(expanded)

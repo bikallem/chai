@@ -50,7 +50,8 @@ fn[Msg] attr_name(attr : Attr[Msg]) -> String {
 
 ///|
 fn[Msg] same_attr_slot(old : Attr[Msg], new_ : Attr[Msg]) -> Bool {
-  attr_slot_kind(old) == attr_slot_kind(new_) && attr_name(old) == attr_name(new_)
+  attr_slot_kind(old) == attr_slot_kind(new_) &&
+  attr_name(old) == attr_name(new_)
 }
 
 ///|

@@ -107,7 +107,7 @@ test "reused component slot refreshes captured closures and latest handle" {
     (0, Cmd::none())
   }
   fn make_update(multiplier : Int) -> (Int, Int) -> (Int, Cmd[Int]) {
-    fn(model, msg) { (model + (msg * multiplier), Cmd::none()) }
+    fn(model, msg) { (model + msg * multiplier, Cmd::none()) }
   }
   fn make_view(prefix : String) -> (Int) -> VNode[Int] {
     fn(model) { text(prefix + model.to_string()) }
