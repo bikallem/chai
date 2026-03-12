@@ -18,6 +18,7 @@ pub fn[Model, Msg] start(
     abort("chai: no element matches selector \"" + selector + "\"")
   }
   let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
+  let runtime = new_component_runtime()
   let active_subs : Map[String, ActiveSub] = {}
   let (init_model, init_cmd) = init()
   let state : Ref[Model] = Ref::new(init_model)
@@ -31,12 +32,12 @@ pub fn[Model, Msg] start(
   }
 
   fn do_render() -> Unit {
-    begin_render_pass()
-    let new_vdom = view(state.val)
-    diff(root_node, 0, current_vdom.val, new_vdom, dispatch)
+    begin_render_pass_for(runtime)
+    let new_vdom = with_component_runtime(runtime, fn() { view(state.val) })
+    diff(runtime, root_node, 0, current_vdom.val, new_vdom, dispatch)
     current_vdom.val = new_vdom
-    remove_unused_component_slots()
-    drain_pending_init_cmds()
+    remove_unused_component_slots_for(runtime)
+    drain_pending_init_cmds_for(runtime)
     update_subs(subscriptions(state.val), active_subs, dispatch)
   }
 
@@ -63,15 +64,15 @@ pub fn[Model, Msg] start(
     msg_queue.push(msg)
     process_queue()
   }
-  trigger_render.val = fn() {
+  runtime.trigger_render.val = fn() {
     needs_render.val = true
     process_queue()
   }
-  reset_component_state()
-  let initial_vdom = view(init_model)
-  replace_children(root_node, [initial_vdom], dispatch)
+  reset_component_state_for(runtime)
+  let initial_vdom = with_component_runtime(runtime, fn() { view(init_model) })
+  replace_children(runtime, root_node, [initial_vdom], dispatch)
   current_vdom.val = initial_vdom
-  drain_pending_init_cmds()
+  drain_pending_init_cmds_for(runtime)
   init_cmd.run(dispatch)
   update_subs(subscriptions(init_model), active_subs, dispatch)
 }

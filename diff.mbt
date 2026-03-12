@@ -26,6 +26,7 @@ fn remove_event_handler(el : @webapi.Element, name : String) -> Unit {
 ///|
 /// Create a real DOM node from a virtual node
 fn[Msg] create_dom_node(
+  runtime : ComponentRuntime,
   vnode : VNode[Msg],
   dispatch : (Msg) -> Unit,
 ) -> @webapi.Node {
@@ -39,20 +40,20 @@ fn[Msg] create_dom_node(
       apply_attrs(el, attrs, dispatch)
       let el_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
       for child in children {
-        let child_node = create_dom_node(child, dispatch)
+        let child_node = create_dom_node(runtime, child, dispatch)
         el_node.append_child(child_node) |> ignore
       }
       el_node
     }
     Component(comp) =>
-      match component_slots.get(comp.id) {
-        Some(slot) => create_dom_node(slot.current_expanded.val, fn(_) {  })
+      match runtime.component_slots.get(comp.id) {
+        Some(slot) => create_dom_node(runtime, slot.current_expanded.val, fn(_) {  })
         None => {
           let empty : VNode[Msg] = Text("")
-          create_dom_node(empty, dispatch)
+          create_dom_node(runtime, empty, dispatch)
         }
       }
-    Keyed(_k, child) => create_dom_node(child, dispatch)
+    Keyed(_k, child) => create_dom_node(runtime, child, dispatch)
   }
 }
 
@@ -93,12 +94,13 @@ fn set_prop(el : @webapi.Element, name : String, val : @webapi.JsValue) -> Unit 
 
 ///|
 fn[Msg] replace_child_at(
+  runtime : ComponentRuntime,
   parent : @webapi.Node,
   index : Int,
   new_ : VNode[Msg],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  let new_node = create_dom_node(new_, dispatch)
+  let new_node = create_dom_node(runtime, new_, dispatch)
   let old_node = get_child(parent, index)
   parent.replace_child(new_node, old_node) |> ignore
 }
@@ -106,6 +108,7 @@ fn[Msg] replace_child_at(
 ///|
 /// Diff and patch the DOM in a single pass
 fn[Msg] diff(
+  runtime : ComponentRuntime,
   parent : @webapi.Node,
   index : Int,
   old : VNode[Msg],
@@ -125,9 +128,10 @@ fn[Msg] diff(
         let child = get_child(parent, index)
         let el : @webapi.Element = @webapi.TJsValue::to_js(child).into()
         diff_attrs(el, old_attrs, new_attrs, dispatch)
-        diff_children(child, old_children, new_children, dispatch)
+        diff_children(runtime, child, old_children, new_children, dispatch)
       } else {
         replace_child_at(
+          runtime,
           parent,
           index,
           Element(new_tag, new_attrs, new_children),
@@ -135,12 +139,13 @@ fn[Msg] diff(
         )
       }
     (Keyed(_, old_inner), Keyed(_, new_inner)) =>
-      diff(parent, index, old_inner, new_inner, dispatch)
+      diff(runtime, parent, index, old_inner, new_inner, dispatch)
     (Component(old_comp), Component(new_comp)) =>
       if old_comp.id == new_comp.id {
-        match component_slots.get(new_comp.id) {
+        match runtime.component_slots.get(new_comp.id) {
           Some(slot) =>
             diff(
+              runtime,
               parent,
               index,
               slot.previous_expanded.val,
@@ -151,9 +156,9 @@ fn[Msg] diff(
         }
       } else {
         let noop : (Unit) -> Unit = fn(_) {  }
-        replace_child_at(parent, index, Component(new_comp), noop)
+        replace_child_at(runtime, parent, index, Component(new_comp), noop)
       }
-    _ => replace_child_at(parent, index, new_, dispatch)
+    _ => replace_child_at(runtime, parent, index, new_, dispatch)
   }
 }
 
@@ -227,6 +232,7 @@ fn[Msg] first_duplicate_key(children : Array[VNode[Msg]]) -> String? {
 
 ///|
 fn[Msg] replace_children(
+  runtime : ComponentRuntime,
   parent : @webapi.Node,
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
@@ -237,13 +243,14 @@ fn[Msg] replace_children(
     parent.remove_child(child) |> ignore
   }
   for child in new_children {
-    parent.append_child(create_dom_node(child, dispatch)) |> ignore
+    parent.append_child(create_dom_node(runtime, child, dispatch)) |> ignore
   }
 }
 
 ///|
 /// Diff children using sequential index-based comparison
 fn[Msg] diff_children(
+  runtime : ComponentRuntime,
   parent : @webapi.Node,
   old_children : Array[VNode[Msg]],
   new_children : Array[VNode[Msg]],
@@ -252,12 +259,12 @@ fn[Msg] diff_children(
   // If sibling mode switches between keyed and non-keyed, replace the list to
   // keep DOM order/state correct.
   if should_replace_children_on_mode_switch(old_children, new_children) {
-    replace_children(parent, new_children, dispatch)
+    replace_children(runtime, parent, new_children, dispatch)
     return
   }
   let new_is_keyed = child_list_mode(new_children, "new children") == AllKeyed
   if new_is_keyed {
-    diff_children_keyed(parent, old_children, new_children, dispatch)
+    diff_children_keyed(runtime, parent, old_children, new_children, dispatch)
     return
   }
   let old_len = old_children.length()
@@ -265,7 +272,7 @@ fn[Msg] diff_children(
   let min_len = if old_len < new_len { old_len } else { new_len }
   // Patch common prefix
   for i = 0; i < min_len; i = i + 1 {
-    diff(parent, i, old_children[i], new_children[i], dispatch)
+    diff(runtime, parent, i, old_children[i], new_children[i], dispatch)
   }
   // Remove extras from end (backwards to preserve indices)
   if old_len > new_len {
@@ -277,7 +284,7 @@ fn[Msg] diff_children(
   // Append new ones
   if new_len > old_len {
     for i = old_len; i < new_len; i = i + 1 {
-      let new_node = create_dom_node(new_children[i], dispatch)
+      let new_node = create_dom_node(runtime, new_children[i], dispatch)
       parent.append_child(new_node) |> ignore
     }
   }
@@ -301,6 +308,7 @@ fn insert_at(parent : @webapi.Node, index : Int, node : @webapi.Node) -> Unit {
 /// Keyed(key, vnode) wrapper. Matches old and new children by key,
 /// moves reused DOM nodes into place, and removes unused ones.
 fn[Msg] diff_children_keyed(
+  runtime : ComponentRuntime,
   parent : @webapi.Node,
   old_children : Array[VNode[Msg]],
   new_children : Array[VNode[Msg]],
@@ -339,10 +347,10 @@ fn[Msg] diff_children_keyed(
           Some((old_idx, old_inner)) => {
             old_key_map.remove(new_key)
             insert_at(parent, i, old_dom[old_idx])
-            diff(parent, i, old_inner, new_inner, dispatch)
+            diff(runtime, parent, i, old_inner, new_inner, dispatch)
           }
           None => {
-            let new_node = create_dom_node(new_inner, dispatch)
+            let new_node = create_dom_node(runtime, new_inner, dispatch)
             insert_at(parent, i, new_node)
           }
         }

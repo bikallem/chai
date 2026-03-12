@@ -25,25 +25,50 @@ priv struct ComponentSlot {
 }
 
 ///|
-let component_counter : Ref[Int] = Ref::new(0)
+priv struct ComponentRuntime {
+  component_counter : Ref[Int]
+  component_slots : Map[String, ComponentSlot]
+  trigger_render : Ref[() -> Unit]
+  pending_init_cmds : Array[() -> Unit]
+  seen_slots : @hashset.HashSet[String]
+}
 
 ///|
-let component_slots : Map[String, ComponentSlot] = {}
+fn new_component_runtime() -> ComponentRuntime {
+  {
+    component_counter: Ref::new(0),
+    component_slots: {},
+    trigger_render: Ref::new(fn() {  }),
+    pending_init_cmds: [],
+    seen_slots: @hashset.new(),
+  }
+}
 
 ///|
-let trigger_render : Ref[() -> Unit] = Ref::new(fn() {  })
-
-///|
-let pending_init_cmds : Array[() -> Unit] = []
-
-///|
-let seen_slots : @hashset.HashSet[String] = @hashset.new()
+let active_component_runtime : Ref[ComponentRuntime?] = Ref::new(None)
 
 ///|
 fn[A] erase_component_value(value : A) -> @webapi.JsValue = "%identity"
 
 ///|
 fn[A] unerase_component_value(value : @webapi.JsValue) -> A = "%identity"
+
+///|
+fn current_component_runtime() -> ComponentRuntime {
+  guard active_component_runtime.val is Some(runtime) else {
+    abort("chai: component() requires an active Chai runtime")
+  }
+  runtime
+}
+
+///|
+fn[A] with_component_runtime(runtime : ComponentRuntime, f : () -> A) -> A {
+  let previous_runtime = active_component_runtime.val
+  active_component_runtime.val = Some(runtime)
+  let result = f()
+  active_component_runtime.val = previous_runtime
+  result
+}
 
 ///|
 fn[CMsg] disconnected_handle_dispatch() -> (CMsg) -> Unit {
@@ -69,16 +94,17 @@ pub fn[Model, CMsg, Msg] component(
   update~ : (Model, CMsg) -> (Model, Cmd[CMsg]),
   view~ : (Model) -> VNode[CMsg],
 ) -> VNode[Msg] {
+  let runtime = current_component_runtime()
   let slot_key = match id {
     Some(s) => "id:" + s
     None => {
-      let c = component_counter.val
-      component_counter.val = c + 1
+      let c = runtime.component_counter.val
+      runtime.component_counter.val = c + 1
       "pos:" + c.to_string()
     }
   }
-  seen_slots.add(slot_key)
-  match component_slots.get(slot_key) {
+  runtime.seen_slots.add(slot_key)
+  match runtime.component_slots.get(slot_key) {
     Some(slot) => (slot.refresh)(
       erase_component_value(update),
       erase_component_value(view),
@@ -113,7 +139,7 @@ pub fn[Model, CMsg, Msg] component(
           msg_queue.clear()
         }
         is_updating.val = false
-        (trigger_render.val)()
+        (runtime.trigger_render.val)()
       }
       fn bind_handle(next_handle : Handle[CMsg]?) -> Unit {
         (handle_teardown_ref.val)()
@@ -126,7 +152,10 @@ pub fn[Model, CMsg, Msg] component(
         }
       }
       let render = fn() -> VNode[Unit] {
-        bind_events((view_ref.val)(model_ref.val), comp_dispatch)
+        with_component_runtime(
+          runtime,
+          fn() { bind_events((view_ref.val)(model_ref.val), comp_dispatch) },
+        )
       }
       let expanded = render()
       let current_expanded_ref : Ref[VNode[Unit]] = Ref::new(expanded)
@@ -149,9 +178,9 @@ pub fn[Model, CMsg, Msg] component(
         refresh,
         teardown: fn() { (handle_teardown_ref.val)() },
       }
-      component_slots[slot_key] = slot
+      runtime.component_slots[slot_key] = slot
       if init_cmd.tasks.length() > 0 {
-        pending_init_cmds.push(fn() { init_cmd.run(comp_dispatch) })
+        runtime.pending_init_cmds.push(fn() { init_cmd.run(comp_dispatch) })
       }
     }
   }
@@ -159,43 +188,43 @@ pub fn[Model, CMsg, Msg] component(
 }
 
 ///|
-fn drain_pending_init_cmds() -> Unit {
-  for cmd_fn in pending_init_cmds {
+fn drain_pending_init_cmds_for(runtime : ComponentRuntime) -> Unit {
+  for cmd_fn in runtime.pending_init_cmds {
     cmd_fn()
   }
-  pending_init_cmds.clear()
+  runtime.pending_init_cmds.clear()
 }
 
 ///|
 /// Reset all component state for a fresh start.
-fn reset_component_state() -> Unit {
-  component_slots.each(fn(_, slot) { (slot.teardown)() })
-  component_slots.clear()
-  component_counter.val = 0
-  seen_slots.clear()
+fn reset_component_state_for(runtime : ComponentRuntime) -> Unit {
+  runtime.component_slots.each(fn(_, slot) { (slot.teardown)() })
+  runtime.component_slots.clear()
+  runtime.component_counter.val = 0
+  runtime.seen_slots.clear()
 }
 
 ///|
 /// Prepare for a new render pass.
-fn begin_render_pass() -> Unit {
-  component_counter.val = 0
-  seen_slots.clear()
+fn begin_render_pass_for(runtime : ComponentRuntime) -> Unit {
+  runtime.component_counter.val = 0
+  runtime.seen_slots.clear()
 }
 
 ///|
 /// Remove component slots that were not visited during the last render.
-fn remove_unused_component_slots() -> Unit {
+fn remove_unused_component_slots_for(runtime : ComponentRuntime) -> Unit {
   let to_remove : Array[String] = []
-  component_slots.each(fn(k, _) {
-    if not(seen_slots.contains(k)) {
+  runtime.component_slots.each(fn(k, _) {
+    if not(runtime.seen_slots.contains(k)) {
       to_remove.push(k)
     }
   })
   for k in to_remove {
-    match component_slots.get(k) {
+    match runtime.component_slots.get(k) {
       Some(slot) => (slot.teardown)()
       None => ()
     }
-    component_slots.remove(k)
+    runtime.component_slots.remove(k)
   }
 }
