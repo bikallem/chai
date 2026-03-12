@@ -22,8 +22,11 @@ test "Sub::map transforms emitted messages" {
     dispatch(3)
     fn() {  }
   }).map(fn(x) { "m" + x.to_string() })
-  let cleanup = (sub.subs[0].start)(fn(msg) { seen.push(msg) })
-  cleanup()
+  let active = (sub.subs[0].start)(
+    fn(msg) { seen.push(msg) },
+    sub.subs[0].behavior,
+  )
+  (active.cleanup)()
   assert_eq(seen.length(), 1)
   assert_eq(seen[0], "m3")
 }
@@ -34,8 +37,8 @@ test "Sub::sub cleanup function is returned by start" {
   let sub : Sub[Unit] = Sub::sub("x", fn(_dispatch) {
     fn() { cleaned.val += 1 }
   })
-  let cleanup = (sub.subs[0].start)(fn(_msg) {  })
+  let active = (sub.subs[0].start)(fn(_msg) {  }, sub.subs[0].behavior)
   assert_eq(cleaned.val, 0)
-  cleanup()
+  (active.cleanup)()
   assert_eq(cleaned.val, 1)
 }

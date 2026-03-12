@@ -156,7 +156,11 @@ Sub::on_url_change("url", fn(url) { UrlChanged(url) })     // pushState routing 
 sub.map(fn(msg) { Wrapped(msg) })        // transform message type
 ```
 
-Each subscription takes a `key` string for identity — subscriptions with the same key are kept alive across renders, and removed when no longer returned.
+Each subscription takes a `key` string to match it across renders.
+
+Built-in subscriptions (`Sub::every`, `Sub::on_key_down`, `Sub::on_window_resize`, `Sub::on_hash_change`, `Sub::on_url_change`) keep the underlying listener/timer alive for the same key and refresh their message-producing behavior in place.
+
+Custom `Sub::sub` subscriptions are re-initialized when returned again, so captured setup logic stays fresh; they are cleaned up when no longer returned.
 
 For `on_key_down`, pass `prevent_default=fn(key) { ... }` to selectively prevent default browser behavior (for example, `fn(key) { key == " " }` to stop spacebar scrolling).
 
