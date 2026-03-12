@@ -69,8 +69,7 @@ pub fn[Model, Msg] start(
   }
   reset_component_state()
   let initial_vdom = view(init_model)
-  let dom_node = create_dom_node(initial_vdom, dispatch)
-  root_node.append_child(dom_node) |> ignore
+  replace_children(root_node, [initial_vdom], dispatch)
   current_vdom.val = initial_vdom
   drain_pending_init_cmds()
   init_cmd.run(dispatch)

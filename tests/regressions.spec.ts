@@ -4,6 +4,18 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/regressions/regressions.js.html");
 });
 
+test("mounting into a non-empty root clears placeholder content and keeps a single app tree", async ({
+  page,
+}) => {
+  await expect(page.locator(".mount-placeholder")).toHaveCount(0);
+  await expect(page.locator(".regressions-app")).toHaveCount(1);
+  await expect(page.locator(".items .item")).toHaveText(["A", "B"]);
+
+  await page.locator(".to-keyed").click();
+  await expect(page.locator(".regressions-app")).toHaveCount(1);
+  await expect(page.locator(".items .item")).toHaveText("C");
+});
+
 test("switching plain/keyed child mode fully replaces old children", async ({ page }) => {
   await expect(page.locator(".items .item")).toHaveText(["A", "B"]);
 
