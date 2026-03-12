@@ -20,7 +20,7 @@ pub fn[CMsg] Handle::new() -> Handle[CMsg] {
 priv struct ComponentSlot {
   current_expanded : Ref[VNode[Unit]]
   previous_expanded : Ref[VNode[Unit]]
-  render : () -> VNode[Unit]
+  refresh : (@webapi.JsValue, @webapi.JsValue, @webapi.JsValue) -> Unit
   teardown : () -> Unit
 }
 
@@ -38,6 +38,12 @@ let pending_init_cmds : Array[() -> Unit] = []
 
 ///|
 let seen_slots : @hashset.HashSet[String] = @hashset.new()
+
+///|
+fn[A] erase_component_value(value : A) -> @webapi.JsValue = "%identity"
+
+///|
+fn[A] unerase_component_value(value : @webapi.JsValue) -> A = "%identity"
 
 ///|
 fn[CMsg] disconnected_handle_dispatch() -> (CMsg) -> Unit {
@@ -73,16 +79,20 @@ pub fn[Model, CMsg, Msg] component(
   }
   seen_slots.add(slot_key)
   match component_slots.get(slot_key) {
-    Some(slot) => {
-      slot.previous_expanded.val = slot.current_expanded.val
-      slot.current_expanded.val = (slot.render)()
-    }
+    Some(slot) => (slot.refresh)(
+      erase_component_value(update),
+      erase_component_value(view),
+      erase_component_value(handle),
+    )
     None => {
       let (init_model, init_cmd) = init()
       let model_ref : Ref[Model] = Ref::new(init_model)
       let msg_queue : Array[CMsg] = []
       let is_updating : Ref[Bool] = Ref::new(false)
+      let update_ref : Ref[(Model, CMsg) -> (Model, Cmd[CMsg])] = Ref::new(update)
+      let view_ref : Ref[(Model) -> VNode[CMsg]] = Ref::new(view)
       let comp_dispatch_ref : Ref[(CMsg) -> Unit] = Ref::new(fn(_) {  })
+      let handle_teardown_ref : Ref[() -> Unit] = Ref::new(fn() {  })
       fn comp_dispatch(cmsg : CMsg) -> Unit {
         (comp_dispatch_ref.val)(cmsg)
       }
@@ -96,7 +106,7 @@ pub fn[Model, CMsg, Msg] component(
         while msg_queue.length() > 0 {
           for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
             let m = msg_queue[cursor]
-            let (new_model, cmd) = update(model_ref.val, m)
+            let (new_model, cmd) = (update_ref.val)(model_ref.val, m)
             model_ref.val = new_model
             cmd.run(comp_dispatch)
           }
@@ -105,23 +115,39 @@ pub fn[Model, CMsg, Msg] component(
         is_updating.val = false
         (trigger_render.val)()
       }
-      match handle {
-        Some(h) => h.dispatch.val = comp_dispatch
-        None => ()
-      }
-      let teardown = match handle {
-        Some(h) => fn() { h.dispatch.val = disconnected_handle_dispatch() }
-        None => fn() {  }
+      fn bind_handle(next_handle : Handle[CMsg]?) -> Unit {
+        (handle_teardown_ref.val)()
+        handle_teardown_ref.val = match next_handle {
+          Some(h) => {
+            h.dispatch.val = comp_dispatch
+            fn() { h.dispatch.val = disconnected_handle_dispatch() }
+          }
+          None => fn() {  }
+        }
       }
       let render = fn() -> VNode[Unit] {
-        bind_events(view(model_ref.val), comp_dispatch)
+        bind_events((view_ref.val)(model_ref.val), comp_dispatch)
       }
       let expanded = render()
+      let current_expanded_ref : Ref[VNode[Unit]] = Ref::new(expanded)
+      let previous_expanded_ref : Ref[VNode[Unit]] = Ref::new(expanded)
+      let refresh = fn(
+        next_update_js : @webapi.JsValue,
+        next_view_js : @webapi.JsValue,
+        next_handle_js : @webapi.JsValue,
+      ) -> Unit {
+        update_ref.val = unerase_component_value(next_update_js)
+        view_ref.val = unerase_component_value(next_view_js)
+        bind_handle(unerase_component_value(next_handle_js))
+        previous_expanded_ref.val = current_expanded_ref.val
+        current_expanded_ref.val = render()
+      }
+      bind_handle(handle)
       let slot : ComponentSlot = {
-        current_expanded: Ref::new(expanded),
-        previous_expanded: Ref::new(expanded),
-        render,
-        teardown,
+        current_expanded: current_expanded_ref,
+        previous_expanded: previous_expanded_ref,
+        refresh,
+        teardown: fn() { (handle_teardown_ref.val)() },
       }
       component_slots[slot_key] = slot
       if init_cmd.tasks.length() > 0 {

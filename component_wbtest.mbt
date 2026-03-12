@@ -98,3 +98,59 @@ test "pending init commands are drained exactly once" {
   assert_eq(ran.val, 1)
   assert_eq(pending_init_cmds.length(), 0)
 }
+
+///|
+test "reused component slot refreshes captured closures and latest handle" {
+  reset_component_state()
+  let first_handle = Handle::new()
+  let second_handle = Handle::new()
+  fn init() -> (Int, Cmd[Int]) {
+    (0, Cmd::none())
+  }
+  fn make_update(multiplier : Int) -> (Int, Int) -> (Int, Cmd[Int]) {
+    fn(model, msg) { (model + (msg * multiplier), Cmd::none()) }
+  }
+  fn make_view(prefix : String) -> (Int) -> VNode[Int] {
+    fn(model) { text(prefix + model.to_string()) }
+  }
+
+  let first : VNode[Unit] = component(
+    id="counter",
+    handle=first_handle,
+    init~,
+    update=make_update(1),
+    view=make_view("first:"),
+  )
+  ignore(first)
+  (first_handle.dispatch.val)(2)
+
+  let second : VNode[Unit] = component(
+    id="counter",
+    handle=second_handle,
+    init~,
+    update=make_update(10),
+    view=make_view("second:"),
+  )
+  ignore(second)
+
+  (first_handle.dispatch.val)(5)
+  (second_handle.dispatch.val)(1)
+
+  let third : VNode[Unit] = component(
+    id="counter",
+    handle=second_handle,
+    init~,
+    update=make_update(10),
+    view=make_view("second:"),
+  )
+  ignore(third)
+
+  match component_slots.get("id:counter") {
+    Some(slot) =>
+      match slot.current_expanded.val {
+        Text("second:12") => ()
+        _ => panic()
+      }
+    None => panic()
+  }
+}
