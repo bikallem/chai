@@ -97,3 +97,5 @@
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-12T23:39:05Z","event_type":"closed","id":102,"issue_id":"chai-47u.8","new_value":"Added white-box coverage for textarea and select value extraction through on_input/on_change.","old_value":""}
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-12T23:46:20Z","event_type":"closed","id":103,"issue_id":"chai-47u.9","new_value":"Implemented","old_value":""}
 {"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-12T23:46:20Z","event_type":"closed","id":104,"issue_id":"chai-47u.4","new_value":"Implemented","old_value":""}
+{"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-12T23:52:26Z","event_type":"closed","id":105,"issue_id":"chai-47u.5","new_value":"Implemented","old_value":""}
+{"actor":"Bikal Gurung","comment":null,"created_at":"2026-03-12T23:52:26Z","event_type":"closed","id":106,"issue_id":"chai-47u","new_value":"all steps complete","old_value":""}

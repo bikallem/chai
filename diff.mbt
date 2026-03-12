@@ -4,26 +4,6 @@ fn get_child(parent : @webapi.Node, index : Int) -> @webapi.Node {
 }
 
 ///|
-/// Cast a closure to JsValue (on the JS target, closures are JS functions).
-fn handler_to_js(handler : (@webapi.Event) -> Unit) -> @webapi.JsValue = "%identity"
-
-///|
-/// Set a DOM Level 0 event handler (e.g., el.onclick = fn)
-fn set_event_handler(
-  el : @webapi.Element,
-  name : String,
-  handler : (@webapi.Event) -> Unit,
-) -> Unit {
-  set_prop(el, "on" + name, handler_to_js(handler))
-}
-
-///|
-/// Remove a DOM Level 0 event handler (e.g., el.onclick = null)
-fn remove_event_handler(el : @webapi.Element, name : String) -> Unit {
-  set_prop(el, "on" + name, @webapi.JsValue::null())
-}
-
-///|
 /// Create a real DOM node from a virtual node
 fn[Msg] create_dom_node(
   runtime : ComponentRuntime,
@@ -65,31 +45,8 @@ fn[Msg] apply_attrs(
   dispatch : (Msg) -> Unit,
 ) -> Unit {
   for attr in attrs {
-    match attr {
-      Attribute(name, val) => el.set_attribute(name, val)
-      Property(name, val) => set_prop(el, name, val)
-      Event(name, handler) =>
-        set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
-      EventMaybe(name, handler) =>
-        set_event_handler(el, name, fn(e) {
-          match handler(e) {
-            Some(msg) => dispatch(msg)
-            None => ()
-          }
-        })
-      BoundEvent(name, handler) => set_event_handler(el, name, handler)
-      Style(name, val) => {
-        let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
-        html_el.style().set_property(name, val)
-      }
-    }
+    apply_attr(el, attr, dispatch)
   }
-}
-
-///|
-fn set_prop(el : @webapi.Element, name : String, val : @webapi.JsValue) -> Unit {
-  let obj : @webapi.JsObject = @webapi.TJsValue::to_js(el).into()
-  obj.set(name, val) |> ignore
 }
 
 ///|
@@ -378,54 +335,12 @@ fn[Msg] diff_attrs(
   if old_attrs.length() == new_attrs.length() {
     let mut fast_ok = true
     for i = 0; i < new_attrs.length() && fast_ok; i = i + 1 {
-      match (old_attrs[i], new_attrs[i]) {
-        (Attribute(ok, ov), Attribute(nk, nv)) =>
-          if ok == nk {
-            if ov != nv {
-              el.set_attribute(nk, nv)
-            }
-          } else {
-            fast_ok = false
-          }
-        (Property(ok, _), Property(nk, nv)) =>
-          if ok == nk {
-            set_prop(el, nk, nv)
-          } else {
-            fast_ok = false
-          }
-        (Event(ok, _), Event(nk, handler)) =>
-          if ok == nk {
-            set_event_handler(el, nk, fn(e) { dispatch(handler(e)) })
-          } else {
-            fast_ok = false
-          }
-        (EventMaybe(ok, _), EventMaybe(nk, handler)) =>
-          if ok == nk {
-            set_event_handler(el, nk, fn(e) {
-              match handler(e) {
-                Some(msg) => dispatch(msg)
-                None => ()
-              }
-            })
-          } else {
-            fast_ok = false
-          }
-        (BoundEvent(ok, _), BoundEvent(nk, handler)) =>
-          if ok == nk {
-            set_event_handler(el, nk, handler)
-          } else {
-            fast_ok = false
-          }
-        (Style(ok, ov), Style(nk, nv)) =>
-          if ok == nk {
-            if ov != nv {
-              let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
-              html_el.style().set_property(nk, nv)
-            }
-          } else {
-            fast_ok = false
-          }
-        _ => fast_ok = false
+      let old_attr = old_attrs[i]
+      let new_attr = new_attrs[i]
+      if not(same_attr_slot(old_attr, new_attr)) {
+        fast_ok = false
+      } else if attr_needs_update(old_attr, new_attr) {
+        apply_attr(el, new_attr, dispatch)
       }
     }
     if fast_ok {
@@ -449,13 +364,12 @@ fn[Msg] diff_attrs(
     }
   }
   for attr in old_attrs {
-    match attr {
-      Attribute(k, v) => old_attributes[k] = v
-      Property(k, _) => old_properties.add(k)
-      Event(name, _) => old_events.add(name)
-      EventMaybe(name, _) => old_events.add(name)
-      BoundEvent(name, _) => old_events.add(name)
-      Style(k, v) => old_styles[k] = v
+    let name = attr_name(attr)
+    match attr_slot_kind(attr) {
+      AttributeSlot => old_attributes[name] = attr_text_value(attr)
+      PropertySlot => old_properties.add(name)
+      EventSlot => old_events.add(name)
+      StyleSlot => old_styles[name] = attr_text_value(attr)
     }
   }
   // Track which old keys are still present
@@ -465,38 +379,28 @@ fn[Msg] diff_attrs(
   let new_style_keys : @hashset.HashSet[String] = @hashset.new()
   // Apply new attributes
   for attr in new_attrs {
-    match attr {
-      Attribute(name, value) => {
+    let name = attr_name(attr)
+    match attr_slot_kind(attr) {
+      AttributeSlot => {
+        let value = attr_text_value(attr)
         new_attribute_keys.add(name)
         match old_attributes.get(name) {
           Some(old_val) => if old_val != value { el.set_attribute(name, value) }
           None => el.set_attribute(name, value)
         }
       }
-      Property(name, value) => {
+      PropertySlot => {
         // Always set properties (JsValue not comparable)
         new_property_keys.add(name)
-        set_prop(el, name, value)
+        apply_attr(el, attr, dispatch)
       }
-      Event(name, handler) => {
+      EventSlot => {
         // Always replace event handlers (closures are not comparable)
         new_event_keys.add(name)
-        set_event_handler(el, name, fn(e) { dispatch(handler(e)) })
+        apply_attr(el, attr, dispatch)
       }
-      EventMaybe(name, handler) => {
-        new_event_keys.add(name)
-        set_event_handler(el, name, fn(e) {
-          match handler(e) {
-            Some(msg) => dispatch(msg)
-            None => ()
-          }
-        })
-      }
-      BoundEvent(name, handler) => {
-        new_event_keys.add(name)
-        set_event_handler(el, name, handler)
-      }
-      Style(name, value) => {
+      StyleSlot => {
+        let value = attr_text_value(attr)
         new_style_keys.add(name)
         if old_styles.get(name) != Some(value) {
           get_html_el().style().set_property(name, value)

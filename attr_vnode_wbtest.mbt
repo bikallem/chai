@@ -90,6 +90,35 @@ test "Attr::map remaps event payload" {
 }
 
 ///|
+test "bind_attr normalizes event handlers into bound DOM handlers" {
+  let seen : Array[Int] = []
+  let bound = bind_attr(on_click(fn(_e) { 7 }), fn(msg) { seen.push(msg) })
+  match bound {
+    BoundEvent("click", handler) => {
+      handler(make_click_event(0, false, false, false, false, false, ""))
+      assert_eq(seen.length(), 1)
+      assert_eq(seen[0], 7)
+    }
+    _ => panic()
+  }
+}
+
+///|
+test "attr slot helpers treat event variants as the same DOM slot" {
+  let event_attr : Attr[Unit] = Event("click", fn(_e) {  })
+  let maybe_attr : Attr[Unit] = EventMaybe("click", fn(_e) { Some(()) })
+  let bound_attr = bind_attr(event_attr, fn(_msg) {  })
+  let class_a : Attr[Unit] = class("a")
+  let class_b : Attr[Unit] = class("b")
+
+  assert_eq(same_attr_slot(event_attr, maybe_attr), true)
+  assert_eq(same_attr_slot(maybe_attr, bound_attr), true)
+  assert_eq(attr_needs_update(event_attr, maybe_attr), true)
+  assert_eq(attr_needs_update(class_a, class_a), false)
+  assert_eq(attr_needs_update(class_a, class_b), true)
+}
+
+///|
 test "VNode::map remaps nested keyed event handlers" {
   let vnode = keyed("k1", button([on_click(fn(_e) { 2 })], [text("tap")]))
   let mapped = vnode.map(fn(x) { x * 10 })

@@ -35,23 +35,7 @@ fn[CMsg] bind_events(
   match vnode {
     Text(s) => Text(s)
     Element(tag, attrs, children) => {
-      let new_attrs = attrs.map(fn(a) {
-        match a {
-          Attribute(k, v) => Attribute(k, v)
-          Property(k, v) => Property(k, v)
-          Event(name, handler) =>
-            BoundEvent(name, fn(e) { dispatch(handler(e)) })
-          EventMaybe(name, handler) =>
-            BoundEvent(name, fn(e) {
-              match handler(e) {
-                Some(msg) => dispatch(msg)
-                None => ()
-              }
-            })
-          BoundEvent(name, handler) => BoundEvent(name, handler)
-          Style(k, v) => Style(k, v)
-        }
-      })
+      let new_attrs = attrs.map(fn(a) { bind_attr(a, dispatch) })
       let new_children = children.map(fn(c) { bind_events(c, dispatch) })
       Element(tag, new_attrs, new_children)
     }
