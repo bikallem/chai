@@ -23,4 +23,4 @@ jobs:
         run: moon check --target js
 
       - name: Run unit tests
-        run: moon test -v
+        run: moon test -v --target js
