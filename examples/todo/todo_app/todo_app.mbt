@@ -19,14 +19,13 @@ pub using @chai {
   component,
   type_,
   checked,
-  placeholder,
-  value,
   on_click,
-  on_input,
   on_check,
-  on_keydown,
   keyed_list,
 }
+
+///|
+using @todo_input { todo_input }
 
 ///|
 pub(all) enum Filter {
@@ -45,15 +44,13 @@ priv struct Todo {
 ///|
 priv struct Model {
   todos : Array[Todo]
-  input : String
   next_id : Int
   filter : Filter
 }
 
 ///|
 pub(all) enum Msg {
-  UpdateInput(String)
-  AddTodo
+  AddTodo(String)
   ToggleTodo(Int)
   DeleteTodo(Int)
   SetFilter(Filter)
@@ -62,28 +59,24 @@ pub(all) enum Msg {
 
 ///|
 fn app_init() -> (Model, Cmd[Msg]) {
-  ({ todos: [], input: "", next_id: 1, filter: All }, Cmd::none())
+  ({ todos: [], next_id: 1, filter: All }, Cmd::none())
 }
 
 ///|
 fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
   match msg {
-    UpdateInput(value) => ({ ..model, input: value }, Cmd::none())
-    AddTodo => {
-      if model.input.length() == 0 {
+    AddTodo(text) => {
+      if text.length() == 0 {
         return (model, Cmd::none())
       }
       let todo : Todo = {
         id: model.next_id,
-        text: model.input,
+        text,
         completed: false,
       }
       let new_todos = model.todos.copy()
       new_todos.push(todo)
-      (
-        { ..model, todos: new_todos, input: "", next_id: model.next_id + 1 },
-        Cmd::none(),
-      )
+      ({ ..model, todos: new_todos, next_id: model.next_id + 1 }, Cmd::none())
     }
     ToggleTodo(id) => {
       let new_todos = model.todos.map(fn(todo) {
@@ -158,7 +151,7 @@ fn view_filter_btn(
 }
 
 ///|
-fn view(model : Model) -> VNode[Msg] {
+fn view(model : Model, handle : Handle[Msg]) -> VNode[Msg] {
   let current_visible_todos = visible_todos(model)
   let current_items_left = items_left(model.todos)
   let items_text = if current_items_left == 1 {
@@ -169,23 +162,7 @@ fn view(model : Model) -> VNode[Msg] {
   div([class("todo-app")], [
     header([class("todo-header")], [
       h1([], [text("todos")]),
-      div([class("input-row")], [
-        input_([
-          class("todo-input"),
-          type_("text"),
-          placeholder("What needs to be done?"),
-          value(model.input),
-          on_input(fn(value) { UpdateInput(value) }),
-          on_keydown(fn(key) {
-            if key == "Enter" {
-              AddTodo
-            } else {
-              UpdateInput(model.input)
-            }
-          }),
-        ]),
-        button([class("add-btn"), on_click(fn(_e) { AddTodo })], [text("Add")]),
-      ]),
+      todo_input(fn(text) { Cmd::send(handle, AddTodo(text)) }),
     ]),
     section([class("todo-list-section")], [
       ul(
@@ -215,5 +192,11 @@ fn view(model : Model) -> VNode[Msg] {
 
 ///|
 pub fn[ParentMsg] todo_app(handle : Handle[Msg]) -> VNode[ParentMsg] {
-  component(id="todo-app", handle=handle, init=app_init, update~, view~)
+  component(
+    id="todo-app",
+    handle=handle,
+    init=app_init,
+    update~,
+    view=fn(model) { view(model, handle) },
+  )
 }

@@ -29,6 +29,16 @@ test("add todo via Enter key", async ({ page }) => {
   await expect(page.locator(".todo-count")).toHaveText("1 item left");
 });
 
+test("successful add clears the input field", async ({ page }) => {
+  const input = page.locator(".todo-input");
+
+  await input.fill("Clear me");
+  await page.locator(".add-btn").click();
+
+  await expect(page.locator(".todo-text")).toHaveText("Clear me");
+  await expect(input).toHaveValue("");
+});
+
 test("toggle todo marks it completed", async ({ page }) => {
   await page.locator(".todo-input").fill("Test item");
   await page.locator(".add-btn").click();
