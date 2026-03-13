@@ -12,6 +12,7 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Examples](#examples)
 - [Core Concepts](#core-concepts)
 - [API Reference](#api-reference)
   - [Elements](#elements)
@@ -22,7 +23,6 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
   - [Routing](#routing)
   - [Components](#components)
 - [Testing](#testing)
-- [Examples](#examples)
 - [License](#license)
 
 ## Quick Start
@@ -61,6 +61,17 @@ fn main {
   start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }
 ```
+
+## Examples
+
+See the [`examples/`](examples/) directory:
+
+- **todo** — TodoMVC-style app with input, filtering, and keyed list diffing
+- **counters** — Encapsulated counter components with parent-to-child messaging via `Handle`
+- **clock** — Stopwatch demonstrating `Sub::every`, `Sub::on_key_down`, and `Cmd::after`
+- **router** — Hash-based routing with `Sub::on_hash_change` and `hash_link`
+- **fetch** — HTTP requests with `Cmd::http_get`
+- **canvas** — Canvas drawing with mouse event subscriptions
 
 ## Core Concepts
 
@@ -282,17 +293,6 @@ Full local suite (unit + Playwright smoke tests):
 ```
 
 Detailed unit coverage and regression mapping live in [`docs/testing-matrix.md`](docs/testing-matrix.md).
-
-## Examples
-
-See the [`examples/`](examples/) directory:
-
-- **todo** — TodoMVC-style app with input, filtering, and keyed list diffing
-- **counters** — Encapsulated counter components with parent-to-child messaging via `Handle`
-- **clock** — Stopwatch demonstrating `Sub::every`, `Sub::on_key_down`, and `Cmd::after`
-- **router** — Hash-based routing with `Sub::on_hash_change` and `hash_link`
-- **fetch** — HTTP requests with `Cmd::http_get`
-- **canvas** — Canvas drawing with mouse event subscriptions
 
 ## License
 
