@@ -1,8 +1,9 @@
 import {
-  "blem/chai-examples/todo/todo_app",
+  "bikallem/chai",
+  "blem/chai-examples/todo/todo_input",
 }
 
 options(
   "is-main": true,
-  "supported-targets": [ "js" ],
+  "supported-targets": "js+wasm-gc",
 )
