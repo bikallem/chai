@@ -1,9 +1,7 @@
 import {
   "bikallem/chai",
-  "blem/chai-examples/todo/todo_app",
 }
 
 options(
-  "is-main": true,
   "supported-targets": [ "js" ],
 )
