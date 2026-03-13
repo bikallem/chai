@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  moon-unit:
+  build-test-chai:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,7 +15,10 @@ jobs:
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
           echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
-
+      
+      - name: Update
+        run: moon update
+        
       - name: Type check
         run: moon check --target js
 
