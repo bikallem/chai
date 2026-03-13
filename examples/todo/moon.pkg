@@ -1,5 +1,4 @@
 import {
-  "bikallem/chai",
   "blem/chai-examples/todo/todo_app",
 }
 

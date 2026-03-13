@@ -1,8 +1,10 @@
 ///|
-pub using @chai {
+using @chai {
   type VNode,
   type Cmd,
+  type Sub,
   type Handle,
+  start,
   div,
   h1,
   span,
@@ -28,7 +30,7 @@ pub using @chai {
 using @todo_input { todo_input }
 
 ///|
-pub(all) enum Filter {
+priv enum Filter {
   All
   Active
   Completed
@@ -49,7 +51,7 @@ priv struct Model {
 }
 
 ///|
-pub(all) enum Msg {
+priv enum Msg {
   AddTodo(String)
   ToggleTodo(Int)
   DeleteTodo(Int)
@@ -191,12 +193,54 @@ fn view(model : Model, handle : Handle[Msg]) -> VNode[Msg] {
 }
 
 ///|
-pub fn[ParentMsg] todo_app(handle : Handle[Msg]) -> VNode[ParentMsg] {
+fn[ParentMsg] todo_app(handle : Handle[Msg]) -> VNode[ParentMsg] {
   component(
     id="todo-app",
     handle=handle,
     init=app_init,
     update~,
     view=fn(model) { view(model, handle) },
+  )
+}
+
+///|
+priv struct ShellModel {
+  todo_app_handle : Handle[Msg]
+}
+
+///|
+type ShellMsg = Unit
+
+///|
+fn shell_init() -> (ShellModel, Cmd[ShellMsg]) {
+  ({ todo_app_handle: Handle::new() }, Cmd::none())
+}
+
+///|
+fn shell_update(
+  model : ShellModel,
+  _msg : ShellMsg,
+) -> (ShellModel, Cmd[ShellMsg]) {
+  (model, Cmd::none())
+}
+
+///|
+fn shell_view(model : ShellModel) -> VNode[ShellMsg] {
+  todo_app(model.todo_app_handle)
+}
+
+///|
+fn shell_subscriptions(_model : ShellModel) -> Sub[ShellMsg] {
+  Sub::none()
+}
+
+///|
+pub fn run() -> Unit {
+  start(
+    init=shell_init,
+    update=shell_update,
+    view=shell_view,
+    subscriptions=shell_subscriptions,
+    selector="#app",
   )
 }
