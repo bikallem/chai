@@ -8,4 +8,4 @@ test-results/.last-run.json
 # Dolt database files (added by bd init)
 .dolt/
 *.db
-.beads/dolt-config.log
+.beads/
