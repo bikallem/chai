@@ -5,10 +5,8 @@
     "bikallem/chai": {
       "path": "../"
     },
-    "bikallem/webapi": {
-      "path": "/home/blem/projects/webapi/webapi"
-    }
+    "bikallem/webapi": "0.4.0"
   },
-  "preferred-target": "js",
-  "warn-list": "@27"
+  "warn-list": "@27",
+  "preferred-target": "js"
 }
