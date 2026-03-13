@@ -35,6 +35,19 @@ jobs:
       - name: Type check
         run: moon check --target js
 
+      - name : Cache Playwright browsers
+        id: cache-playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('tests/package-lock.json') }}
+      
+      - name: Run Playwright tests
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+
       - name: Run Tests
         run: |          
           moon -C examples build --release --target js
