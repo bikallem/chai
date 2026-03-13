@@ -2,8 +2,7 @@
 priv struct SubDef[Msg] {
   key : String
   identity : String
-  behavior : @webapi.JsValue
-  start : ((Msg) -> Unit, @webapi.JsValue) -> ActiveSub
+  start : ((Msg) -> Unit) -> () -> Unit
 }
 
 ///|
@@ -12,19 +11,7 @@ struct Sub[Msg] {
 }
 
 ///|
-priv struct KeyDownBehavior[Msg] {
-  to_msg : (String) -> Msg
-  prevent_default : ((String) -> Bool)?
-}
-
-///|
 let sub_identity_counter : Ref[Int] = Ref::new(0)
-
-///|
-fn[A] erase_sub_behavior(value : A) -> @webapi.JsValue = "%identity"
-
-///|
-fn[A] unerase_sub_behavior(value : @webapi.JsValue) -> A = "%identity"
 
 ///|
 fn fresh_sub_identity(prefix : String) -> String {
@@ -34,34 +21,12 @@ fn fresh_sub_identity(prefix : String) -> String {
 }
 
 ///|
-fn[Behavior, Msg] refreshable_sub(
+fn[Msg] tracked_sub(
   key : String,
   identity : String,
-  behavior : Behavior,
-  start : ((Msg) -> Unit, Ref[Behavior]) -> () -> Unit,
+  start : ((Msg) -> Unit) -> () -> Unit,
 ) -> Sub[Msg] {
-  {
-    subs: [
-      {
-        key,
-        identity,
-        behavior: erase_sub_behavior(behavior),
-        start: fn(dispatch, behavior_js) {
-          let behavior_ref : Ref[Behavior] = Ref::new(
-            unerase_sub_behavior(behavior_js),
-          )
-          let cleanup = start(dispatch, behavior_ref)
-          {
-            identity,
-            cleanup,
-            refresh: fn(next_behavior_js) {
-              behavior_ref.val = unerase_sub_behavior(next_behavior_js)
-            },
-          }
-        },
-      },
-    ],
-  }
+  { subs: [{ key, identity, start }] }
 }
 
 ///|
@@ -86,10 +51,7 @@ pub fn[A, B] Sub::map(self : Sub[A], f : (A) -> B) -> Sub[B] {
     {
       key: sd.key,
       identity: sd.identity,
-      behavior: sd.behavior,
-      start: fn(dispatch : (B) -> Unit, behavior_js : @webapi.JsValue) {
-        (sd.start)(fn(a) { dispatch(f(a)) }, behavior_js)
-      },
+      start: fn(dispatch : (B) -> Unit) { (sd.start)(fn(a) { dispatch(f(a)) }) },
     }
   })
   { subs: new_subs }
@@ -100,31 +62,15 @@ pub fn[Msg] Sub::sub(
   key : String,
   start : ((Msg) -> Unit) -> () -> Unit,
 ) -> Sub[Msg] {
-  let identity = fresh_sub_identity("custom")
-  {
-    subs: [
-      {
-        key,
-        identity,
-        behavior: @webapi.JsValue::undefined(),
-        start: fn(dispatch, _behavior_js) {
-          let cleanup = start(dispatch)
-          { identity, cleanup, refresh: fn(_) {  } }
-        },
-      },
-    ],
-  }
+  tracked_sub(key, fresh_sub_identity("custom"), start)
 }
 
 ///|
 /// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
 pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
-  refreshable_sub(key, "every:" + ms.to_string(), to_msg, fn(
-    dispatch,
-    behavior_ref,
-  ) {
+  tracked_sub(key, fresh_sub_identity("every:" + ms.to_string()), fn(dispatch) {
     let id = @webapi.window.set_interval(
-      js_callback(fn() { dispatch((behavior_ref.val)()) }),
+      js_callback(fn() { dispatch(to_msg()) }),
       timeout=ms,
       [],
     )
@@ -142,19 +88,15 @@ pub fn[Msg] Sub::on_key_down(
   to_msg : (String) -> Msg,
   prevent_default? : (String) -> Bool,
 ) -> Sub[Msg] {
-  refreshable_sub(key, "document:keydown", { to_msg, prevent_default }, fn(
-    dispatch,
-    behavior_ref,
-  ) {
+  tracked_sub(key, fresh_sub_identity("document:keydown"), fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(e) {
       let ke : @webapi.KeyboardEvent = e.into()
       let pressed = ke.key()
-      let behavior = behavior_ref.val
-      match behavior.prevent_default {
+      match prevent_default {
         Some(pred) => if pred(pressed) { e.prevent_default() }
         None => ()
       }
-      dispatch((behavior.to_msg)(pressed))
+      dispatch(to_msg(pressed))
     }
     @webapi.document.add_event_listener("keydown", handler)
     fn() { @webapi.document.remove_event_listener("keydown", handler) }
@@ -167,13 +109,10 @@ pub fn[Msg] Sub::on_window_resize(
   key : String,
   to_msg : (Int, Int) -> Msg,
 ) -> Sub[Msg] {
-  refreshable_sub(key, "window:resize", to_msg, fn(dispatch, behavior_ref) {
+  tracked_sub(key, fresh_sub_identity("window:resize"), fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(_e) {
       dispatch(
-        (behavior_ref.val)(
-          @webapi.window.inner_width(),
-          @webapi.window.inner_height(),
-        ),
+        to_msg(@webapi.window.inner_width(), @webapi.window.inner_height()),
       )
     }
     @webapi.window.add_event_listener("resize", handler)

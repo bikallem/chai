@@ -1,9 +1,8 @@
 ///|
-/// Active subscription with its cleanup function and refresh behavior.
+/// Active subscription with its cleanup function.
 priv struct ActiveSub {
   identity : String
   cleanup : () -> Unit
-  refresh : (@webapi.JsValue) -> Unit
 }
 
 ///|
@@ -94,13 +93,18 @@ fn[Msg] update_subs(
     new_keys.add(sd.key)
     match active_subs.get(sd.key) {
       Some(active) =>
-        if active.identity == sd.identity {
-          (active.refresh)(sd.behavior)
-        } else {
+        if active.identity != sd.identity {
           (active.cleanup)()
-          active_subs[sd.key] = (sd.start)(dispatch, sd.behavior)
+          active_subs[sd.key] = {
+            identity: sd.identity,
+            cleanup: (sd.start)(dispatch),
+          }
         }
-      None => active_subs[sd.key] = (sd.start)(dispatch, sd.behavior)
+      None =>
+        active_subs[sd.key] = {
+          identity: sd.identity,
+          cleanup: (sd.start)(dispatch),
+        }
     }
   }
   let to_remove : Array[String] = []

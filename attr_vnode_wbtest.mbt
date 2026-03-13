@@ -12,6 +12,7 @@ test "class_list keeps only enabled classes" {
 }
 
 ///|
+#cfg(target="js")
 test "on_input and on_check extract values from event target" {
   let input_attr = on_input(fn(s) { s })
   match input_attr {
@@ -28,6 +29,7 @@ test "on_input and on_check extract values from event target" {
 }
 
 ///|
+#cfg(target="js")
 test "on_input/on_change work for textarea and select value events" {
   let textarea_vnode = textarea([on_input(fn(value) { value })], [])
   match textarea_vnode {
@@ -59,6 +61,7 @@ test "on_input/on_change work for textarea and select value events" {
 }
 
 ///|
+#cfg(target="js")
 test "on_keydown and on_submit decode event payloads" {
   let key_attr = on_keydown(fn(k) { k })
   match key_attr {
@@ -79,6 +82,7 @@ test "on_keydown and on_submit decode event payloads" {
 }
 
 ///|
+#cfg(target="js")
 test "Attr::map remaps event payload" {
   let mapped = on_click(fn(_e) { 1 }).map(fn(x) { x + 10 })
   match mapped {
@@ -92,6 +96,7 @@ test "Attr::map remaps event payload" {
 }
 
 ///|
+#cfg(target="js")
 test "bind_attr normalizes event handlers into bound DOM handlers" {
   let seen : Array[Int] = []
   let bound = bind_attr(on_click(fn(_e) { 7 }), fn(msg) { seen.push(msg) })
@@ -121,6 +126,7 @@ test "attr slot helpers treat event variants as the same DOM slot" {
 }
 
 ///|
+#cfg(target="js")
 test "VNode::map remaps nested keyed event handlers" {
   let vnode = keyed("k1", button([on_click(fn(_e) { 2 })], [text("tap")]))
   let mapped = vnode.map(fn(x) { x * 10 })

@@ -40,12 +40,14 @@ test "Cmd::send uses handle dispatch" {
 }
 
 ///|
+#cfg(target="js")
 test "error_message handles nullish reasons" {
   assert_eq(error_message(@webapi.JsValue::null()), "null")
   assert_eq(error_message(@webapi.JsValue::undefined()), "undefined")
 }
 
 ///|
+#cfg(target="js")
 test "error_message reads message field when present" {
   let obj = @webapi.JsObject::new()
   obj.set("message", @webapi.TJsValue::to_js("boom")) |> ignore
@@ -53,6 +55,7 @@ test "error_message reads message field when present" {
 }
 
 ///|
+#cfg(target="js")
 test "error_message falls back to reason string when message missing" {
   let obj = @webapi.JsObject::new()
   assert_eq(error_message(@webapi.TJsValue::to_js(obj)), "[object Object]")

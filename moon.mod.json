@@ -7,6 +7,7 @@
   "repository": "github.com/bikallem/chai",
   "license": "MIT",
   "description": "Chai is TEA (The Elm Architecture) framework for MoonBit",
+  "preferred-target": "js",
   "warn-list": "@27",
   "exclude": [
     "examples",

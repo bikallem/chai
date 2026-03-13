@@ -7,6 +7,7 @@ test "parse_path splits and drops empty segments" {
 }
 
 ///|
+#cfg(target="js")
 test "is_plain_primary_click enforces no modifiers and left button" {
   assert_eq(
     is_plain_primary_click(
@@ -29,6 +30,7 @@ test "is_plain_primary_click enforces no modifiers and left button" {
 }
 
 ///|
+#cfg(target="js")
 test "should_intercept_link_click matches same-tab plain click only" {
   assert_eq(
     should_intercept_link_click(
@@ -57,6 +59,7 @@ test "should_intercept_link_click matches same-tab plain click only" {
 }
 
 ///|
+#cfg(target="js")
 test "link emits EventMaybe click handler with interception rules" {
   let vnode = link("/next", [class("cta")], [text("go")], on_nav=7)
   match vnode {

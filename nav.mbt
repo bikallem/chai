@@ -90,10 +90,8 @@ fn[Msg] on_window_event(
   parse : () -> Url,
   to_msg : (Url) -> Msg,
 ) -> Sub[Msg] {
-  refreshable_sub(key, "window:" + event, to_msg, fn(dispatch, behavior_ref) {
-    let handler : (@webapi.Event) -> Unit = fn(_e) {
-      dispatch((behavior_ref.val)(parse()))
-    }
+  tracked_sub(key, fresh_sub_identity("window:" + event), fn(dispatch) {
+    let handler : (@webapi.Event) -> Unit = fn(_e) { dispatch(to_msg(parse())) }
     @webapi.window.add_event_listener(event, handler)
     fn() { @webapi.window.remove_event_listener(event, handler) }
   })

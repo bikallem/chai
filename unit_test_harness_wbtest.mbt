@@ -1,4 +1,5 @@
 ///|
+#cfg(target="js")
 extern "js" fn make_click_event(
   button : Int,
   meta : Bool,
@@ -10,10 +11,12 @@ extern "js" fn make_click_event(
 ) -> @webapi.Event = "(button, meta, ctrl, shift, alt, default_prevented, target) => ({ button, metaKey: meta, ctrlKey: ctrl, shiftKey: shift, altKey: alt, defaultPrevented: default_prevented, currentTarget: { target }, target: { value: '', checked: false }, preventDefault() { this.defaultPrevented = true } })"
 
 ///|
+#cfg(target="js")
 extern "js" fn make_input_event(
   value : String,
   checked : Bool,
 ) -> @webapi.Event = "(value, checked) => ({ target: { value, checked } })"
 
 ///|
+#cfg(target="js")
 extern "js" fn make_key_event(key : String) -> @webapi.Event = "(key) => ({ key })"

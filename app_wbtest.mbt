@@ -34,43 +34,79 @@ test "update_subs restarts custom subscriptions with the same key" {
 }
 
 ///|
-test "update_subs refreshes same-identity subscriptions in place" {
+test "update_subs keeps same-identity subscriptions in place" {
   let starts = Ref::new(0)
   let cleans = Ref::new(0)
   let received : Array[Int] = []
   let active : Map[String, ActiveSub] = {}
-  let trigger : Ref[() -> Unit] = Ref::new(fn() {  })
 
-  fn refreshable(value : Int) -> Sub[Int] {
-    refreshable_sub("timer", "every:10", value, fn(dispatch, behavior_ref) {
-      starts.val += 1
-      trigger.val = fn() { dispatch(behavior_ref.val) }
-      fn() {
-        cleans.val += 1
-        trigger.val = fn() {  }
-      }
-    })
+  fn stable_sub(msg : Int) -> Sub[Int] {
+    {
+      subs: [
+        {
+          key: "timer",
+          identity: "stable",
+          start: fn(dispatch) {
+            starts.val += 1
+            dispatch(msg)
+            fn() { cleans.val += 1 }
+          },
+        },
+      ],
+    }
   }
 
-  update_subs(refreshable(1), active, fn(msg) { received.push(msg) })
-  (trigger.val)()
+  update_subs(stable_sub(1), active, fn(msg) { received.push(msg) })
   assert_eq(starts.val, 1)
   assert_eq(cleans.val, 0)
   assert_eq(received.length(), 1)
   assert_eq(received[0], 1)
   assert_eq(active.length(), 1)
 
-  update_subs(refreshable(2), active, fn(msg) { received.push(msg) })
-  (trigger.val)()
+  update_subs(stable_sub(2), active, fn(msg) { received.push(msg) })
   assert_eq(starts.val, 1)
   assert_eq(cleans.val, 0)
+  assert_eq(received.length(), 1)
+  assert_eq(active.length(), 1)
+
+  let none : Sub[Int] = Sub::none()
+  update_subs(none, active, fn(_msg) {  })
+  assert_eq(cleans.val, 1)
+  assert_eq(active.length(), 0)
+}
+
+///|
+test "update_subs restarts changed identities for the same key" {
+  let starts = Ref::new(0)
+  let cleans = Ref::new(0)
+  let received : Array[Int] = []
+  let active : Map[String, ActiveSub] = {}
+
+  fn changing_identity(msg : Int) -> Sub[Int] {
+    tracked_sub("timer", fresh_sub_identity("timer"), fn(dispatch) {
+      starts.val += 1
+      dispatch(msg)
+      fn() { cleans.val += 1 }
+    })
+  }
+
+  update_subs(changing_identity(1), active, fn(msg) { received.push(msg) })
+  assert_eq(starts.val, 1)
+  assert_eq(cleans.val, 0)
+  assert_eq(received.length(), 1)
+  assert_eq(received[0], 1)
+  assert_eq(active.length(), 1)
+
+  update_subs(changing_identity(2), active, fn(msg) { received.push(msg) })
+  assert_eq(starts.val, 2)
+  assert_eq(cleans.val, 1)
   assert_eq(received.length(), 2)
   assert_eq(received[1], 2)
   assert_eq(active.length(), 1)
 
   let none : Sub[Int] = Sub::none()
   update_subs(none, active, fn(_msg) {  })
-  assert_eq(cleans.val, 1)
+  assert_eq(cleans.val, 2)
   assert_eq(active.length(), 0)
 }
 

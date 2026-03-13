@@ -99,7 +99,7 @@ test "pending init commands are drained exactly once" {
 }
 
 ///|
-test "reused component slot refreshes captured closures and latest handle" {
+test "reused component slot keeps the original closures and handle binding" {
   let runtime = new_component_runtime()
   let first_handle = Handle::new()
   let second_handle = Handle::new()
@@ -153,7 +153,7 @@ test "reused component slot refreshes captured closures and latest handle" {
   match runtime.component_slots.get("id:counter") {
     Some(slot) =>
       match slot.current_expanded.val {
-        Text("second:12") => ()
+        Text("first:7") => ()
         _ => panic()
       }
     None => panic()
