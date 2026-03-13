@@ -12,11 +12,11 @@ fn[Msg] create_dom_node(
 ) -> @webapi.Node {
   match vnode {
     Text(s) => {
-      let text_node = @webapi.document.create_text_node(s)
+      let text_node = @webapi.document().create_text_node(s)
       @webapi.TJsValue::to_js(text_node).into()
     }
     Element(tag, attrs, children) => {
-      let el = @webapi.document.create_element(tag)
+      let el = @webapi.document().create_element(tag)
       apply_attrs(el, attrs, dispatch)
       let el_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
       for child in children {

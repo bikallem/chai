@@ -39,7 +39,7 @@ fn app_init() -> (Model, Cmd[Msg]) {
 ///|
 fn redraw(model : Model) -> Cmd[Msg] {
   Cmd::task(fn(_dispatch) {
-    let canvas : @webapi.HTMLCanvasElement = @webapi.document
+    let canvas : @webapi.HTMLCanvasElement = @webapi.document()
       .get_element_by_id("draw-canvas")
       .into()
     let ctx : @webapi.CanvasRenderingContext2D = canvas

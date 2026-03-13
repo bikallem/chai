@@ -58,7 +58,7 @@ pub fn[Msg] id(String) -> Attr[Msg]
 
 pub fn[Msg] img(Array[Attr[Msg]]) -> VNode[Msg]
 
-pub fn[Msg] input_(Array[Attr[Msg]]) -> VNode[Msg]
+pub fn[Msg] input(Array[Attr[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] keyed(String, VNode[Msg]) -> VNode[Msg]
 

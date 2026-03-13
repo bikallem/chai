@@ -69,12 +69,12 @@ pub fn[Msg] Sub::sub(
 /// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
 pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
   tracked_sub(key, fresh_sub_identity("every:" + ms.to_string()), fn(dispatch) {
-    let id = @webapi.window.set_interval(
+    let id = @webapi.window().set_interval(
       js_callback(fn() { dispatch(to_msg()) }),
       timeout=ms,
       [],
     )
-    fn() { @webapi.window.clear_interval(id~) }
+    fn() { @webapi.window().clear_interval(id~) }
   })
 }
 
@@ -98,8 +98,8 @@ pub fn[Msg] Sub::on_key_down(
       }
       dispatch(to_msg(pressed))
     }
-    @webapi.document.add_event_listener("keydown", handler)
-    fn() { @webapi.document.remove_event_listener("keydown", handler) }
+    @webapi.document().add_event_listener("keydown", handler)
+    fn() { @webapi.document().remove_event_listener("keydown", handler) }
   })
 }
 
@@ -112,10 +112,10 @@ pub fn[Msg] Sub::on_window_resize(
   tracked_sub(key, fresh_sub_identity("window:resize"), fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(_e) {
       dispatch(
-        to_msg(@webapi.window.inner_width(), @webapi.window.inner_height()),
+        to_msg(@webapi.window().inner_width(), @webapi.window().inner_height()),
       )
     }
-    @webapi.window.add_event_listener("resize", handler)
-    fn() { @webapi.window.remove_event_listener("resize", handler) }
+    @webapi.window().add_event_listener("resize", handler)
+    fn() { @webapi.window().remove_event_listener("resize", handler) }
   })
 }

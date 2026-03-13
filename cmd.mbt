@@ -57,7 +57,7 @@ fn js_callback(f : () -> Unit) -> @webapi.Function {
 /// Dispatch a message after a delay in milliseconds.
 pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
   Cmd::task(fn(dispatch) {
-    @webapi.window.set_timeout(
+    @webapi.window().set_timeout(
       js_callback(fn() { dispatch(msg) }),
       timeout=ms,
       [],
@@ -89,7 +89,7 @@ pub fn[Msg] Cmd::http_get(
   on_result : (Result[String, String]) -> Msg,
 ) -> Cmd[Msg] {
   Cmd::task(fn(dispatch) {
-    @webapi.window
+    @webapi.window()
     .fetch(url)
     .then(fn(response : @webapi.Response) {
       if response.ok() {

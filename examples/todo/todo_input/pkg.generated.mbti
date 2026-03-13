@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bikallem/chai/examples/todo/todo_input"
+
+import {
+  "bikallem/chai",
+  "bikallem/webapi",
+}
+
+// Values
+pub fn[Msg] button(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] class(String) -> @chai.Attr[Msg]
+
+pub fn[Model, CMsg, Msg] component(id? : String, handle? : @chai.Handle[CMsg], init~ : () -> (Model, @chai.Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, @chai.Cmd[CMsg]), view~ : (Model) -> @chai.VNode[CMsg]) -> @chai.VNode[Msg]
+
+pub fn[Msg] div(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] input(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] on_click((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_input((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_keydown((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] placeholder(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] text(String) -> @chai.VNode[Msg]
+
+pub fn[ParentMsg] todo_input((String) -> @chai.Cmd[Msg]) -> @chai.VNode[ParentMsg]
+
+pub fn[Msg] type_(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] value(String) -> @chai.Attr[Msg]
+
+// Errors
+
+// Types and methods
+pub(all) enum Msg {
+  UpdateText(String)
+  Submit
+}
+
+// Type aliases
+pub using @chai {type Cmd}
+
+pub using @chai {type VNode}
+
+// Traits
+

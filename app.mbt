@@ -14,7 +14,7 @@ pub fn[Model, Msg] start(
   subscriptions~ : (Model) -> Sub[Msg],
   selector~ : String,
 ) -> Unit {
-  let root_el = @webapi.document.query_selector_opt(selector)
+  let root_el = @webapi.document().query_selector_opt(selector)
   guard root_el is Some(el) else {
     abort("chai: no element matches selector \"" + selector + "\"")
   }

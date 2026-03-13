@@ -19,13 +19,13 @@ fn parse_path(pathname : String) -> Array[String] {
 
 ///|
 fn url_from_location() -> Url {
-  let loc = @webapi.window.location()
+  let loc = @webapi.window().location()
   { path: parse_path(loc.pathname()), query: loc.search(), hash: loc.hash() }
 }
 
 ///|
 fn url_from_hash() -> Url {
-  let raw = @webapi.window.location().hash()
+  let raw = @webapi.window().location().hash()
   let s = match raw.strip_prefix("#") {
     Some(v) => v.to_string()
     None => raw
@@ -55,7 +55,7 @@ pub fn hash_url() -> Url {
 
 ///|
 fn dispatch_popstate() -> Unit {
-  @webapi.window.dispatch_event(@webapi.PopStateEvent::new("popstate"))
+  @webapi.window().dispatch_event(@webapi.PopStateEvent::new("popstate"))
   |> ignore
 }
 
@@ -63,7 +63,7 @@ fn dispatch_popstate() -> Unit {
 /// Navigate to a new URL using pushState. Triggers `on_url_change` subscribers.
 pub fn[Msg] Cmd::push_url(url : String) -> Cmd[Msg] {
   Cmd::task(fn(_dispatch) {
-    @webapi.window.history().push_state(@webapi.JsValue::null(), "", url~)
+    @webapi.window().history().push_state(@webapi.JsValue::null(), "", url~)
     dispatch_popstate()
   })
 }
@@ -72,7 +72,7 @@ pub fn[Msg] Cmd::push_url(url : String) -> Cmd[Msg] {
 /// Replace the current URL using replaceState. Triggers `on_url_change` subscribers.
 pub fn[Msg] Cmd::replace_url(url : String) -> Cmd[Msg] {
   Cmd::task(fn(_dispatch) {
-    @webapi.window.history().replace_state(@webapi.JsValue::null(), "", url~)
+    @webapi.window().history().replace_state(@webapi.JsValue::null(), "", url~)
     dispatch_popstate()
   })
 }
@@ -80,7 +80,7 @@ pub fn[Msg] Cmd::replace_url(url : String) -> Cmd[Msg] {
 ///|
 /// Set the location hash. Triggers `on_hash_change` subscribers natively.
 pub fn[Msg] Cmd::push_hash(hash : String) -> Cmd[Msg] {
-  Cmd::task(fn(_dispatch) { @webapi.window.location().set_hash(hash) })
+  Cmd::task(fn(_dispatch) { @webapi.window().location().set_hash(hash) })
 }
 
 ///|
@@ -92,8 +92,8 @@ fn[Msg] on_window_event(
 ) -> Sub[Msg] {
   tracked_sub(key, fresh_sub_identity("window:" + event), fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(_e) { dispatch(to_msg(parse())) }
-    @webapi.window.add_event_listener(event, handler)
-    fn() { @webapi.window.remove_event_listener(event, handler) }
+    @webapi.window().add_event_listener(event, handler)
+    fn() { @webapi.window().remove_event_listener(event, handler) }
   })
 }
 
