@@ -1,6 +1,13 @@
 # Chai
 
-A [TEA (The Elm Architecture)](https://guide.elm-lang.org/architecture/) framework for [MoonBit](https://www.moonbitlang.com/), targeting JavaScript/browser with virtual DOM diffing and encapsulated components.
+Chai is a [MoonBit](https://www.moonbitlang.com/) framework for browser applications with a virtual DOM, browser-oriented commands and subscriptions, routing helpers, and encapsulated components.
+
+It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, but it is not limited to a single flat application loop. Chai adds:
+
+- stateful components with their own local `Model` and `Msg`
+- parent/child messaging through `Handle` and `Cmd::send`
+- built-in hash and `pushState` routing helpers
+- browser-focused commands and subscriptions for timers, HTTP, keyboard, resize, and navigation events
 
 ## Table of Contents
 
@@ -57,7 +64,7 @@ fn main {
 
 ## Core Concepts
 
-Every Chai app follows the TEA pattern:
+Every Chai app starts from the familiar TEA-style state transition pattern:
 
 - **Model** — your application state
 - **Msg** — messages that describe state changes
