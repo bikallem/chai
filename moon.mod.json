@@ -11,7 +11,8 @@
   "warn-list": "@27",
   "exclude": [
     "examples",
-    "tests",
-    "test-results"
+    "scripts",
+    "test-results",
+    "tests"
   ]
 }

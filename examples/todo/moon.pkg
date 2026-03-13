@@ -1,6 +1,6 @@
 import {
   "bikallem/chai",
-  "blem/chai-examples/todo/todo_input",
+  "bikallem/chai/examples/todo/todo_input",
 }
 
 options(

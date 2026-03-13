@@ -1,3 +1,7 @@
 import {
   "bikallem/chai",
 }
+
+options(
+  "supported-targets": "js+wasm-gc",
+)

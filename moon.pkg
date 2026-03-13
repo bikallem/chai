@@ -5,6 +5,7 @@ import {
 }
 
 options(
+  exclude: [ "examples", "tests" ],
   link: {
     "wasm-gc": {
       "imported-string-constants": "_",

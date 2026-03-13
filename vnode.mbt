@@ -289,7 +289,7 @@ pub fn[Msg] strong(
 }
 
 ///|
-pub fn[Msg] input_(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
+pub fn[Msg] input(attrs : Array[Attr[Msg]]) -> VNode[Msg] {
   el("input", attrs, [])
 }
 

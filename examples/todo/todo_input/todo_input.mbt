@@ -4,7 +4,7 @@ pub using @chai {
   type Cmd,
   div,
   button,
-  input_,
+  input,
   text,
   class,
   component,
@@ -52,7 +52,7 @@ fn update(
 ///|
 fn view(model : Model) -> VNode[Msg] {
   div([class("input-row")], [
-    input_([
+    input([
       class("todo-input"),
       type_("text"),
       placeholder("What needs to be done?"),

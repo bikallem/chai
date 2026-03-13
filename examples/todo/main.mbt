@@ -9,7 +9,7 @@ using @chai {
   h1,
   span,
   button,
-  input_,
+  input,
   ul,
   li,
   label,
@@ -123,7 +123,7 @@ fn view_todo(todo : Todo) -> VNode[Msg] {
   }
   li([class(item_class)], [
     label([class("todo-label")], [
-      input_([
+      input([
         type_("checkbox"),
         checked(todo.completed),
         on_check(fn(_checked) { ToggleTodo(todo.id) }),
