@@ -66,7 +66,7 @@ pub fn[Msg] Sub::sub(
 ///|
 /// Subscribe to a recurring timer. Fires `to_msg()` every `ms` milliseconds.
 pub fn[Msg] Sub::every(ms : Int, key : String, to_msg : () -> Msg) -> Sub[Msg] {
-  tracked_sub(key, fresh_sub_identity("every:" + ms.to_string()), fn(dispatch) {
+  tracked_sub(key, "every:" + ms.to_string(), fn(dispatch) {
     let id = @webapi.window().set_interval(
       js_callback(fn() { dispatch(to_msg()) }),
       timeout=ms,
@@ -86,7 +86,7 @@ pub fn[Msg] Sub::on_key_down(
   to_msg : (String) -> Msg,
   prevent_default? : (String) -> Bool,
 ) -> Sub[Msg] {
-  tracked_sub(key, fresh_sub_identity("document:keydown"), fn(dispatch) {
+  tracked_sub(key, "document:keydown", fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(e) {
       let ke : @webapi.KeyboardEvent = e.into()
       let pressed = ke.key()
@@ -107,7 +107,7 @@ pub fn[Msg] Sub::on_window_resize(
   key : String,
   to_msg : (Int, Int) -> Msg,
 ) -> Sub[Msg] {
-  tracked_sub(key, fresh_sub_identity("window:resize"), fn(dispatch) {
+  tracked_sub(key, "window:resize", fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(_e) {
       dispatch(
         to_msg(@webapi.window().inner_width(), @webapi.window().inner_height()),
