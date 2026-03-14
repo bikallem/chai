@@ -4,6 +4,16 @@
 
 This package contains all **view-related** functions. The core `bikallem/chai` package provides the runtime (`start`, `Cmd`, `Sub`, `component`, etc.), while `h` provides everything you need to describe what gets rendered.
 
+## Table of Contents
+
+- [Setup](#setup)
+- [Usage](#usage)
+- [Custom elements and attributes](#custom-elements-and-attributes)
+- [What's in each package](#whats-in-each-package)
+- [Elements](#elements)
+- [Attributes](#attributes)
+- [Events](#events)
+
 ## Setup
 
 Add both packages to your `moon.pkg`:
