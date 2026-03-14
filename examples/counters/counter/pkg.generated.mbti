@@ -3,25 +3,10 @@ package "bikallem/chai/examples/counters/counter"
 
 import {
   "bikallem/chai",
-  "bikallem/webapi",
 }
 
 // Values
-pub fn[Msg] button(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
-
-pub fn[Msg] class(String) -> @chai.Attr[Msg]
-
-pub fn[Model, CMsg, Msg] component(id? : String, handle? : @chai.Handle[CMsg], init~ : () -> (Model, @chai.Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, @chai.Cmd[CMsg]), view~ : (Model) -> @chai.VNode[CMsg]) -> @chai.VNode[Msg]
-
 pub fn[ParentMsg] counter(handle? : @chai.Handle[Msg]) -> @chai.VNode[ParentMsg]
-
-pub fn[Msg] div(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
-
-pub fn[Msg] on_click((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
-
-pub fn[Msg] span(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
-
-pub fn[Msg] text(String) -> @chai.VNode[Msg]
 
 pub fn update(Model, Msg) -> (Model, @chai.Cmd[Msg])
 
@@ -41,11 +26,6 @@ pub(all) enum Msg {
 }
 
 // Type aliases
-pub using @chai {type Cmd}
-
-pub using @chai {type Handle}
-
-pub using @chai {type VNode}
 
 // Traits
 

@@ -8,13 +8,41 @@ import {
 // Values
 pub fn[Msg] a(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] abbr(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] action(String) -> Attr[Msg]
+
+pub fn[Msg] alt(String) -> Attr[Msg]
+
+pub fn[Msg] aria(String, String) -> Attr[Msg]
+
+pub fn[Msg] article(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] aside(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] attr(String, String) -> Attr[Msg]
+
+pub fn[Msg] audio(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] autocomplete(String) -> Attr[Msg]
+
+pub fn[Msg] autofocus(Bool) -> Attr[Msg]
+
+pub fn[Msg] autoplay(Bool) -> Attr[Msg]
+
+pub fn[Msg] blockquote(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] br(Array[Attr[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] button(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] canvas(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] caption(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] checked(Bool) -> Attr[Msg]
+
+pub fn[Msg] cite(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] class(String) -> Attr[Msg]
 
@@ -22,15 +50,51 @@ pub fn[Msg] class_list(Array[(String, Bool)]) -> Attr[Msg]
 
 pub fn[Msg] code(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] col(Array[Attr[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] colgroup(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] cols(Int) -> Attr[Msg]
+
 pub fn[Model, CMsg, Msg] component(id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
+
+pub fn[Msg] contenteditable(String) -> Attr[Msg]
+
+pub fn[Msg] controls(Bool) -> Attr[Msg]
+
+pub fn[Msg] data(String, String) -> Attr[Msg]
+
+pub fn[Msg] datalist(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] dd(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] details(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] dialog(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] disabled(Bool) -> Attr[Msg]
 
 pub fn[Msg] div(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] dl(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] download(String) -> Attr[Msg]
+
+pub fn[Msg] draggable(String) -> Attr[Msg]
+
+pub fn[Msg] dt(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] el(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] em(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] embed(Array[Attr[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] fieldset(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] figcaption(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] figure(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] footer(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -44,11 +108,21 @@ pub fn[Msg] h2(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] h3(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] h4(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] h5(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] h6(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] hash_link(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn hash_url() -> Url
 
 pub fn[Msg] header(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] height(String) -> Attr[Msg]
+
+pub fn[Msg] hidden(Bool) -> Attr[Msg]
 
 pub fn[Msg] hr(Array[Attr[Msg]]) -> VNode[Msg]
 
@@ -56,9 +130,13 @@ pub fn[Msg] href(String) -> Attr[Msg]
 
 pub fn[Msg] id(String) -> Attr[Msg]
 
+pub fn[Msg] iframe(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] img(Array[Attr[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] input(Array[Attr[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] kbd(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] keyed(String, VNode[Msg]) -> VNode[Msg]
 
@@ -66,13 +144,43 @@ pub fn[Msg] keyed_list(Array[(String, VNode[Msg])]) -> Array[VNode[Msg]]
 
 pub fn[Msg] label(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] legend(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] li(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] link(String, Array[Attr[Msg]], Array[VNode[Msg]], on_nav~ : Msg) -> VNode[Msg]
 
+pub fn[Msg] loop_(Bool) -> Attr[Msg]
+
+pub fn[Msg] main_(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] mark(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] max(String) -> Attr[Msg]
+
+pub fn[Msg] maxlength(Int) -> Attr[Msg]
+
+pub fn[Msg] meter(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] method_(String) -> Attr[Msg]
+
+pub fn[Msg] min(String) -> Attr[Msg]
+
+pub fn[Msg] minlength(Int) -> Attr[Msg]
+
+pub fn[Msg] multiple(Bool) -> Attr[Msg]
+
+pub fn[Msg] muted(Bool) -> Attr[Msg]
+
+pub fn[Msg] name(String) -> Attr[Msg]
+
 pub fn[Msg] nav(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] ol(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] on(String, (@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_blur((@webapi.Event) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] on_change((String) -> Msg) -> Attr[Msg]
 
@@ -80,33 +188,111 @@ pub fn[Msg] on_check((Bool) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] on_click((@webapi.Event) -> Msg) -> Attr[Msg]
 
+pub fn[Msg] on_dblclick((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_drag((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_dragend((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_dragover((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_dragstart((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_drop((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_focus((@webapi.Event) -> Msg) -> Attr[Msg]
+
 pub fn[Msg] on_input((String) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] on_keydown((String) -> Msg) -> Attr[Msg]
 
+pub fn[Msg] on_keypress((String) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_keyup((String) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mousedown((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mouseenter((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mouseleave((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mouseout((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mouseover((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] on_mouseup((@webapi.Event) -> Msg) -> Attr[Msg]
+
 pub fn[Msg] on_submit((@webapi.Event) -> Msg) -> Attr[Msg]
+
+pub fn[Msg] optgroup(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] option(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] output(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] p(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] pattern(String) -> Attr[Msg]
+
+pub fn[Msg] picture(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] placeholder(String) -> Attr[Msg]
 
 pub fn[Msg] pre(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] progress(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] readonly_(Bool) -> Attr[Msg]
+
+pub fn[Msg] rel(String) -> Attr[Msg]
+
+pub fn[Msg] required(Bool) -> Attr[Msg]
+
+pub fn[Msg] role(String) -> Attr[Msg]
+
+pub fn[Msg] rows(Int) -> Attr[Msg]
+
+pub fn[Msg] samp(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] section(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] select(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] selected(Bool) -> Attr[Msg]
+
+pub fn[Msg] small(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] source(Array[Attr[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] span(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] spellcheck(String) -> Attr[Msg]
+
+pub fn[Msg] src(String) -> Attr[Msg]
+
 pub fn[Model, Msg] start(init~ : () -> (Model, Cmd[Msg]), update~ : (Model, Msg) -> (Model, Cmd[Msg]), view~ : (Model) -> VNode[Msg], subscriptions~ : (Model) -> Sub[Msg], selector~ : String) -> Unit
+
+pub fn[Msg] step(String) -> Attr[Msg]
 
 pub fn[Msg] strong(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] style(String, String) -> Attr[Msg]
 
+pub fn[Msg] sub(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] summary(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] sup(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] svg(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] tabindex(Int) -> Attr[Msg]
+
 pub fn[Msg] table(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] target(String) -> Attr[Msg]
+
+pub fn[Msg] tbody(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] td(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
@@ -114,9 +300,19 @@ pub fn[Msg] text(String) -> VNode[Msg]
 
 pub fn[Msg] textarea(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] tfoot(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] th(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
+pub fn[Msg] thead(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] time(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] title(String) -> Attr[Msg]
+
 pub fn[Msg] tr(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] track(Array[Attr[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] type_(String) -> Attr[Msg]
 
@@ -125,6 +321,14 @@ pub fn[Msg] ul(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 pub fn url() -> Url
 
 pub fn[Msg] value(String) -> Attr[Msg]
+
+pub fn[Msg] var_(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] video(Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] wbr(Array[Attr[Msg]]) -> VNode[Msg]
+
+pub fn[Msg] width(String) -> Attr[Msg]
 
 // Errors
 
