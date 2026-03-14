@@ -6,7 +6,7 @@ BUILD_DIR  := examples/_build
 
 .PHONY: all build-js build-wasm trim check fmt test clean
 
-all: build-js build-wasm trim
+all: clean fmt build-js build-wasm trim test
 
 build-js:
 	@for pkg in $(EXAMPLES); do \
