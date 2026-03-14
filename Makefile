@@ -7,7 +7,7 @@ BUILD_DIR  := examples/_build
 
 .PHONY: all build build-js build-wasm trim check fmt test clean
 
-all: clean fmt build test
+all: clean fmt build test info
 
 build: build-js build-wasm trim
 
@@ -33,6 +33,9 @@ check:
 
 fmt:
 	moon fmt
+
+info:
+	moon info
 
 test: build
 	moon test -v

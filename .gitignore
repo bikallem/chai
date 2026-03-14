@@ -10,3 +10,4 @@ test-results/.last-run.json
 *.db
 .beads/
 test-results
+tests/.org.chromium.Chromium.*
