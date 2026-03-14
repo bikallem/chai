@@ -11,8 +11,8 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
 
 ## Table of Contents
 
-- [Quick Start](#quick-start)
 - [Packages](#packages)
+- [Quick Start](#quick-start)
 - [Examples](#examples)
 - [Core Concepts](#core-concepts)
 - [API Reference](#api-reference)
@@ -25,6 +25,26 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
   - [Components](#components)
 - [Testing](#testing)
 - [License](#license)
+
+## Packages
+
+Chai is split into two packages:
+
+| Package | Import | Purpose |
+|---------|--------|---------|
+| `bikallem/chai` | `@chai` | Runtime — `start`, `Cmd`, `Sub`, `Handle`, `component`, routing, `VNode`, `Attr` types |
+| [`bikallem/chai/h`](h/README.md) | `@h` | View helpers — `div`, `text`, `el`, `attr`, `class`, `on_click`, and all other HTML/attribute/event constructors |
+
+Add both to your `moon.pkg`:
+
+```
+import {
+  "bikallem/chai",
+  "bikallem/chai/h",
+}
+```
+
+See the [`h` package README](h/README.md) for the complete list of elements, attributes, and events.
 
 ## Quick Start
 
@@ -62,26 +82,6 @@ fn main {
   @chai.start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }
 ```
-
-## Packages
-
-Chai is split into two packages:
-
-| Package | Import | Purpose |
-|---------|--------|---------|
-| `bikallem/chai` | `@chai` | Runtime — `start`, `Cmd`, `Sub`, `Handle`, `component`, routing, `VNode`, `Attr` types |
-| [`bikallem/chai/h`](h/README.md) | `@h` | View helpers — `div`, `text`, `el`, `attr`, `class`, `on_click`, and all other HTML/attribute/event constructors |
-
-Add both to your `moon.pkg`:
-
-```
-import {
-  "bikallem/chai",
-  "bikallem/chai/h",
-}
-```
-
-See the [`h` package README](h/README.md) for the complete list of elements, attributes, and events.
 
 ## Examples
 
