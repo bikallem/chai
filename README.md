@@ -1,6 +1,6 @@
 # Chai
 
-Chai is a [MoonBit](https://www.moonbitlang.com/) framework for browser applications with a virtual DOM, browser-oriented commands and subscriptions, routing helpers, and encapsulated components.
+Chai is a [MoonBit](https://www.moonbitlang.com/) library for browser applications with a virtual DOM, browser-oriented commands and subscriptions, routing helpers, and encapsulated components.
 
 It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, but it is not limited to a single flat application loop. Chai adds:
 
