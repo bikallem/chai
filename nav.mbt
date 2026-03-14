@@ -135,7 +135,7 @@ fn[Msg] a_with_attrs(
   user : Array[Attr[Msg]],
   children : Array[VNode[Msg]],
 ) -> VNode[Msg] {
-  a(prefix + user, children)
+  el("a", prefix + user, children)
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn[Msg] link(
 ) -> VNode[Msg] {
   a_with_attrs(
     [
-      href(url),
+      Attribute("href", url),
       EventMaybe("click", fn(e) {
         if should_intercept_link_click(e) {
           e.prevent_default()
@@ -171,5 +171,5 @@ pub fn[Msg] hash_link(
   attrs : Array[Attr[Msg]],
   children : Array[VNode[Msg]],
 ) -> VNode[Msg] {
-  a_with_attrs([href("#" + hash)], attrs, children)
+  a_with_attrs([Attribute("href", "#" + hash)], attrs, children)
 }

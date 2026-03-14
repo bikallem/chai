@@ -33,21 +33,21 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("counters-app")], [
-    @chai.h1([], [@chai.text("Counters")]),
-    @chai.div([@chai.class("counters")], [
-      @chai.div([@chai.class("counter-wrapper")], [
-        @chai.h2([], [@chai.text("Counter A")]),
+  @h.div([@h.class("counters-app")], [
+    @h.h1([], [@h.text("Counters")]),
+    @h.div([@h.class("counters")], [
+      @h.div([@h.class("counter-wrapper")], [
+        @h.h2([], [@h.text("Counter A")]),
         @counter.counter(handle=model.counter_a),
       ]),
-      @chai.div([@chai.class("counter-wrapper")], [
-        @chai.h2([], [@chai.text("Counter B")]),
+      @h.div([@h.class("counter-wrapper")], [
+        @h.h2([], [@h.text("Counter B")]),
         @counter.counter(handle=model.counter_b),
       ]),
     ]),
-    @chai.button(
-      [@chai.class("reset-btn"), @chai.on_click(fn(_e) { ResetAll })],
-      [@chai.text("Reset All")],
+    @h.button(
+      [@h.class("reset-btn"), @h.on_click(fn(_e) { ResetAll })],
+      [@h.text("Reset All")],
     ),
   ])
 }

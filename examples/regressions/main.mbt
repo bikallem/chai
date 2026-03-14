@@ -87,26 +87,26 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn view_item(item : Item) -> @chai.VNode[Msg] {
-  @chai.li([@chai.class("item")], [@chai.text(item.label)])
+  @h.li([@h.class("item")], [@h.text(item.label)])
 }
 
 ///|
 fn view_list(model : Model) -> @chai.VNode[Msg] {
   let children = if model.mode == Keyed {
     if model.duplicate_keys {
-      @chai.keyed_list([
+      @h.keyed_list([
         ("dup", view_item(model.items[0])),
         ("dup", view_item(model.items[1])),
       ])
     } else {
-      @chai.keyed_list(
+      @h.keyed_list(
         model.items.map(fn(item) { (item.key, view_item(item)) }),
       )
     }
   } else {
     model.items.map(view_item)
   }
-  @chai.ul([@chai.class("items")], children)
+  @h.ul([@h.class("items")], children)
 }
 
 ///|
@@ -119,41 +119,41 @@ fn mode_label(mode : ListMode) -> String {
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("regressions-app")], [
-    @chai.h1([], [@chai.text("Regression Harness")]),
-    @chai.h2([], [@chai.text("Keyed Diff")]),
-    @chai.p([@chai.class("mode")], [
-      @chai.text("Mode: " + mode_label(model.mode)),
+  @h.div([@h.class("regressions-app")], [
+    @h.h1([], [@h.text("Regression Harness")]),
+    @h.h2([], [@h.text("Keyed Diff")]),
+    @h.p([@h.class("mode")], [
+      @h.text("Mode: " + mode_label(model.mode)),
     ]),
     view_list(model),
-    @chai.div([@chai.class("controls")], [
-      @chai.button(
-        [@chai.class("to-keyed"), @chai.on_click(fn(_) { SwitchToKeyedSingle })],
-        [@chai.text("Switch To Keyed Single")],
+    @h.div([@h.class("controls")], [
+      @h.button(
+        [@h.class("to-keyed"), @h.on_click(fn(_) { SwitchToKeyedSingle })],
+        [@h.text("Switch To Keyed Single")],
       ),
-      @chai.button(
-        [@chai.class("to-plain"), @chai.on_click(fn(_) { SwitchToPlainPair })],
-        [@chai.text("Switch To Plain Pair")],
+      @h.button(
+        [@h.class("to-plain"), @h.on_click(fn(_) { SwitchToPlainPair })],
+        [@h.text("Switch To Plain Pair")],
       ),
-      @chai.button(
-        [@chai.class("set-dup"), @chai.on_click(fn(_) { TriggerDuplicateKeys })],
-        [@chai.text("Trigger Duplicate Keys")],
+      @h.button(
+        [@h.class("set-dup"), @h.on_click(fn(_) { TriggerDuplicateKeys })],
+        [@h.text("Trigger Duplicate Keys")],
       ),
     ]),
-    @chai.h2([], [@chai.text("Link Interception")]),
-    @chai.p([@chai.class("link-count")], [
-      @chai.text(model.link_activations.to_string()),
+    @h.h2([], [@h.text("Link Interception")]),
+    @h.p([@h.class("link-count")], [
+      @h.text(model.link_activations.to_string()),
     ]),
     @chai.link(
       "/regressions/same-tab",
-      [@chai.class("spa-link")],
-      [@chai.text("SPA Link")],
+      [@h.class("spa-link")],
+      [@h.text("SPA Link")],
       on_nav=ActivateLink,
     ),
     @chai.link(
       "/regressions/new-tab",
-      [@chai.class("spa-link-blank"), @chai.attr("target", "_blank")],
-      [@chai.text("Blank Target Link")],
+      [@h.class("spa-link-blank"), @h.attr("target", "_blank")],
+      [@h.text("Blank Target Link")],
       on_nav=ActivateLink,
     ),
   ])

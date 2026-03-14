@@ -1,11 +1,13 @@
 ///|
 test "class_list keeps only enabled classes" {
-  let classes : Attr[Unit] = class_list([
+  let classes : Array[(String, Bool)] = [
     ("active", true),
     ("hidden", false),
     ("primary", true),
-  ])
-  match classes {
+  ]
+  let parts = classes.filter(fn(pair) { pair.1 }).map(fn(pair) { pair.0 })
+  let result : Attr[Unit] = Attribute("class", parts.join(" "))
+  match result {
     Attribute("class", value) => assert_eq(value, "active primary")
     _ => panic()
   }
@@ -14,13 +16,19 @@ test "class_list keeps only enabled classes" {
 ///|
 #cfg(target="js")
 test "on_input and on_check extract values from event target" {
-  let input_attr = on_input(fn(s) { s })
+  let input_attr = on("input", fn(e) {
+    let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+    target.get("value").to_string()
+  })
   match input_attr {
     Event("input", handler) =>
       assert_eq(handler(make_input_event("hello", false)), "hello")
     _ => panic()
   }
-  let check_attr = on_check(fn(v) { v })
+  let check_attr = on("change", fn(e) {
+    let el : @webapi.HTMLInputElement = e.target().into()
+    el.checked()
+  })
   match check_attr {
     Event("change", handler) =>
       assert_eq(handler(make_input_event("", true)), true)
@@ -31,7 +39,16 @@ test "on_input and on_check extract values from event target" {
 ///|
 #cfg(target="js")
 test "on_input/on_change work for textarea and select value events" {
-  let textarea_vnode = textarea([on_input(fn(value) { value })], [])
+  let textarea_vnode = el(
+    "textarea",
+    [
+      on("input", fn(e) {
+        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+        target.get("value").to_string()
+      }),
+    ],
+    [],
+  )
   match textarea_vnode {
     Element("textarea", attrs, children) => {
       assert_eq(children.length(), 0)
@@ -44,9 +61,16 @@ test "on_input/on_change work for textarea and select value events" {
     _ => panic()
   }
 
-  let select_vnode = select([on_change(fn(value) { value })], [
-    option([], [text("A")]),
-  ])
+  let select_vnode = el(
+    "select",
+    [
+      on("change", fn(e) {
+        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+        target.get("value").to_string()
+      }),
+    ],
+    [el("option", [], [text("A")])],
+  )
   match select_vnode {
     Element("select", attrs, children) => {
       assert_eq(children.length(), 1)
@@ -63,14 +87,20 @@ test "on_input/on_change work for textarea and select value events" {
 ///|
 #cfg(target="js")
 test "on_keydown and on_submit decode event payloads" {
-  let key_attr = on_keydown(fn(k) { k })
+  let key_attr = on("keydown", fn(e) {
+    let ke : @webapi.KeyboardEvent = e.into()
+    ke.key()
+  })
   match key_attr {
     Event("keydown", handler) =>
       assert_eq(handler(make_key_event("Escape")), "Escape")
     _ => panic()
   }
 
-  let submit_attr = on_submit(fn(_e) { 99 })
+  let submit_attr = on("submit", fn(e) {
+    e.prevent_default()
+    99
+  })
   match submit_attr {
     Event("submit", handler) => {
       let e = make_click_event(0, false, false, false, false, false, "")
@@ -84,7 +114,7 @@ test "on_keydown and on_submit decode event payloads" {
 ///|
 #cfg(target="js")
 test "Attr::map remaps event payload" {
-  let mapped = on_click(fn(_e) { 1 }).map(fn(x) { x + 10 })
+  let mapped = on("click", fn(_e) { 1 }).map(fn(x) { x + 10 })
   match mapped {
     Event("click", handler) =>
       assert_eq(
@@ -99,7 +129,7 @@ test "Attr::map remaps event payload" {
 #cfg(target="js")
 test "bind_attr normalizes event handlers into bound DOM handlers" {
   let seen : Array[Int] = []
-  let bound = bind_attr(on_click(fn(_e) { 7 }), fn(msg) { seen.push(msg) })
+  let bound = bind_attr(on("click", fn(_e) { 7 }), fn(msg) { seen.push(msg) })
   match bound {
     BoundEvent("click", handler) => {
       handler(make_click_event(0, false, false, false, false, false, ""))
@@ -115,8 +145,8 @@ test "attr slot helpers treat event variants as the same DOM slot" {
   let event_attr : Attr[Unit] = Event("click", fn(_e) {  })
   let maybe_attr : Attr[Unit] = EventMaybe("click", fn(_e) { Some(()) })
   let bound_attr = bind_attr(event_attr, fn(_msg) {  })
-  let class_a : Attr[Unit] = class("a")
-  let class_b : Attr[Unit] = class("b")
+  let class_a : Attr[Unit] = Attribute("class", "a")
+  let class_b : Attr[Unit] = Attribute("class", "b")
 
   assert_eq(same_attr_slot(event_attr, maybe_attr), true)
   assert_eq(same_attr_slot(maybe_attr, bound_attr), true)
@@ -128,7 +158,10 @@ test "attr slot helpers treat event variants as the same DOM slot" {
 ///|
 #cfg(target="js")
 test "VNode::map remaps nested keyed event handlers" {
-  let vnode = keyed("k1", button([on_click(fn(_e) { 2 })], [text("tap")]))
+  let vnode = keyed(
+    "k1",
+    el("button", [on("click", fn(_e) { 2 })], [text("tap")]),
+  )
   let mapped = vnode.map(fn(x) { x * 10 })
   match mapped {
     Keyed("k1", Element("button", attrs, children)) => {

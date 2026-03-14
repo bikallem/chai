@@ -45,20 +45,20 @@ fn format_time(seconds : Int) -> String {
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("clock-app")], [
-    @chai.h1([], [@chai.text("Stopwatch")]),
-    @chai.div([@chai.class("display")], [@chai.text(format_time(model.seconds))]),
-    @chai.div([@chai.class("controls")], [
-      @chai.button(
-        [@chai.class("control-btn"), @chai.on_click(fn(_e) { Toggle })],
-        [@chai.text(if model.running { "Stop" } else { "Start" })],
+  @h.div([@h.class("clock-app")], [
+    @h.h1([], [@h.text("Stopwatch")]),
+    @h.div([@h.class("display")], [@h.text(format_time(model.seconds))]),
+    @h.div([@h.class("controls")], [
+      @h.button(
+        [@h.class("control-btn"), @h.on_click(fn(_e) { Toggle })],
+        [@h.text(if model.running { "Stop" } else { "Start" })],
       ),
-      @chai.button(
-        [@chai.class("control-btn"), @chai.on_click(fn(_e) { Reset })],
-        [@chai.text("Reset")],
+      @h.button(
+        [@h.class("control-btn"), @h.on_click(fn(_e) { Reset })],
+        [@h.text("Reset")],
       ),
     ]),
-    @chai.p([@chai.class("hint")], [@chai.text("Space = start/stop, R = reset")]),
+    @h.p([@h.class("hint")], [@h.text("Space = start/stop, R = reset")]),
   ])
 }
 

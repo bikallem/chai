@@ -78,36 +78,36 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("canvas-app")], [
-    @chai.h1([], [@chai.text("Drawing Pad")]),
-    @chai.el(
+  @h.div([@h.class("canvas-app")], [
+    @h.h1([], [@h.text("Drawing Pad")]),
+    @h.el(
       "canvas",
       [
-        @chai.id("draw-canvas"),
-        @chai.attr("width", "600"),
-        @chai.attr("height", "400"),
-        @chai.class("draw-canvas"),
-        @chai.on("mousedown", fn(e) {
+        @h.id("draw-canvas"),
+        @h.attr("width", "600"),
+        @h.attr("height", "400"),
+        @h.class("draw-canvas"),
+        @h.on("mousedown", fn(e) {
           let me : @webapi.MouseEvent = e.into()
           Down(me.offset_x(), me.offset_y())
         }),
-        @chai.on("mousemove", fn(e) {
+        @h.on("mousemove", fn(e) {
           let me : @webapi.MouseEvent = e.into()
           Move(me.offset_x(), me.offset_y())
         }),
-        @chai.on("mouseup", fn(_e) { Up }),
-        @chai.on("mouseleave", fn(_e) { Up }),
+        @h.on("mouseup", fn(_e) { Up }),
+        @h.on("mouseleave", fn(_e) { Up }),
       ],
       [],
     ),
-    @chai.div([@chai.class("controls")], [
-      @chai.button(
-        [@chai.class("clear-btn"), @chai.on_click(fn(_e) { Clear })],
-        [@chai.text("Clear")],
+    @h.div([@h.class("controls")], [
+      @h.button(
+        [@h.class("clear-btn"), @h.on_click(fn(_e) { Clear })],
+        [@h.text("Clear")],
       ),
-      @chai.div(
-        [@chai.class("stroke-count"), @chai.style("display", "inline-block")],
-        [@chai.text(model.strokes.length().to_string() + " strokes")],
+      @h.div(
+        [@h.class("stroke-count"), @h.style("display", "inline-block")],
+        [@h.text(model.strokes.length().to_string() + " strokes")],
       ),
     ]),
   ])

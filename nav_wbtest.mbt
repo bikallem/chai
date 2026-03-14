@@ -61,7 +61,7 @@ test "should_intercept_link_click matches same-tab plain click only" {
 ///|
 #cfg(target="js")
 test "link emits EventMaybe click handler with interception rules" {
-  let vnode = link("/next", [class("cta")], [text("go")], on_nav=7)
+  let vnode = link("/next", [Attribute("class", "cta")], [text("go")], on_nav=7)
   match vnode {
     Element("a", attrs, children) => {
       assert_eq(children.length(), 1)

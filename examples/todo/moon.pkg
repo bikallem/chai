@@ -1,5 +1,6 @@
 import {
   "bikallem/chai",
+  "bikallem/chai/h",
   "bikallem/chai/examples/todo/todo_input",
 }
 

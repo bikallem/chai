@@ -93,21 +93,21 @@ fn view_todo(todo : Todo) -> @chai.VNode[Msg] {
   } else {
     "todo-item"
   }
-  @chai.li([@chai.class(item_class)], [
-    @chai.label([@chai.class("todo-label")], [
-      @chai.input([
-        @chai.type_("checkbox"),
-        @chai.checked(todo.completed),
-        @chai.on_check(fn(_checked) { ToggleTodo(todo.id) }),
+  @h.li([@h.class(item_class)], [
+    @h.label([@h.class("todo-label")], [
+      @h.input([
+        @h.type_("checkbox"),
+        @h.checked(todo.completed),
+        @h.on_check(fn(_checked) { ToggleTodo(todo.id) }),
       ]),
-      @chai.span([@chai.class("todo-text")], [@chai.text(todo.text)]),
+      @h.span([@h.class("todo-text")], [@h.text(todo.text)]),
     ]),
-    @chai.button(
+    @h.button(
       [
-        @chai.class("delete-btn"),
-        @chai.on_click(fn(_e) { DeleteTodo(todo.id) }),
+        @h.class("delete-btn"),
+        @h.on_click(fn(_e) { DeleteTodo(todo.id) }),
       ],
-      [@chai.text("\u{00D7}")],
+      [@h.text("\u{00D7}")],
     ),
   ])
 }
@@ -119,9 +119,9 @@ fn view_filter_btn(
   label_text : String,
 ) -> @chai.VNode[Msg] {
   let cls = if current == filter { "filter-btn active" } else { "filter-btn" }
-  @chai.button(
-    [@chai.class(cls), @chai.on_click(fn(_e) { SetFilter(filter) })],
-    [@chai.text(label_text)],
+  @h.button(
+    [@h.class(cls), @h.on_click(fn(_e) { SetFilter(filter) })],
+    [@h.text(label_text)],
   )
 }
 
@@ -134,35 +134,35 @@ fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> @chai.VNode[Msg] {
   } else {
     "items left"
   }
-  @chai.div([@chai.class("todo-app")], [
-    @chai.header([@chai.class("todo-header")], [
-      @chai.h1([], [@chai.text("todos")]),
+  @h.div([@h.class("todo-app")], [
+    @h.header([@h.class("todo-header")], [
+      @h.h1([], [@h.text("todos")]),
       @todo_input.todo_input(fn(text) {
         @chai.Cmd::task(fn(_) { (dispatch.val)(AddTodo(text)) })
       }),
     ]),
-    @chai.section([@chai.class("todo-list-section")], [
-      @chai.ul(
-        [@chai.class("todo-list")],
-        @chai.keyed_list(
+    @h.section([@h.class("todo-list-section")], [
+      @h.ul(
+        [@h.class("todo-list")],
+        @h.keyed_list(
           current_visible_todos.map(fn(todo) {
             (todo.id.to_string(), view_todo(todo))
           }),
         ),
       ),
     ]),
-    @chai.footer([@chai.class("todo-footer")], [
-      @chai.span([@chai.class("todo-count")], [
-        @chai.text(current_items_left.to_string() + " " + items_text),
+    @h.footer([@h.class("todo-footer")], [
+      @h.span([@h.class("todo-count")], [
+        @h.text(current_items_left.to_string() + " " + items_text),
       ]),
-      @chai.div([@chai.class("filters")], [
+      @h.div([@h.class("filters")], [
         view_filter_btn(model.filter, All, "All"),
         view_filter_btn(model.filter, Active, "Active"),
         view_filter_btn(model.filter, Completed, "Completed"),
       ]),
-      @chai.button(
-        [@chai.class("clear-btn"), @chai.on_click(fn(_e) { ClearCompleted })],
-        [@chai.text("Clear completed")],
+      @h.button(
+        [@h.class("clear-btn"), @h.on_click(fn(_e) { ClearCompleted })],
+        [@h.text("Clear completed")],
       ),
     ]),
   ])

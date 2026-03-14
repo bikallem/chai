@@ -42,28 +42,28 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("fetch-app")], [
-    @chai.h1([], [@chai.text("Post Viewer")]),
-    @chai.p([@chai.class("post-id")], [
-      @chai.text("Post #" + model.post_id.to_string()),
+  @h.div([@h.class("fetch-app")], [
+    @h.h1([], [@h.text("Post Viewer")]),
+    @h.p([@h.class("post-id")], [
+      @h.text("Post #" + model.post_id.to_string()),
     ]),
-    @chai.button(
-      [@chai.class("fetch-btn"), @chai.on_click(fn(_e) { FetchPost })],
-      [@chai.text("Fetch")],
+    @h.button(
+      [@h.class("fetch-btn"), @h.on_click(fn(_e) { FetchPost })],
+      [@h.text("Fetch")],
     ),
-    @chai.div([@chai.class("status")], [
+    @h.div([@h.class("status")], [
       match model.status {
         Idle =>
-          @chai.p([@chai.class("hint")], [
-            @chai.text("Click Fetch to load a post"),
+          @h.p([@h.class("hint")], [
+            @h.text("Click Fetch to load a post"),
           ])
-        Loading => @chai.p([@chai.class("loading")], [@chai.text("Loading…")])
+        Loading => @h.p([@h.class("loading")], [@h.text("Loading…")])
         Loaded(body) =>
-          @chai.div([], [
-            @chai.h2([], [@chai.text("Response")]),
-            @chai.pre([@chai.class("body")], [@chai.text(body)]),
+          @h.div([], [
+            @h.h2([], [@h.text("Response")]),
+            @h.pre([@h.class("body")], [@h.text(body)]),
           ])
-        Failed(err) => @chai.p([@chai.class("error")], [@chai.text(err)])
+        Failed(err) => @h.p([@h.class("error")], [@h.text(err)])
       },
     ]),
   ])

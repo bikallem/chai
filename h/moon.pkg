@@ -1,6 +1,6 @@
 import {
   "bikallem/chai",
-  "bikallem/chai/h",
+  "bikallem/webapi",
 }
 
 options(

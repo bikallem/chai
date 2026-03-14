@@ -38,10 +38,10 @@ fn update(_model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn view_nav() -> @chai.VNode[Msg] {
-  @chai.nav([@chai.class("nav")], [
-    @chai.hash_link("/", [@chai.class("nav-link")], [@chai.text("Home")]),
-    @chai.hash_link("/about", [@chai.class("nav-link")], [@chai.text("About")]),
-    @chai.hash_link("/nowhere", [@chai.class("nav-link")], [@chai.text("???")]),
+  @h.nav([@h.class("nav")], [
+    @chai.hash_link("/", [@h.class("nav-link")], [@h.text("Home")]),
+    @chai.hash_link("/about", [@h.class("nav-link")], [@h.text("About")]),
+    @chai.hash_link("/nowhere", [@h.class("nav-link")], [@h.text("???")]),
   ])
 }
 
@@ -49,27 +49,27 @@ fn view_nav() -> @chai.VNode[Msg] {
 fn view_page(route : Route) -> @chai.VNode[Msg] {
   match route {
     Home =>
-      @chai.div([@chai.class("page")], [
-        @chai.h2([], [@chai.text("Home")]),
-        @chai.p([], [@chai.text("Welcome to the Chai router example.")]),
+      @h.div([@h.class("page")], [
+        @h.h2([], [@h.text("Home")]),
+        @h.p([], [@h.text("Welcome to the Chai router example.")]),
       ])
     About =>
-      @chai.div([@chai.class("page")], [
-        @chai.h2([], [@chai.text("About")]),
-        @chai.p([], [@chai.text("Chai is a TEA framework for MoonBit.")]),
+      @h.div([@h.class("page")], [
+        @h.h2([], [@h.text("About")]),
+        @h.p([], [@h.text("Chai is a TEA framework for MoonBit.")]),
       ])
     NotFound =>
-      @chai.div([@chai.class("page")], [
-        @chai.h2([], [@chai.text("404")]),
-        @chai.p([], [@chai.text("Page not found.")]),
+      @h.div([@h.class("page")], [
+        @h.h2([], [@h.text("404")]),
+        @h.p([], [@h.text("Page not found.")]),
       ])
   }
 }
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("app")], [
-    @chai.h1([], [@chai.text("Router Demo")]),
+  @h.div([@h.class("app")], [
+    @h.h1([], [@h.text("Router Demo")]),
     view_nav(),
     view_page(model.route),
   ])

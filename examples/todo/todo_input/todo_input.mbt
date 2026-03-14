@@ -33,14 +33,14 @@ fn update(
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  @chai.div([@chai.class("input-row")], [
-    @chai.input([
-      @chai.class("todo-input"),
-      @chai.type_("text"),
-      @chai.placeholder("What needs to be done?"),
-      @chai.value(model.text),
-      @chai.on_input(fn(text) { UpdateText(text) }),
-      @chai.on_keydown(fn(key) {
+  @h.div([@h.class("input-row")], [
+    @h.input([
+      @h.class("todo-input"),
+      @h.type_("text"),
+      @h.placeholder("What needs to be done?"),
+      @h.value(model.text),
+      @h.on_input(fn(text) { UpdateText(text) }),
+      @h.on_keydown(fn(key) {
         if key == "Enter" {
           Submit
         } else {
@@ -48,8 +48,8 @@ fn view(model : Model) -> @chai.VNode[Msg] {
         }
       }),
     ]),
-    @chai.button([@chai.class("add-btn"), @chai.on_click(fn(_e) { Submit })], [
-      @chai.text("Add"),
+    @h.button([@h.class("add-btn"), @h.on_click(fn(_e) { Submit })], [
+      @h.text("Add"),
     ]),
   ])
 }
