@@ -220,7 +220,7 @@ fn[Msg] diff_children(
   }
   let old_len = old_children.length()
   let new_len = new_children.length()
-  let min_len = if old_len < new_len { old_len } else { new_len }
+  let min_len = @cmp.minimum(old_len, new_len)
   // Patch common prefix
   for i = 0; i < min_len; i = i + 1 {
     diff(runtime, parent, i, old_children[i], new_children[i], dispatch)
