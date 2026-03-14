@@ -9,7 +9,6 @@ This package contains all **view-related** functions. The core `bikallem/chai` p
 - [Setup](#setup)
 - [Usage](#usage)
 - [Custom elements and attributes](#custom-elements-and-attributes)
-- [What's in each package](#whats-in-each-package)
 - [Elements](#elements)
 - [Attributes](#attributes)
 - [Events](#events)
@@ -72,13 +71,6 @@ Use `@h.el` and `@h.attr` for any HTML tag or attribute not covered by the named
 // Generic event handler
 @h.on("transitionend", fn(event) { AnimationDone })
 ```
-
-## What's in each package
-
-| Package | Contains |
-|---------|----------|
-| `@chai` | `start`, `Cmd`, `Sub`, `Handle`, `component`, `link`, `hash_link`, `url`, `hash_url`, `VNode`, `Attr`, `Url` |
-| `@h` | `div`, `span`, `button`, `input`, `text`, `el`, `attr`, `class`, `id`, `value`, `style`, `on`, `on_click`, `on_input`, ... |
 
 ## Elements
 
