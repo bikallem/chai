@@ -152,3 +152,288 @@ pub fn[Msg] href(value : String) -> Attr[Msg] {
 pub fn[Msg] for_(value : String) -> Attr[Msg] {
   Attribute("for", value)
 }
+
+// -- Links / Navigation --
+
+///|
+pub fn[Msg] src(value : String) -> Attr[Msg] {
+  Attribute("src", value)
+}
+
+///|
+pub fn[Msg] alt(value : String) -> Attr[Msg] {
+  Attribute("alt", value)
+}
+
+///|
+pub fn[Msg] title(value : String) -> Attr[Msg] {
+  Attribute("title", value)
+}
+
+///|
+pub fn[Msg] target(value : String) -> Attr[Msg] {
+  Attribute("target", value)
+}
+
+///|
+pub fn[Msg] rel(value : String) -> Attr[Msg] {
+  Attribute("rel", value)
+}
+
+///|
+pub fn[Msg] download(value : String) -> Attr[Msg] {
+  Attribute("download", value)
+}
+
+// -- Form attributes --
+
+///|
+pub fn[Msg] name(value : String) -> Attr[Msg] {
+  Attribute("name", value)
+}
+
+///|
+pub fn[Msg] action(value : String) -> Attr[Msg] {
+  Attribute("action", value)
+}
+
+///|
+pub fn[Msg] method_(value : String) -> Attr[Msg] {
+  Attribute("method", value)
+}
+
+///|
+pub fn[Msg] required(value : Bool) -> Attr[Msg] {
+  Property("required", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] readonly_(value : Bool) -> Attr[Msg] {
+  Property("readOnly", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] autofocus(value : Bool) -> Attr[Msg] {
+  Property("autofocus", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] autocomplete(value : String) -> Attr[Msg] {
+  Attribute("autocomplete", value)
+}
+
+///|
+pub fn[Msg] min(value : String) -> Attr[Msg] {
+  Attribute("min", value)
+}
+
+///|
+pub fn[Msg] max(value : String) -> Attr[Msg] {
+  Attribute("max", value)
+}
+
+///|
+pub fn[Msg] step(value : String) -> Attr[Msg] {
+  Attribute("step", value)
+}
+
+///|
+pub fn[Msg] pattern(value : String) -> Attr[Msg] {
+  Attribute("pattern", value)
+}
+
+///|
+pub fn[Msg] maxlength(value : Int) -> Attr[Msg] {
+  Attribute("maxlength", value.to_string())
+}
+
+///|
+pub fn[Msg] minlength(value : Int) -> Attr[Msg] {
+  Attribute("minlength", value.to_string())
+}
+
+///|
+pub fn[Msg] rows(value : Int) -> Attr[Msg] {
+  Attribute("rows", value.to_string())
+}
+
+///|
+pub fn[Msg] cols(value : Int) -> Attr[Msg] {
+  Attribute("cols", value.to_string())
+}
+
+///|
+pub fn[Msg] multiple(value : Bool) -> Attr[Msg] {
+  Property("multiple", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] selected(value : Bool) -> Attr[Msg] {
+  Property("selected", @webapi.TJsValue::to_js(value))
+}
+
+// -- Dimension / Layout --
+
+///|
+pub fn[Msg] width(value : String) -> Attr[Msg] {
+  Attribute("width", value)
+}
+
+///|
+pub fn[Msg] height(value : String) -> Attr[Msg] {
+  Attribute("height", value)
+}
+
+// -- Accessibility --
+
+///|
+pub fn[Msg] role(value : String) -> Attr[Msg] {
+  Attribute("role", value)
+}
+
+///|
+pub fn[Msg] tabindex(value : Int) -> Attr[Msg] {
+  Attribute("tabindex", value.to_string())
+}
+
+///|
+pub fn[Msg] aria(name : String, value : String) -> Attr[Msg] {
+  Attribute("aria-" + name, value)
+}
+
+///|
+pub fn[Msg] hidden(value : Bool) -> Attr[Msg] {
+  Property("hidden", @webapi.TJsValue::to_js(value))
+}
+
+// -- Data / Misc --
+
+///|
+pub fn[Msg] data(name : String, value : String) -> Attr[Msg] {
+  Attribute("data-" + name, value)
+}
+
+///|
+pub fn[Msg] draggable(value : String) -> Attr[Msg] {
+  Attribute("draggable", value)
+}
+
+///|
+pub fn[Msg] contenteditable(value : String) -> Attr[Msg] {
+  Attribute("contenteditable", value)
+}
+
+///|
+pub fn[Msg] spellcheck(value : String) -> Attr[Msg] {
+  Attribute("spellcheck", value)
+}
+
+// -- Media --
+
+///|
+pub fn[Msg] autoplay(value : Bool) -> Attr[Msg] {
+  Property("autoplay", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] controls(value : Bool) -> Attr[Msg] {
+  Property("controls", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] loop_(value : Bool) -> Attr[Msg] {
+  Property("loop", @webapi.TJsValue::to_js(value))
+}
+
+///|
+pub fn[Msg] muted(value : Bool) -> Attr[Msg] {
+  Property("muted", @webapi.TJsValue::to_js(value))
+}
+
+// -- Additional event handlers --
+
+///|
+pub fn[Msg] on_dblclick(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("dblclick", handler)
+}
+
+///|
+pub fn[Msg] on_mousedown(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mousedown", handler)
+}
+
+///|
+pub fn[Msg] on_mouseup(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mouseup", handler)
+}
+
+///|
+pub fn[Msg] on_mouseover(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mouseover", handler)
+}
+
+///|
+pub fn[Msg] on_mouseout(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mouseout", handler)
+}
+
+///|
+pub fn[Msg] on_mouseenter(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mouseenter", handler)
+}
+
+///|
+pub fn[Msg] on_mouseleave(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("mouseleave", handler)
+}
+
+///|
+pub fn[Msg] on_keyup(handler : (String) -> Msg) -> Attr[Msg] {
+  on("keyup", fn(e) {
+    let ke : @webapi.KeyboardEvent = e.into()
+    handler(ke.key())
+  })
+}
+
+///|
+pub fn[Msg] on_keypress(handler : (String) -> Msg) -> Attr[Msg] {
+  on("keypress", fn(e) {
+    let ke : @webapi.KeyboardEvent = e.into()
+    handler(ke.key())
+  })
+}
+
+///|
+pub fn[Msg] on_focus(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("focus", handler)
+}
+
+///|
+pub fn[Msg] on_blur(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("blur", handler)
+}
+
+///|
+pub fn[Msg] on_drag(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("drag", handler)
+}
+
+///|
+pub fn[Msg] on_dragstart(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("dragstart", handler)
+}
+
+///|
+pub fn[Msg] on_dragend(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("dragend", handler)
+}
+
+///|
+pub fn[Msg] on_dragover(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("dragover", handler)
+}
+
+///|
+pub fn[Msg] on_drop(handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
+  on("drop", handler)
+}
