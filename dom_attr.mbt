@@ -73,17 +73,13 @@ fn[Msg] attr_text_value(attr : Attr[Msg]) -> String {
 }
 
 ///|
-/// Cast a closure to JsValue (on the JS target, closures are JS functions).
-fn handler_to_js(handler : (@webapi.Event) -> Unit) -> @webapi.JsValue = "%identity"
-
-///|
 /// Set a DOM Level 0 event handler (e.g., el.onclick = fn)
 fn set_event_handler(
   el : @webapi.Element,
   name : String,
   handler : (@webapi.Event) -> Unit,
 ) -> Unit {
-  set_prop(el, "on" + name, handler_to_js(handler))
+  set_prop(el, "on" + name, @webapi.EventListener::new(handler).to_js())
 }
 
 ///|
