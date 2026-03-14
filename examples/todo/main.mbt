@@ -3,7 +3,6 @@ using @chai {
   type VNode,
   type Cmd,
   type Sub,
-  type Handle,
   start,
   div,
   h1,
@@ -18,7 +17,6 @@ using @chai {
   footer,
   text,
   class,
-  component,
   type_,
   checked,
   on_click,
@@ -27,7 +25,7 @@ using @chai {
 }
 
 ///|
-using @todo_input {todo_input}
+using @todo_input { todo_input }
 
 ///|
 priv enum Filter {
@@ -90,7 +88,7 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
       let new_todos = model.todos.filter(fn(todo) { todo.id != id })
       ({ ..model, todos: new_todos }, Cmd::none())
     }
-    SetFilter(filter) => ({ ..model, filter, }, Cmd::none())
+    SetFilter(filter) => ({ ..model, filter }, Cmd::none())
     ClearCompleted => {
       let new_todos = model.todos.filter(fn(todo) { not(todo.completed) })
       ({ ..model, todos: new_todos }, Cmd::none())
@@ -149,7 +147,7 @@ fn view_filter_btn(
 }
 
 ///|
-fn view(model : Model, handle : Handle[Msg]) -> VNode[Msg] {
+fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> VNode[Msg] {
   let current_visible_todos = visible_todos(model)
   let current_items_left = items_left(model.todos)
   let items_text = if current_items_left == 1 {
@@ -160,7 +158,9 @@ fn view(model : Model, handle : Handle[Msg]) -> VNode[Msg] {
   div([class("todo-app")], [
     header([class("todo-header")], [
       h1([], [text("todos")]),
-      todo_input(fn(text) { Cmd::send(handle, AddTodo(text)) }),
+      todo_input(fn(text) {
+        Cmd::task(fn(_) { (dispatch.val)(AddTodo(text)) })
+      }),
     ]),
     section([class("todo-list-section")], [
       ul(
@@ -189,55 +189,16 @@ fn view(model : Model, handle : Handle[Msg]) -> VNode[Msg] {
 }
 
 ///|
-fn[ParentMsg] todo_app(handle : Handle[Msg]) -> VNode[ParentMsg] {
-  component(id="todo-app", handle~, init=app_init, update~, view=fn(model) {
-    view(model, handle)
-  })
-}
-
-///|
-priv struct ShellModel {
-  todo_app_handle : Handle[Msg]
-}
-
-///|
-type ShellMsg = Unit
-
-///|
-fn shell_init() -> (ShellModel, Cmd[ShellMsg]) {
-  ({ todo_app_handle: Handle::new() }, Cmd::none())
-}
-
-///|
-fn shell_update(
-  model : ShellModel,
-  _msg : ShellMsg,
-) -> (ShellModel, Cmd[ShellMsg]) {
-  (model, Cmd::none())
-}
-
-///|
-fn shell_view(model : ShellModel) -> VNode[ShellMsg] {
-  todo_app(model.todo_app_handle)
-}
-
-///|
-fn shell_subscriptions(_model : ShellModel) -> Sub[ShellMsg] {
-  Sub::none()
-}
-
-///|
-pub fn run() -> Unit {
+fn main {
+  let dispatch : Ref[(Msg) -> Unit] = Ref::new(fn(_) {  })
   start(
-    init=shell_init,
-    update=shell_update,
-    view=shell_view,
-    subscriptions=shell_subscriptions,
+    init=fn() {
+      let (model, cmd) = app_init()
+      (model, Cmd::batch([cmd, Cmd::task(fn(d) { dispatch.val = d })]))
+    },
+    update~,
+    view=fn(model) { view(model, dispatch) },
+    subscriptions=fn(_model : Model) -> Sub[Msg] { Sub::none() },
     selector="#app",
   )
-}
-
-///|
-fn main {
-  run()
 }
