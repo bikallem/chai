@@ -86,12 +86,7 @@ pub fn[Msg] on(name : String, handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
 ///|
 /// Build a class string from conditional class names.
 pub fn[Msg] class_list(classes : Array[(String, Bool)]) -> Attr[Msg] {
-  let parts : Array[String] = []
-  for pair in classes {
-    if pair.1 {
-      parts.push(pair.0)
-    }
-  }
+  let parts = classes.filter(fn(pair) { pair.1 }).map(fn(pair) { pair.0 })
   Attribute("class", parts.join(" "))
 }
 

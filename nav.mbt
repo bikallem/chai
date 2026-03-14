@@ -7,14 +7,11 @@ pub struct Url {
 
 ///|
 fn parse_path(pathname : String) -> Array[String] {
-  let segments : Array[String] = []
-  for s in pathname.split("/") {
-    let seg = s.to_string()
-    if seg.length() > 0 {
-      segments.push(seg)
-    }
-  }
-  segments
+  pathname
+  .split("/")
+  .map(fn(s) { s.to_string() })
+  .filter(fn(s) { s.length() > 0 })
+  .collect()
 }
 
 ///|
@@ -138,10 +135,7 @@ fn[Msg] a_with_attrs(
   user : Array[Attr[Msg]],
   children : Array[VNode[Msg]],
 ) -> VNode[Msg] {
-  for attr in user {
-    prefix.push(attr)
-  }
-  a(prefix, children)
+  a(prefix + user, children)
 }
 
 ///|

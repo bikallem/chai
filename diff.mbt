@@ -135,16 +135,9 @@ fn[Msg] child_list_mode(
   if children.length() == 0 {
     return Empty
   }
-  let first_is_keyed = match children[0] {
-    Keyed(_, _) => true
-    _ => false
-  }
+  let first_is_keyed = children[0] is Keyed(_, _)
   for i = 1; i < children.length(); i = i + 1 {
-    let is_keyed = match children[i] {
-      Keyed(_, _) => true
-      _ => false
-    }
-    if is_keyed != first_is_keyed {
+    if (children[i] is Keyed(_, _)) != first_is_keyed {
       abort(
         "chai: " +
         label +
@@ -272,15 +265,11 @@ fn[Msg] diff_children_keyed(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  match first_duplicate_key(old_children) {
-    Some(k) =>
-      abort("chai: duplicate keyed child \"" + k + "\" in old children")
-    None => ()
+  if first_duplicate_key(old_children) is Some(k) {
+    abort("chai: duplicate keyed child \"" + k + "\" in old children")
   }
-  match first_duplicate_key(new_children) {
-    Some(k) =>
-      abort("chai: duplicate keyed child \"" + k + "\" in new children")
-    None => ()
+  if first_duplicate_key(new_children) is Some(k) {
+    abort("chai: duplicate keyed child \"" + k + "\" in new children")
   }
   let old_len = old_children.length()
   let new_len = new_children.length()

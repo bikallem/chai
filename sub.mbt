@@ -38,9 +38,7 @@ pub fn[Msg] Sub::none() -> Sub[Msg] {
 pub fn[Msg] Sub::batch(subs : Array[Sub[Msg]]) -> Sub[Msg] {
   let all : Array[SubDef[Msg]] = []
   for sub in subs {
-    for s in sub.subs {
-      all.push(s)
-    }
+    all.append(sub.subs)
   }
   { subs: all }
 }

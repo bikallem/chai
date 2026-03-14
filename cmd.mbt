@@ -12,9 +12,7 @@ pub fn[Msg] Cmd::none() -> Cmd[Msg] {
 pub fn[Msg] Cmd::batch(cmds : Array[Cmd[Msg]]) -> Cmd[Msg] {
   let tasks : Array[((Msg) -> Unit) -> Unit] = []
   for cmd in cmds {
-    for task in cmd.tasks {
-      tasks.push(task)
-    }
+    tasks.append(cmd.tasks)
   }
   { tasks, }
 }
@@ -68,17 +66,14 @@ pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
 
 ///|
 fn error_message(reason : @webapi.JsValue) -> String {
-  if reason.is_null() {
-    reason.to_string()
-  } else {
+  if not(reason.is_null()) {
     let obj : @webapi.JsObject = reason.into()
     let msg = obj.get("message")
-    if msg.is_null() {
-      reason.to_string()
-    } else {
-      msg.to_string()
+    if not(msg.is_null()) {
+      return msg.to_string()
     }
   }
+  reason.to_string()
 }
 
 ///|

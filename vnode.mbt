@@ -55,7 +55,10 @@ pub fn[Msg] keyed(key : String, child : VNode[Msg]) -> VNode[Msg] {
 pub fn[Msg] keyed_list(
   items : Array[(String, VNode[Msg])],
 ) -> Array[VNode[Msg]] {
-  items.map(fn(pair) { Keyed(pair.0, pair.1) })
+  items.map(fn(pair) {
+    let (k, v) = pair
+    Keyed(k, v)
+  })
 }
 
 ///|
