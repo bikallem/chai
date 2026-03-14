@@ -4,9 +4,11 @@ TRIM     := .mooncakes/bikallem/webapi/_build/native/release/build/trim/trim.exe
 WEBAPI_MJS := .mooncakes/bikallem/webapi/src/webapi.mjs
 BUILD_DIR  := examples/_build
 
-.PHONY: all build-js build-wasm trim check fmt test clean
+.PHONY: all build build-js build-wasm trim check fmt test clean
 
-all: clean fmt build-js build-wasm trim test
+all: clean fmt build test
+
+build: build-js build-wasm trim
 
 build-js:
 	@for pkg in $(EXAMPLES); do \
@@ -31,7 +33,7 @@ check:
 fmt:
 	moon fmt
 
-test: all
+test: build
 	moon test -v
 	cd tests && npx playwright test
 
