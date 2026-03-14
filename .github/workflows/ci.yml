@@ -14,7 +14,7 @@ jobs:
       - name: Install MoonBit
         run: |
           curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
-          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"          
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
           "$HOME/.moon/bin/moon" version --all
 
       - name: Set up Node.js
@@ -33,9 +33,7 @@ jobs:
         run: moon update
 
       - name: Type check
-        run: |
-          moon check --target js
-          moon check --target wasm-gc
+        run: make check
 
       - name : Cache Playwright browsers
         id: cache-playwright
@@ -43,16 +41,10 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('tests/package-lock.json') }}
-      
-      - name: Run Playwright tests
+
+      - name: Install Playwright browsers
         working-directory: tests
-        run: |
-          npm ci
-          npx playwright install chromium --with-deps
+        run: npx playwright install chromium --with-deps
 
-      - name: Build examples
-        run: ./scripts/build-example-assets.sh
-
-      - name: Run Tests
-        run: ./scripts/test-all.sh
-
+      - name: Build and Test
+        run: make test

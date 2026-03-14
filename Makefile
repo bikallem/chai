@@ -32,7 +32,8 @@ fmt:
 	moon fmt
 
 test: all
-	./scripts/test-all.sh
+	moon test -v
+	cd tests && npx playwright test
 
 clean:
 	moon clean

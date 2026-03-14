@@ -283,13 +283,13 @@ let handle = Handle::new()
 Fast local unit checks:
 
 ```bash
-./scripts/test-unit.sh
+make check
 ```
 
-Full local suite (unit + Playwright smoke tests):
+Full local suite (build + unit + Playwright smoke tests):
 
 ```bash
-./scripts/test-all.sh
+make test
 ```
 
 Detailed unit coverage and regression mapping live in [`docs/testing-matrix.md`](docs/testing-matrix.md).
