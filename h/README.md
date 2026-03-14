@@ -37,12 +37,38 @@ fn view(model : Model) -> @chai.VNode[Msg] {
 }
 ```
 
+## Custom elements and attributes
+
+Use `@h.el` and `@h.attr` for any HTML tag or attribute not covered by the named helpers:
+
+```moonbit
+// Any HTML element
+@h.el("custom-widget", [@h.attr("data-mode", "compact")], [
+  @h.text("content"),
+])
+
+// Any HTML attribute
+@h.attr("aria-label", "Close")
+@h.attr("data-testid", "submit-btn")
+@h.attr("contenteditable", "true")
+
+// DOM properties (set via JS property, not HTML attribute)
+@h.property("indeterminate", @webapi.TJsValue::to_js(true))
+
+// Inline styles
+@h.style("background-color", "#f0f0f0")
+@h.style("display", "flex")
+
+// Generic event handler
+@h.on("transitionend", fn(event) { AnimationDone })
+```
+
 ## What's in each package
 
 | Package | Contains |
 |---------|----------|
 | `@chai` | `start`, `Cmd`, `Sub`, `Handle`, `component`, `link`, `hash_link`, `url`, `hash_url`, `VNode`, `Attr`, `Url` |
-| `@h` | `div`, `span`, `button`, `input`, `text`, `el`, `class`, `id`, `value`, `on_click`, `on_input`, ... |
+| `@h` | `div`, `span`, `button`, `input`, `text`, `el`, `attr`, `class`, `id`, `value`, `style`, `on`, `on_click`, `on_input`, ... |
 
 ## Elements
 
@@ -54,7 +80,7 @@ Void elements take `(attrs)` only:
 
 `input`, `img`, `br`, `hr`, `col`, `embed`, `source`, `track`, `wbr`
 
-Use `el(tag, attrs, children)` for any tag not listed above.
+Use `@h.el(tag, attrs, children)` for any tag not listed above.
 
 ## Attributes
 
@@ -65,7 +91,7 @@ Use `el(tag, attrs, children)` for any tag not listed above.
 @h.value("hello")            // DOM property
 @h.checked(true)             // DOM property
 @h.disabled(false)           // DOM property
-@h.attr("data-id", "42")    // generic attribute
+@h.attr("data-id", "42")    // generic — works for any attribute
 @h.property("indeterminate", js_val)  // generic DOM property
 @h.style("color", "red")    // inline style
 @h.class_list([("active", true), ("hidden", false)])
@@ -80,5 +106,5 @@ Use `el(tag, attrs, children)` for any tag not listed above.
 @h.on_check(fn(checked) { Toggled(checked) }) // extracts bool
 @h.on_keydown(fn(key) { KeyPressed(key) })   // extracts key string
 @h.on_submit(fn(event) { Submitted })         // calls preventDefault
-@h.on("custom-event", fn(event) { Custom })   // generic event
+@h.on("custom-event", fn(event) { Custom })   // generic — works for any event
 ```

@@ -12,6 +12,7 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Packages](#packages)
 - [Examples](#examples)
 - [Core Concepts](#core-concepts)
 - [API Reference](#api-reference)
@@ -34,33 +35,53 @@ struct Model { count : Int }
 
 enum Msg { Increment; Decrement }
 
-fn app_init() -> (Model, Cmd[Msg]) {
-  ({ count: 0 }, Cmd::none())
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
+  ({ count: 0 }, @chai.Cmd::none())
 }
 
-fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
-    Increment => ({ count: model.count + 1 }, Cmd::none())
-    Decrement => ({ count: model.count - 1 }, Cmd::none())
+    Increment => ({ count: model.count + 1 }, @chai.Cmd::none())
+    Decrement => ({ count: model.count - 1 }, @chai.Cmd::none())
   }
 }
 
-fn view(model : Model) -> VNode[Msg] {
-  div([], [
-    button([on_click(fn(_e) { Decrement })], [text("-")]),
-    span([], [text(model.count.to_string())]),
-    button([on_click(fn(_e) { Increment })], [text("+")]),
+fn view(model : Model) -> @chai.VNode[Msg] {
+  @h.div([], [
+    @h.button([@h.on_click(fn(_e) { Decrement })], [@h.text("-")]),
+    @h.span([], [@h.text(model.count.to_string())]),
+    @h.button([@h.on_click(fn(_e) { Increment })], [@h.text("+")]),
   ])
 }
 
-fn subscriptions(_model : Model) -> Sub[Msg] {
-  Sub::none()
+fn subscriptions(_model : Model) -> @chai.Sub[Msg] {
+  @chai.Sub::none()
 }
 
 fn main {
-  start(init=app_init, update~, view~, subscriptions~, selector="#app")
+  @chai.start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }
 ```
+
+## Packages
+
+Chai is split into two packages:
+
+| Package | Import | Purpose |
+|---------|--------|---------|
+| `bikallem/chai` | `@chai` | Runtime — `start`, `Cmd`, `Sub`, `Handle`, `component`, routing, `VNode`, `Attr` types |
+| [`bikallem/chai/h`](h/README.md) | `@h` | View helpers — `div`, `text`, `el`, `attr`, `class`, `on_click`, and all other HTML/attribute/event constructors |
+
+Add both to your `moon.pkg`:
+
+```
+import {
+  "bikallem/chai",
+  "bikallem/chai/h",
+}
+```
+
+See the [`h` package README](h/README.md) for the complete list of elements, attributes, and events.
 
 ## Examples
 
@@ -90,20 +111,23 @@ Call `start()` with these five functions and a CSS `selector` to mount the app.
 
 ### Elements
 
-Build virtual DOM trees with element constructors. Each takes `(attrs, children)`:
+Build virtual DOM trees with element constructors from `@h`. Each takes `(attrs, children)`:
 
-`div`, `span`, `button`, `h1`, `h2`, `h3`, `p`, `ul`, `li`, `label`, `section`, `header`, `footer`, `a`, `form`, `nav`, `pre`, `code`, `em`, `strong`, `table`, `tr`, `td`, `th`, `textarea`, `select`, `option`
+```moonbit
+@h.div([@h.class("container")], [
+  @h.h1([], [@h.text("Title")]),
+  @h.p([], [@h.text("Content")]),
+])
+```
 
-Self-closing elements take `(attrs)` only: `input_`, `img`, `br`, `hr`
-
-Use `el(tag, attrs, children)` for any HTML tag, or `text(s)` for text nodes.
+Use `@h.el(tag, attrs, children)` for any HTML tag, or `@h.text(s)` for text nodes.
 
 #### Keyed Lists
 
 For efficient list diffing, wrap children with keys:
 
 ```moonbit
-ul([], keyed_list(
+@h.ul([], @h.keyed_list(
   items.map(fn(item) { (item.id.to_string(), view_item(item)) })
 ))
 ```
@@ -111,18 +135,17 @@ ul([], keyed_list(
 ### Attributes
 
 ```moonbit
-class("my-class")        // HTML class
-class_list([("active", is_active), ("hidden", is_hidden)]) // conditional classes
-id("my-id")              // HTML id
-type_("checkbox")        // HTML type
-value("hello")           // input value (property)
-checked(true)            // checkbox checked (property)
-placeholder("Type...")   // placeholder
-disabled(true)           // disabled (property)
-href("/page")            // link href
-for_("input-id")         // label for
-style("color", "red")    // inline style
-attr("data-x", "value") // any attribute
+@h.class("my-class")        // HTML class
+@h.class_list([("active", is_active), ("hidden", is_hidden)])
+@h.id("my-id")              // HTML id
+@h.type_("checkbox")        // HTML type
+@h.value("hello")           // input value (property)
+@h.checked(true)            // checkbox checked (property)
+@h.placeholder("Type...")   // placeholder
+@h.disabled(true)           // disabled (property)
+@h.href("/page")            // link href
+@h.style("color", "red")    // inline style
+@h.attr("data-x", "value") // any attribute
 ```
 
 ### Events
@@ -130,18 +153,18 @@ attr("data-x", "value") // any attribute
 Convenience helpers extract common values from the event:
 
 ```moonbit
-on_click(fn(event) { MyMsg })           // click (receives Event)
-on_input(fn(value) { Input(value) })     // input (receives String value)
-on_change(fn(value) { Changed(value) })  // change (receives String value)
-on_check(fn(checked) { Toggle(checked) }) // checkbox (receives Bool)
-on_keydown(fn(key) { KeyPress(key) })    // keydown (receives String key name)
-on_submit(fn(event) { Submit })          // form submit (calls preventDefault)
+@h.on_click(fn(event) { MyMsg })           // click (receives Event)
+@h.on_input(fn(value) { Input(value) })     // input (receives String value)
+@h.on_change(fn(value) { Changed(value) })  // change (receives String value)
+@h.on_check(fn(checked) { Toggle(checked) }) // checkbox (receives Bool)
+@h.on_keydown(fn(key) { KeyPress(key) })    // keydown (receives String key name)
+@h.on_submit(fn(event) { Submit })          // form submit (calls preventDefault)
 ```
 
 For full event access on any event type, use the generic handler:
 
 ```moonbit
-on("mousemove", fn(event) { Move(event) })
+@h.on("mousemove", fn(event) { Move(event) })
 ```
 
 ### Commands
@@ -209,7 +232,7 @@ fn subscriptions(_model : Model) -> Sub[Msg] {
 }
 
 // Navigate with hash links
-hash_link("/about", [class("nav-link")], [text("About")])
+@chai.hash_link("/about", [@h.class("nav-link")], [@h.text("About")])
 
 // Or navigate programmatically
 Cmd::push_hash("/about")
@@ -226,7 +249,7 @@ fn subscriptions(_model : Model) -> Sub[Msg] {
   Sub::on_url_change("url", fn(url) { UrlChanged(url) })
 }
 
-link("/about", [class("nav-link")], [text("About")], on_nav=GoAbout)
+@chai.link("/about", [@h.class("nav-link")], [@h.text("About")], on_nav=GoAbout)
 Cmd::push_url("/about")
 Cmd::replace_url("/about")
 ```
