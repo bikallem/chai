@@ -22,11 +22,11 @@ fn redraw(model : Model) -> @chai.Cmd[Msg] {
   @chai.Cmd::task(fn(_dispatch) {
     let canvas : @webapi.HTMLCanvasElement = @webapi.document()
       .get_element_by_id("draw-canvas")
-      .unsafe_into()
+      .into()
     let ctx : @webapi.CanvasRenderingContext2D = canvas
       .get_context("2d")
       .unwrap()
-      .unsafe_into()
+      .into()
     let w = canvas.width().to_double()
     let h = canvas.height().to_double()
     ctx.clear_rect(0.0, 0.0, w, h)
@@ -88,11 +88,11 @@ fn view(model : Model) -> @chai.VNode[Msg] {
         @h.attr("height", "400"),
         @h.class("draw-canvas"),
         @h.on("mousedown", fn(e) {
-          let me : @webapi.MouseEvent = e.unsafe_into()
+          let me : @webapi.MouseEvent = e.into()
           Down(me.offset_x(), me.offset_y())
         }),
         @h.on("mousemove", fn(e) {
-          let me : @webapi.MouseEvent = e.unsafe_into()
+          let me : @webapi.MouseEvent = e.into()
           Move(me.offset_x(), me.offset_y())
         }),
         @h.on("mouseup", fn(_e) { Up }),

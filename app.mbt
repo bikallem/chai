@@ -18,7 +18,7 @@ pub fn[Model, Msg] start(
   guard root_el is Some(el) else {
     abort("chai: no element matches selector \"" + selector + "\"")
   }
-  let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).unsafe_into()
+  let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
   let runtime = new_component_runtime()
   let active_subs : Map[String, ActiveSub] = {}
   let (init_model, init_cmd) = init()

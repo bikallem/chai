@@ -5,12 +5,12 @@
 
 ///|
 fn get_target_input(event : @webapi.Event) -> @webapi.HTMLInputElement {
-  event.target().unsafe_into()
+  event.target().into()
 }
 
 ///|
 fn get_target_prop(event : @webapi.Event, name : String) -> @webapi.JsValue {
-  let target : @webapi.JsObject = @webapi.TJsValue::to_js(event.target()).unsafe_into()
+  let target : @webapi.JsObject = @webapi.TJsValue::to_js(event.target()).into()
   target.get(name)
 }
 
@@ -52,7 +52,7 @@ pub fn[Msg] on_check(handler : (Bool) -> Msg) -> @chai.Attr[Msg] {
 ///|
 pub fn[Msg] on_keydown(handler : (String) -> Msg) -> @chai.Attr[Msg] {
   @chai.on("keydown", fn(e) {
-    let ke : @webapi.KeyboardEvent = e.unsafe_into()
+    let ke : @webapi.KeyboardEvent = e.into()
     handler(ke.key())
   })
 }
@@ -103,7 +103,7 @@ pub fn[Msg] on_mouseleave(handler : (@webapi.Event) -> Msg) -> @chai.Attr[Msg] {
 ///|
 pub fn[Msg] on_keyup(handler : (String) -> Msg) -> @chai.Attr[Msg] {
   @chai.on("keyup", fn(e) {
-    let ke : @webapi.KeyboardEvent = e.unsafe_into()
+    let ke : @webapi.KeyboardEvent = e.into()
     handler(ke.key())
   })
 }
@@ -111,7 +111,7 @@ pub fn[Msg] on_keyup(handler : (String) -> Msg) -> @chai.Attr[Msg] {
 ///|
 pub fn[Msg] on_keypress(handler : (String) -> Msg) -> @chai.Attr[Msg] {
   @chai.on("keypress", fn(e) {
-    let ke : @webapi.KeyboardEvent = e.unsafe_into()
+    let ke : @webapi.KeyboardEvent = e.into()
     handler(ke.key())
   })
 }

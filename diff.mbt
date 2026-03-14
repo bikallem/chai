@@ -13,12 +13,12 @@ fn[Msg] create_dom_node(
   match vnode {
     Text(s) => {
       let text_node = @webapi.document().create_text_node(s)
-      @webapi.TJsValue::to_js(text_node).unsafe_into()
+      @webapi.TJsValue::to_js(text_node).into()
     }
     Element(tag, attrs, children) => {
       let el = @webapi.document().create_element(tag)
       apply_attrs(el, attrs, dispatch)
-      let el_node : @webapi.Node = @webapi.TJsValue::to_js(el).unsafe_into()
+      let el_node : @webapi.Node = @webapi.TJsValue::to_js(el).into()
       for child in children {
         let child_node = create_dom_node(runtime, child, dispatch)
         el_node.append_child(child_node) |> ignore
@@ -84,7 +84,7 @@ fn[Msg] diff(
     ) =>
       if old_tag == new_tag {
         let child = get_child(parent, index)
-        let el : @webapi.Element = @webapi.TJsValue::to_js(child).unsafe_into()
+        let el : @webapi.Element = @webapi.TJsValue::to_js(child).into()
         diff_attrs(el, old_attrs, new_attrs, dispatch)
         diff_children(runtime, child, old_children, new_children, dispatch)
       } else {
@@ -347,7 +347,7 @@ fn[Msg] diff_attrs(
     match html_el_ref.val {
       Some(h) => h
       None => {
-        let h : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).unsafe_into()
+        let h : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
         html_el_ref.val = Some(h)
         h
       }

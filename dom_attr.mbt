@@ -90,13 +90,13 @@ fn remove_event_handler(el : @webapi.Element, name : String) -> Unit {
 
 ///|
 fn set_prop(el : @webapi.Element, name : String, val : @webapi.JsValue) -> Unit {
-  let obj : @webapi.JsObject = @webapi.TJsValue::to_js(el).unsafe_into()
+  let obj : @webapi.JsObject = @webapi.TJsValue::to_js(el).into()
   obj.set(name, val) |> ignore
 }
 
 ///|
 fn set_style_prop(el : @webapi.Element, name : String, value : String) -> Unit {
-  let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).unsafe_into()
+  let html_el : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).into()
   html_el.style().set_property(name, value)
 }
 

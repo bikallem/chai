@@ -2,10 +2,10 @@
   "name": "bikallem/chai",
   "version": "0.1.0",
   "deps": {
-    "bikallem/webapi": { "path": "../webapi" }
+    "bikallem/webapi": "0.4.2"
   },
   "bin-deps": {
-    "bikallem/webapi": { "path": "../webapi" }
+    "bikallem/webapi": "0.4.2"
   },
   "repository": "github.com/bikallem/chai",
   "license": "MIT",

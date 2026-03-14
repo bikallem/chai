@@ -1,6 +1,6 @@
 EXAMPLES := canvas clock counters fetch regressions router todo
 
-WEBAPI_DIR ?= ../webapi
+WEBAPI_DIR := .mooncakes/bikallem/webapi
 TRIM       := $(WEBAPI_DIR)/_build/native/release/build/trim/trim.exe
 WEBAPI_MJS := $(WEBAPI_DIR)/src/webapi.mjs
 BUILD_DIR  := examples/_build

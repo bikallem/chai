@@ -88,7 +88,7 @@ pub fn[Msg] Sub::on_key_down(
 ) -> Sub[Msg] {
   tracked_sub(key, "document:keydown", fn(dispatch) {
     let handler : (@webapi.Event) -> Unit = fn(e) {
-      let ke : @webapi.KeyboardEvent = e.unsafe_into()
+      let ke : @webapi.KeyboardEvent = e.into()
       let pressed = ke.key()
       match prevent_default {
         Some(pred) => if pred(pressed) { e.prevent_default() }
