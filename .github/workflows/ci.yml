@@ -33,7 +33,9 @@ jobs:
         run: moon update
 
       - name: Type check
-        run: moon check --target js
+        run: |
+          moon check --target js
+          moon check --target wasm-gc
 
       - name : Cache Playwright browsers
         id: cache-playwright
@@ -48,8 +50,9 @@ jobs:
           npm ci
           npx playwright install chromium --with-deps
 
+      - name: Build examples
+        run: ./scripts/build-example-assets.sh
+
       - name: Run Tests
-        run: |          
-          moon -C examples build --release --target js
-          ./scripts/test-all.sh
+        run: ./scripts/test-all.sh
 
