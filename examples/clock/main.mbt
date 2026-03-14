@@ -1,19 +1,4 @@
 ///|
-using @chai {
-  type VNode,
-  type Cmd,
-  type Sub,
-  start,
-  div,
-  h1,
-  p,
-  button,
-  text,
-  class,
-  on_click,
-}
-
-///|
 struct Model {
   seconds : Int
   running : Bool
@@ -28,23 +13,23 @@ enum Msg {
 }
 
 ///|
-fn app_init() -> (Model, Cmd[Msg]) {
-  ({ seconds: 0, running: false }, Cmd::after(1000, Toggle))
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
+  ({ seconds: 0, running: false }, @chai.Cmd::after(1000, Toggle))
 }
 
 ///|
-fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
-    Tick => ({ ..model, seconds: model.seconds + 1 }, Cmd::none())
-    Toggle => ({ ..model, running: not(model.running) }, Cmd::none())
-    Reset => ({ seconds: 0, running: false }, Cmd::none())
+    Tick => ({ ..model, seconds: model.seconds + 1 }, @chai.Cmd::none())
+    Toggle => ({ ..model, running: not(model.running) }, @chai.Cmd::none())
+    Reset => ({ seconds: 0, running: false }, @chai.Cmd::none())
     KeyDown(key) =>
       if key == " " {
         update(model, Toggle)
       } else if key == "r" || key == "R" {
         update(model, Reset)
       } else {
-        (model, Cmd::none())
+        (model, @chai.Cmd::none())
       }
   }
 }
@@ -59,29 +44,36 @@ fn format_time(seconds : Int) -> String {
 }
 
 ///|
-fn view(model : Model) -> VNode[Msg] {
-  div([class("clock-app")], [
-    h1([], [text("Stopwatch")]),
-    div([class("display")], [text(format_time(model.seconds))]),
-    div([class("controls")], [
-      button([class("control-btn"), on_click(fn(_e) { Toggle })], [
-        text(if model.running { "Stop" } else { "Start" }),
-      ]),
-      button([class("control-btn"), on_click(fn(_e) { Reset })], [text("Reset")]),
+fn view(model : Model) -> @chai.VNode[Msg] {
+  @chai.div([@chai.class("clock-app")], [
+    @chai.h1([], [@chai.text("Stopwatch")]),
+    @chai.div([@chai.class("display")], [@chai.text(format_time(model.seconds))]),
+    @chai.div([@chai.class("controls")], [
+      @chai.button(
+        [@chai.class("control-btn"), @chai.on_click(fn(_e) { Toggle })],
+        [@chai.text(if model.running { "Stop" } else { "Start" })],
+      ),
+      @chai.button(
+        [@chai.class("control-btn"), @chai.on_click(fn(_e) { Reset })],
+        [@chai.text("Reset")],
+      ),
     ]),
-    p([class("hint")], [text("Space = start/stop, R = reset")]),
+    @chai.p([@chai.class("hint")], [@chai.text("Space = start/stop, R = reset")]),
   ])
 }
 
 ///|
-fn subscriptions(model : Model) -> Sub[Msg] {
-  let key_sub = Sub::on_key_down("global-keydown", fn(key) { KeyDown(key) }, prevent_default=fn(
-    key,
-  ) {
-    key == " " || key == "r" || key == "R"
-  })
+fn subscriptions(model : Model) -> @chai.Sub[Msg] {
+  let key_sub = @chai.Sub::on_key_down(
+    "global-keydown",
+    fn(key) { KeyDown(key) },
+    prevent_default=fn(key) { key == " " || key == "r" || key == "R" },
+  )
   if model.running {
-    Sub::batch([Sub::every(1000, "tick-timer", fn() { Tick }), key_sub])
+    @chai.Sub::batch([
+      @chai.Sub::every(1000, "tick-timer", fn() { Tick }),
+      key_sub,
+    ])
   } else {
     key_sub
   }
@@ -89,5 +81,5 @@ fn subscriptions(model : Model) -> Sub[Msg] {
 
 ///|
 fn main {
-  start(init=app_init, update~, view~, subscriptions~, selector="#app")
+  @chai.start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }

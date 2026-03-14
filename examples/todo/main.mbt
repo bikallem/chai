@@ -1,33 +1,4 @@
 ///|
-using @chai {
-  type VNode,
-  type Cmd,
-  type Sub,
-  start,
-  div,
-  h1,
-  span,
-  button,
-  input,
-  ul,
-  li,
-  label,
-  header,
-  section,
-  footer,
-  text,
-  class,
-  type_,
-  checked,
-  on_click,
-  on_check,
-  keyed_list,
-}
-
-///|
-using @todo_input { todo_input }
-
-///|
 priv enum Filter {
   All
   Active
@@ -58,21 +29,24 @@ priv enum Msg {
 }
 
 ///|
-fn app_init() -> (Model, Cmd[Msg]) {
-  ({ todos: [], next_id: 1, filter: All }, Cmd::none())
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
+  ({ todos: [], next_id: 1, filter: All }, @chai.Cmd::none())
 }
 
 ///|
-fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
     AddTodo(text) => {
       if text.length() == 0 {
-        return (model, Cmd::none())
+        return (model, @chai.Cmd::none())
       }
       let todo : Todo = { id: model.next_id, text, completed: false }
       let new_todos = model.todos.copy()
       new_todos.push(todo)
-      ({ ..model, todos: new_todos, next_id: model.next_id + 1 }, Cmd::none())
+      (
+        { ..model, todos: new_todos, next_id: model.next_id + 1 },
+        @chai.Cmd::none(),
+      )
     }
     ToggleTodo(id) => {
       let new_todos = model.todos.map(fn(todo) {
@@ -82,16 +56,16 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
           todo
         }
       })
-      ({ ..model, todos: new_todos }, Cmd::none())
+      ({ ..model, todos: new_todos }, @chai.Cmd::none())
     }
     DeleteTodo(id) => {
       let new_todos = model.todos.filter(fn(todo) { todo.id != id })
-      ({ ..model, todos: new_todos }, Cmd::none())
+      ({ ..model, todos: new_todos }, @chai.Cmd::none())
     }
-    SetFilter(filter) => ({ ..model, filter }, Cmd::none())
+    SetFilter(filter) => ({ ..model, filter, }, @chai.Cmd::none())
     ClearCompleted => {
       let new_todos = model.todos.filter(fn(todo) { not(todo.completed) })
-      ({ ..model, todos: new_todos }, Cmd::none())
+      ({ ..model, todos: new_todos }, @chai.Cmd::none())
     }
   }
 }
@@ -113,24 +87,28 @@ fn items_left(todos : Array[Todo]) -> Int {
 }
 
 ///|
-fn view_todo(todo : Todo) -> VNode[Msg] {
+fn view_todo(todo : Todo) -> @chai.VNode[Msg] {
   let item_class = if todo.completed {
     "todo-item completed"
   } else {
     "todo-item"
   }
-  li([class(item_class)], [
-    label([class("todo-label")], [
-      input([
-        type_("checkbox"),
-        checked(todo.completed),
-        on_check(fn(_checked) { ToggleTodo(todo.id) }),
+  @chai.li([@chai.class(item_class)], [
+    @chai.label([@chai.class("todo-label")], [
+      @chai.input([
+        @chai.type_("checkbox"),
+        @chai.checked(todo.completed),
+        @chai.on_check(fn(_checked) { ToggleTodo(todo.id) }),
       ]),
-      span([class("todo-text")], [text(todo.text)]),
+      @chai.span([@chai.class("todo-text")], [@chai.text(todo.text)]),
     ]),
-    button([class("delete-btn"), on_click(fn(_e) { DeleteTodo(todo.id) })], [
-      text("\u{00D7}"),
-    ]),
+    @chai.button(
+      [
+        @chai.class("delete-btn"),
+        @chai.on_click(fn(_e) { DeleteTodo(todo.id) }),
+      ],
+      [@chai.text("\u{00D7}")],
+    ),
   ])
 }
 
@@ -139,15 +117,16 @@ fn view_filter_btn(
   current : Filter,
   filter : Filter,
   label_text : String,
-) -> VNode[Msg] {
+) -> @chai.VNode[Msg] {
   let cls = if current == filter { "filter-btn active" } else { "filter-btn" }
-  button([class(cls), on_click(fn(_e) { SetFilter(filter) })], [
-    text(label_text),
-  ])
+  @chai.button(
+    [@chai.class(cls), @chai.on_click(fn(_e) { SetFilter(filter) })],
+    [@chai.text(label_text)],
+  )
 }
 
 ///|
-fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> VNode[Msg] {
+fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> @chai.VNode[Msg] {
   let current_visible_todos = visible_todos(model)
   let current_items_left = items_left(model.todos)
   let items_text = if current_items_left == 1 {
@@ -155,35 +134,36 @@ fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> VNode[Msg] {
   } else {
     "items left"
   }
-  div([class("todo-app")], [
-    header([class("todo-header")], [
-      h1([], [text("todos")]),
-      todo_input(fn(text) {
-        Cmd::task(fn(_) { (dispatch.val)(AddTodo(text)) })
+  @chai.div([@chai.class("todo-app")], [
+    @chai.header([@chai.class("todo-header")], [
+      @chai.h1([], [@chai.text("todos")]),
+      @todo_input.todo_input(fn(text) {
+        @chai.Cmd::task(fn(_) { (dispatch.val)(AddTodo(text)) })
       }),
     ]),
-    section([class("todo-list-section")], [
-      ul(
-        [class("todo-list")],
-        keyed_list(
+    @chai.section([@chai.class("todo-list-section")], [
+      @chai.ul(
+        [@chai.class("todo-list")],
+        @chai.keyed_list(
           current_visible_todos.map(fn(todo) {
             (todo.id.to_string(), view_todo(todo))
           }),
         ),
       ),
     ]),
-    footer([class("todo-footer")], [
-      span([class("todo-count")], [
-        text(current_items_left.to_string() + " " + items_text),
+    @chai.footer([@chai.class("todo-footer")], [
+      @chai.span([@chai.class("todo-count")], [
+        @chai.text(current_items_left.to_string() + " " + items_text),
       ]),
-      div([class("filters")], [
+      @chai.div([@chai.class("filters")], [
         view_filter_btn(model.filter, All, "All"),
         view_filter_btn(model.filter, Active, "Active"),
         view_filter_btn(model.filter, Completed, "Completed"),
       ]),
-      button([class("clear-btn"), on_click(fn(_e) { ClearCompleted })], [
-        text("Clear completed"),
-      ]),
+      @chai.button(
+        [@chai.class("clear-btn"), @chai.on_click(fn(_e) { ClearCompleted })],
+        [@chai.text("Clear completed")],
+      ),
     ]),
   ])
 }
@@ -191,14 +171,17 @@ fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> VNode[Msg] {
 ///|
 fn main {
   let dispatch : Ref[(Msg) -> Unit] = Ref::new(fn(_) {  })
-  start(
+  @chai.start(
     init=fn() {
       let (model, cmd) = app_init()
-      (model, Cmd::batch([cmd, Cmd::task(fn(d) { dispatch.val = d })]))
+      (
+        model,
+        @chai.Cmd::batch([cmd, @chai.Cmd::task(fn(d) { dispatch.val = d })]),
+      )
     },
     update~,
     view=fn(model) { view(model, dispatch) },
-    subscriptions=fn(_model : Model) -> Sub[Msg] { Sub::none() },
+    subscriptions=fn(_model : Model) -> @chai.Sub[Msg] { @chai.Sub::none() },
     selector="#app",
   )
 }

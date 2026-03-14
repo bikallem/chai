@@ -1,25 +1,4 @@
 ///|
-using @chai {
-  type VNode,
-  type Cmd,
-  type Sub,
-  start,
-  div,
-  h1,
-  h2,
-  p,
-  ul,
-  li,
-  button,
-  text,
-  class,
-  attr,
-  on_click,
-  keyed_list,
-  link,
-}
-
-///|
 enum ListMode {
   Plain
   Keyed
@@ -53,7 +32,7 @@ fn pair_items() -> Array[Item] {
 }
 
 ///|
-fn app_init() -> (Model, Cmd[Msg]) {
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
   (
     {
       mode: Plain,
@@ -61,12 +40,12 @@ fn app_init() -> (Model, Cmd[Msg]) {
       duplicate_keys: false,
       link_activations: 0,
     },
-    Cmd::none(),
+    @chai.Cmd::none(),
   )
 }
 
 ///|
-fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
     SwitchToKeyedSingle =>
       (
@@ -76,7 +55,7 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
           duplicate_keys: false,
           link_activations: model.link_activations,
         },
-        Cmd::none(),
+        @chai.Cmd::none(),
       )
     SwitchToPlainPair =>
       (
@@ -86,7 +65,7 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
           duplicate_keys: false,
           link_activations: model.link_activations,
         },
-        Cmd::none(),
+        @chai.Cmd::none(),
       )
     TriggerDuplicateKeys =>
       (
@@ -96,33 +75,38 @@ fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
           link_activations: model.link_activations,
           items: [{ key: "dup", label: "X" }, { key: "dup", label: "Y" }],
         },
-        Cmd::none(),
+        @chai.Cmd::none(),
       )
     ActivateLink =>
-      ({ ..model, link_activations: model.link_activations + 1 }, Cmd::none())
+      (
+        { ..model, link_activations: model.link_activations + 1 },
+        @chai.Cmd::none(),
+      )
   }
 }
 
 ///|
-fn view_item(item : Item) -> VNode[Msg] {
-  li([class("item")], [text(item.label)])
+fn view_item(item : Item) -> @chai.VNode[Msg] {
+  @chai.li([@chai.class("item")], [@chai.text(item.label)])
 }
 
 ///|
-fn view_list(model : Model) -> VNode[Msg] {
+fn view_list(model : Model) -> @chai.VNode[Msg] {
   let children = if model.mode == Keyed {
     if model.duplicate_keys {
-      keyed_list([
+      @chai.keyed_list([
         ("dup", view_item(model.items[0])),
         ("dup", view_item(model.items[1])),
       ])
     } else {
-      keyed_list(model.items.map(fn(item) { (item.key, view_item(item)) }))
+      @chai.keyed_list(
+        model.items.map(fn(item) { (item.key, view_item(item)) }),
+      )
     }
   } else {
     model.items.map(view_item)
   }
-  ul([class("items")], children)
+  @chai.ul([@chai.class("items")], children)
 }
 
 ///|
@@ -134,46 +118,53 @@ fn mode_label(mode : ListMode) -> String {
 }
 
 ///|
-fn view(model : Model) -> VNode[Msg] {
-  div([class("regressions-app")], [
-    h1([], [text("Regression Harness")]),
-    h2([], [text("Keyed Diff")]),
-    p([class("mode")], [text("Mode: " + mode_label(model.mode))]),
-    view_list(model),
-    div([class("controls")], [
-      button([class("to-keyed"), on_click(fn(_) { SwitchToKeyedSingle })], [
-        text("Switch To Keyed Single"),
-      ]),
-      button([class("to-plain"), on_click(fn(_) { SwitchToPlainPair })], [
-        text("Switch To Plain Pair"),
-      ]),
-      button([class("set-dup"), on_click(fn(_) { TriggerDuplicateKeys })], [
-        text("Trigger Duplicate Keys"),
-      ]),
+fn view(model : Model) -> @chai.VNode[Msg] {
+  @chai.div([@chai.class("regressions-app")], [
+    @chai.h1([], [@chai.text("Regression Harness")]),
+    @chai.h2([], [@chai.text("Keyed Diff")]),
+    @chai.p([@chai.class("mode")], [
+      @chai.text("Mode: " + mode_label(model.mode)),
     ]),
-    h2([], [text("Link Interception")]),
-    p([class("link-count")], [text(model.link_activations.to_string())]),
-    link(
+    view_list(model),
+    @chai.div([@chai.class("controls")], [
+      @chai.button(
+        [@chai.class("to-keyed"), @chai.on_click(fn(_) { SwitchToKeyedSingle })],
+        [@chai.text("Switch To Keyed Single")],
+      ),
+      @chai.button(
+        [@chai.class("to-plain"), @chai.on_click(fn(_) { SwitchToPlainPair })],
+        [@chai.text("Switch To Plain Pair")],
+      ),
+      @chai.button(
+        [@chai.class("set-dup"), @chai.on_click(fn(_) { TriggerDuplicateKeys })],
+        [@chai.text("Trigger Duplicate Keys")],
+      ),
+    ]),
+    @chai.h2([], [@chai.text("Link Interception")]),
+    @chai.p([@chai.class("link-count")], [
+      @chai.text(model.link_activations.to_string()),
+    ]),
+    @chai.link(
       "/regressions/same-tab",
-      [class("spa-link")],
-      [text("SPA Link")],
+      [@chai.class("spa-link")],
+      [@chai.text("SPA Link")],
       on_nav=ActivateLink,
     ),
-    link(
+    @chai.link(
       "/regressions/new-tab",
-      [class("spa-link-blank"), attr("target", "_blank")],
-      [text("Blank Target Link")],
+      [@chai.class("spa-link-blank"), @chai.attr("target", "_blank")],
+      [@chai.text("Blank Target Link")],
       on_nav=ActivateLink,
     ),
   ])
 }
 
 ///|
-fn subscriptions(_model : Model) -> Sub[Msg] {
-  Sub::none()
+fn subscriptions(_model : Model) -> @chai.Sub[Msg] {
+  @chai.Sub::none()
 }
 
 ///|
 fn main {
-  start(init=app_init, update~, view~, subscriptions~, selector="#app")
+  @chai.start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }

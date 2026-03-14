@@ -1,21 +1,4 @@
 ///|
-using @chai {
-  type VNode,
-  type Cmd,
-  type Sub,
-  start,
-  div,
-  h1,
-  h2,
-  p,
-  button,
-  pre,
-  text,
-  class,
-  on_click,
-}
-
-///|
 enum Status {
   Idle
   Loading
@@ -36,51 +19,62 @@ enum Msg {
 }
 
 ///|
-fn app_init() -> (Model, Cmd[Msg]) {
-  ({ post_id: 1, status: Idle }, Cmd::none())
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
+  ({ post_id: 1, status: Idle }, @chai.Cmd::none())
 }
 
 ///|
-fn update(model : Model, msg : Msg) -> (Model, Cmd[Msg]) {
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
     FetchPost => {
       let url = "https://jsonplaceholder.typicode.com/posts/" +
         model.post_id.to_string()
-      ({ ..model, status: Loading }, Cmd::http_get(url, fn(r) { GotResult(r) }))
+      (
+        { ..model, status: Loading },
+        @chai.Cmd::http_get(url, fn(r) { GotResult(r) }),
+      )
     }
     GotResult(Ok(body)) =>
-      ({ post_id: model.post_id + 1, status: Loaded(body) }, Cmd::none())
-    GotResult(Err(msg)) => ({ ..model, status: Failed(msg) }, Cmd::none())
+      ({ post_id: model.post_id + 1, status: Loaded(body) }, @chai.Cmd::none())
+    GotResult(Err(msg)) => ({ ..model, status: Failed(msg) }, @chai.Cmd::none())
   }
 }
 
 ///|
-fn view(model : Model) -> VNode[Msg] {
-  div([class("fetch-app")], [
-    h1([], [text("Post Viewer")]),
-    p([class("post-id")], [text("Post #" + model.post_id.to_string())]),
-    button([class("fetch-btn"), on_click(fn(_e) { FetchPost })], [text("Fetch")]),
-    div([class("status")], [
+fn view(model : Model) -> @chai.VNode[Msg] {
+  @chai.div([@chai.class("fetch-app")], [
+    @chai.h1([], [@chai.text("Post Viewer")]),
+    @chai.p([@chai.class("post-id")], [
+      @chai.text("Post #" + model.post_id.to_string()),
+    ]),
+    @chai.button(
+      [@chai.class("fetch-btn"), @chai.on_click(fn(_e) { FetchPost })],
+      [@chai.text("Fetch")],
+    ),
+    @chai.div([@chai.class("status")], [
       match model.status {
-        Idle => p([class("hint")], [text("Click Fetch to load a post")])
-        Loading => p([class("loading")], [text("Loading…")])
-        Loaded(body) =>
-          div([], [
-            h2([], [text("Response")]),
-            pre([class("body")], [text(body)]),
+        Idle =>
+          @chai.p([@chai.class("hint")], [
+            @chai.text("Click Fetch to load a post"),
           ])
-        Failed(err) => p([class("error")], [text(err)])
+        Loading => @chai.p([@chai.class("loading")], [@chai.text("Loading…")])
+        Loaded(body) =>
+          @chai.div([], [
+            @chai.h2([], [@chai.text("Response")]),
+            @chai.pre([@chai.class("body")], [@chai.text(body)]),
+          ])
+        Failed(err) => @chai.p([@chai.class("error")], [@chai.text(err)])
       },
     ]),
   ])
 }
 
 ///|
-fn subscriptions(_model : Model) -> Sub[Msg] {
-  Sub::none()
+fn subscriptions(_model : Model) -> @chai.Sub[Msg] {
+  @chai.Sub::none()
 }
 
 ///|
 fn main {
-  start(init=app_init, update~, view~, subscriptions~, selector="#app")
+  @chai.start(init=app_init, update~, view~, subscriptions~, selector="#app")
 }
