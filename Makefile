@@ -1,7 +1,8 @@
 EXAMPLES := canvas clock counters fetch regressions router todo
 
-TRIM     := .mooncakes/bikallem/webapi/_build/native/release/build/trim/trim.exe
-WEBAPI_MJS := .mooncakes/bikallem/webapi/src/webapi.mjs
+WEBAPI_DIR ?= ../webapi
+TRIM       := $(WEBAPI_DIR)/_build/native/release/build/trim/trim.exe
+WEBAPI_MJS := $(WEBAPI_DIR)/src/webapi.mjs
 BUILD_DIR  := examples/_build
 
 .PHONY: all build build-js build-wasm trim check fmt test clean

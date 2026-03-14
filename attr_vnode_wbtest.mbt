@@ -17,7 +17,7 @@ test "class_list keeps only enabled classes" {
 #cfg(target="js")
 test "on_input and on_check extract values from event target" {
   let input_attr = on("input", fn(e) {
-    let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+    let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).unsafe_into()
     target.get("value").to_string()
   })
   match input_attr {
@@ -26,7 +26,7 @@ test "on_input and on_check extract values from event target" {
     _ => panic()
   }
   let check_attr = on("change", fn(e) {
-    let el : @webapi.HTMLInputElement = e.target().into()
+    let el : @webapi.HTMLInputElement = e.target().unsafe_into()
     el.checked()
   })
   match check_attr {
@@ -43,7 +43,7 @@ test "on_input/on_change work for textarea and select value events" {
     "textarea",
     [
       on("input", fn(e) {
-        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).unsafe_into()
         target.get("value").to_string()
       }),
     ],
@@ -65,7 +65,7 @@ test "on_input/on_change work for textarea and select value events" {
     "select",
     [
       on("change", fn(e) {
-        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).into()
+        let target : @webapi.JsObject = @webapi.TJsValue::to_js(e.target()).unsafe_into()
         target.get("value").to_string()
       }),
     ],
@@ -88,7 +88,7 @@ test "on_input/on_change work for textarea and select value events" {
 #cfg(target="js")
 test "on_keydown and on_submit decode event payloads" {
   let key_attr = on("keydown", fn(e) {
-    let ke : @webapi.KeyboardEvent = e.into()
+    let ke : @webapi.KeyboardEvent = e.unsafe_into()
     ke.key()
   })
   match key_attr {
