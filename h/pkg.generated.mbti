@@ -1,0 +1,331 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bikallem/chai/h"
+
+import {
+  "bikallem/chai",
+  "bikallem/webapi",
+}
+
+// Values
+pub fn[Msg] a(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] abbr(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] action(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] alt(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] aria(String, String) -> @chai.Attr[Msg]
+
+pub fn[Msg] article(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] aside(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] attr(String, String) -> @chai.Attr[Msg]
+
+pub fn[Msg] audio(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] autocomplete(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] autofocus(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] autoplay(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] blockquote(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] br(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] button(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] canvas(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] caption(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] checked(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] cite(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] class(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] class_list(Array[(String, Bool)]) -> @chai.Attr[Msg]
+
+pub fn[Msg] code(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] col(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] colgroup(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] cols(Int) -> @chai.Attr[Msg]
+
+pub fn[Msg] contenteditable(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] controls(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] data(String, String) -> @chai.Attr[Msg]
+
+pub fn[Msg] datalist(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] dd(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] details(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] dialog(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] disabled(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] div(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] dl(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] download(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] draggable(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] dt(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] el(String, Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] em(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] embed(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] fieldset(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] figcaption(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] figure(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] footer(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] for_(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] form(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h1(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h2(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h3(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h4(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h5(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] h6(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] header(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] height(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] hidden(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] hr(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] href(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] id(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] iframe(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] img(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] input(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] kbd(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] keyed(String, @chai.VNode[Msg]) -> @chai.VNode[Msg]
+
+pub fn[Msg] keyed_list(Array[(String, @chai.VNode[Msg])]) -> Array[@chai.VNode[Msg]]
+
+pub fn[Msg] label(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] legend(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] li(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] loop_(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] main_(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] mark(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] max(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] maxlength(Int) -> @chai.Attr[Msg]
+
+pub fn[Msg] meter(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] method_(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] min(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] minlength(Int) -> @chai.Attr[Msg]
+
+pub fn[Msg] multiple(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] muted(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] name(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] nav(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] ol(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] on(String, (@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_blur((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_change((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_check((Bool) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_click((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_dblclick((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_drag((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_dragend((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_dragover((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_dragstart((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_drop((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_focus((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_input((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_keydown((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_keypress((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_keyup((String) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mousedown((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mouseenter((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mouseleave((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mouseout((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mouseover((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_mouseup((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] on_submit((@webapi.Event) -> Msg) -> @chai.Attr[Msg]
+
+pub fn[Msg] optgroup(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] option(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] output(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] p(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] pattern(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] picture(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] placeholder(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] pre(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] progress(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] property(String, @webapi.JsValue) -> @chai.Attr[Msg]
+
+pub fn[Msg] readonly_(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] rel(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] required(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] role(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] rows(Int) -> @chai.Attr[Msg]
+
+pub fn[Msg] samp(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] section(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] select(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] selected(Bool) -> @chai.Attr[Msg]
+
+pub fn[Msg] small(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] source(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] span(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] spellcheck(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] src(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] step(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] strong(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] style(String, String) -> @chai.Attr[Msg]
+
+pub fn[Msg] sub(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] summary(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] sup(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] svg(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] tabindex(Int) -> @chai.Attr[Msg]
+
+pub fn[Msg] table(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] target(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] tbody(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] td(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] text(String) -> @chai.VNode[Msg]
+
+pub fn[Msg] textarea(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] tfoot(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] th(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] thead(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] time(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] title(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] tr(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] track(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] type_(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] ul(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] value(String) -> @chai.Attr[Msg]
+
+pub fn[Msg] var_(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] video(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] wbr(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
+
+pub fn[Msg] width(String) -> @chai.Attr[Msg]
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
+

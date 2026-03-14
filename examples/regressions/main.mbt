@@ -99,9 +99,7 @@ fn view_list(model : Model) -> @chai.VNode[Msg] {
         ("dup", view_item(model.items[1])),
       ])
     } else {
-      @h.keyed_list(
-        model.items.map(fn(item) { (item.key, view_item(item)) }),
-      )
+      @h.keyed_list(model.items.map(fn(item) { (item.key, view_item(item)) }))
     }
   } else {
     model.items.map(view_item)
@@ -122,9 +120,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
   @h.div([@h.class("regressions-app")], [
     @h.h1([], [@h.text("Regression Harness")]),
     @h.h2([], [@h.text("Keyed Diff")]),
-    @h.p([@h.class("mode")], [
-      @h.text("Mode: " + mode_label(model.mode)),
-    ]),
+    @h.p([@h.class("mode")], [@h.text("Mode: " + mode_label(model.mode))]),
     view_list(model),
     @h.div([@h.class("controls")], [
       @h.button(
@@ -141,9 +137,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
       ),
     ]),
     @h.h2([], [@h.text("Link Interception")]),
-    @h.p([@h.class("link-count")], [
-      @h.text(model.link_activations.to_string()),
-    ]),
+    @h.p([@h.class("link-count")], [@h.text(model.link_activations.to_string())]),
     @chai.link(
       "/regressions/same-tab",
       [@h.class("spa-link")],

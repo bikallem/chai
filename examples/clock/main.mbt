@@ -49,14 +49,12 @@ fn view(model : Model) -> @chai.VNode[Msg] {
     @h.h1([], [@h.text("Stopwatch")]),
     @h.div([@h.class("display")], [@h.text(format_time(model.seconds))]),
     @h.div([@h.class("controls")], [
-      @h.button(
-        [@h.class("control-btn"), @h.on_click(fn(_e) { Toggle })],
-        [@h.text(if model.running { "Stop" } else { "Start" })],
-      ),
-      @h.button(
-        [@h.class("control-btn"), @h.on_click(fn(_e) { Reset })],
-        [@h.text("Reset")],
-      ),
+      @h.button([@h.class("control-btn"), @h.on_click(fn(_e) { Toggle })], [
+        @h.text(if model.running { "Stop" } else { "Start" }),
+      ]),
+      @h.button([@h.class("control-btn"), @h.on_click(fn(_e) { Reset })], [
+        @h.text("Reset"),
+      ]),
     ]),
     @h.p([@h.class("hint")], [@h.text("Space = start/stop, R = reset")]),
   ])

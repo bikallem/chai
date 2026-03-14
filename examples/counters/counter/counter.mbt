@@ -22,17 +22,13 @@ pub fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 ///|
 pub fn view(model : Model) -> @chai.VNode[Msg] {
   @h.div([@h.class("counter")], [
-    @h.button(
-      [@h.class("counter-btn"), @h.on_click(fn(_e) { Decrement })],
-      [@h.text("-")],
-    ),
-    @h.span([@h.class("counter-value")], [
-      @h.text(model.count.to_string()),
+    @h.button([@h.class("counter-btn"), @h.on_click(fn(_e) { Decrement })], [
+      @h.text("-"),
     ]),
-    @h.button(
-      [@h.class("counter-btn"), @h.on_click(fn(_e) { Increment })],
-      [@h.text("+")],
-    ),
+    @h.span([@h.class("counter-value")], [@h.text(model.count.to_string())]),
+    @h.button([@h.class("counter-btn"), @h.on_click(fn(_e) { Increment })], [
+      @h.text("+"),
+    ]),
   ])
 }
 

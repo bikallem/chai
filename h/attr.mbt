@@ -20,7 +20,10 @@ fn get_target_value(event : @webapi.Event) -> String {
 }
 
 ///|
-fn[Msg] on_target_value(event : String, handler : (String) -> Msg) -> @chai.Attr[Msg] {
+fn[Msg] on_target_value(
+  event : String,
+  handler : (String) -> Msg,
+) -> @chai.Attr[Msg] {
   @chai.on(event, fn(e) { handler(get_target_value(e)) })
 }
 
@@ -409,9 +412,6 @@ pub fn[Msg] style(name : String, value : String) -> @chai.Attr[Msg] {
 }
 
 ///|
-pub fn[Msg] property(
-  name : String,
-  value : @webapi.JsValue,
-) -> @chai.Attr[Msg] {
+pub fn[Msg] property(name : String, value : @webapi.JsValue) -> @chai.Attr[Msg] {
   @chai.property(name, value)
 }

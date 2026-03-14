@@ -45,10 +45,9 @@ fn view(model : Model) -> @chai.VNode[Msg] {
         @counter.counter(handle=model.counter_b),
       ]),
     ]),
-    @h.button(
-      [@h.class("reset-btn"), @h.on_click(fn(_e) { ResetAll })],
-      [@h.text("Reset All")],
-    ),
+    @h.button([@h.class("reset-btn"), @h.on_click(fn(_e) { ResetAll })], [
+      @h.text("Reset All"),
+    ]),
   ])
 }
 

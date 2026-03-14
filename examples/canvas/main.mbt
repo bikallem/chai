@@ -101,14 +101,12 @@ fn view(model : Model) -> @chai.VNode[Msg] {
       [],
     ),
     @h.div([@h.class("controls")], [
-      @h.button(
-        [@h.class("clear-btn"), @h.on_click(fn(_e) { Clear })],
-        [@h.text("Clear")],
-      ),
-      @h.div(
-        [@h.class("stroke-count"), @h.style("display", "inline-block")],
-        [@h.text(model.strokes.length().to_string() + " strokes")],
-      ),
+      @h.button([@h.class("clear-btn"), @h.on_click(fn(_e) { Clear })], [
+        @h.text("Clear"),
+      ]),
+      @h.div([@h.class("stroke-count"), @h.style("display", "inline-block")], [
+        @h.text(model.strokes.length().to_string() + " strokes"),
+      ]),
     ]),
   ])
 }

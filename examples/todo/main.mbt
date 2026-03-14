@@ -103,10 +103,7 @@ fn view_todo(todo : Todo) -> @chai.VNode[Msg] {
       @h.span([@h.class("todo-text")], [@h.text(todo.text)]),
     ]),
     @h.button(
-      [
-        @h.class("delete-btn"),
-        @h.on_click(fn(_e) { DeleteTodo(todo.id) }),
-      ],
+      [@h.class("delete-btn"), @h.on_click(fn(_e) { DeleteTodo(todo.id) })],
       [@h.text("\u{00D7}")],
     ),
   ])
@@ -119,10 +116,9 @@ fn view_filter_btn(
   label_text : String,
 ) -> @chai.VNode[Msg] {
   let cls = if current == filter { "filter-btn active" } else { "filter-btn" }
-  @h.button(
-    [@h.class(cls), @h.on_click(fn(_e) { SetFilter(filter) })],
-    [@h.text(label_text)],
-  )
+  @h.button([@h.class(cls), @h.on_click(fn(_e) { SetFilter(filter) })], [
+    @h.text(label_text),
+  ])
 }
 
 ///|
