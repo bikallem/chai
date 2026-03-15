@@ -30,8 +30,8 @@ pub fn[Msg] null() -> VNode[Msg] {
 }
 
 ///|
-pub fn[Msg] text(s : String) -> VNode[Msg] {
-  Text(s)
+pub fn[S : Show, Msg] text(s : S) -> VNode[Msg] {
+  Text(s.to_string())
 }
 
 ///|

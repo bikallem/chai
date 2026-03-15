@@ -34,7 +34,7 @@ info:
 	moon info
 
 test: build
-	moon test -v
+	moon test
 	cd tests && npx playwright test
 
 clean:
