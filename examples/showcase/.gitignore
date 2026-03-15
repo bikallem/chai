@@ -1,6 +1,7 @@
 node_modules
 dist
 public/examples/*.js
+public/examples/examples.css
 public/examples/wasm/*.wasm
 public/examples/wasm/webapi.mjs
 showcase.js

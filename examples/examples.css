@@ -1,0 +1,546 @@
+/* Shared reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+}
+
+/* -- Todo -- */
+
+.todo-app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+.todo-header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.todo-header h1 {
+    font-size: 28px;
+    font-weight: 300;
+    color: #c44;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.input-row {
+    display: flex;
+    gap: 8px;
+}
+
+.todo-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+}
+
+.todo-input:focus {
+    border-color: #c44;
+}
+
+.add-btn {
+    padding: 10px 20px;
+    background: #c44;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background: #a33;
+}
+
+.todo-list-section {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.todo-list {
+    list-style: none;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.todo-item:hover {
+    background: #fafafa;
+}
+
+.todo-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    cursor: pointer;
+}
+
+.todo-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.todo-text {
+    font-size: 14px;
+}
+
+.todo-item.completed .todo-text {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.delete-btn:hover {
+    color: #c44;
+}
+
+.todo-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-top: 1px solid #eee;
+    font-size: 13px;
+    color: #888;
+}
+
+.filters {
+    display: flex;
+    gap: 4px;
+}
+
+.filter-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-size: 13px;
+    color: #888;
+    cursor: pointer;
+}
+
+.filter-btn:hover {
+    border-color: #ddd;
+}
+
+.filter-btn.active {
+    border-color: #c44;
+    color: #c44;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: #888;
+    cursor: pointer;
+}
+
+.clear-btn:hover {
+    color: #333;
+}
+
+/* -- Counters -- */
+
+.counters-app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    padding: 24px;
+    text-align: center;
+}
+
+.counters-app h1 {
+    font-size: 28px;
+    font-weight: 300;
+    color: #c44;
+    margin-bottom: 24px;
+}
+
+.counters {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.counter-wrapper {
+    flex: 1;
+}
+
+.counter-wrapper h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.counter-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.counter-btn:hover {
+    background: #f0f0f0;
+    border-color: #c44;
+    color: #c44;
+}
+
+.counter-value {
+    font-size: 24px;
+    font-weight: 600;
+    min-width: 48px;
+}
+
+.reset-btn {
+    padding: 10px 24px;
+    background: #c44;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.reset-btn:hover {
+    background: #a33;
+}
+
+/* -- Clock -- */
+
+.clock-app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 360px;
+    padding: 32px;
+    text-align: center;
+}
+
+.clock-app h1 {
+    font-size: 24px;
+    font-weight: 300;
+    color: #c44;
+    margin-bottom: 24px;
+}
+
+.display {
+    font-size: 64px;
+    font-weight: 200;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 2px;
+    margin-bottom: 28px;
+    color: #222;
+}
+
+.clock-app .controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.control-btn {
+    padding: 10px 28px;
+    background: #c44;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    min-width: 90px;
+}
+
+.control-btn:hover {
+    background: #a33;
+}
+
+.hint {
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* -- Router -- */
+
+.app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    padding: 24px;
+}
+
+.app h1 {
+    font-size: 28px;
+    font-weight: 300;
+    color: #c44;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.nav-link {
+    padding: 6px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #555;
+    background: #f0f0f0;
+    font-size: 14px;
+}
+
+.nav-link:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.page {
+    padding: 8px 0;
+}
+
+.page h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.page p {
+    color: #666;
+    line-height: 1.5;
+}
+
+/* -- Fetch -- */
+
+.fetch-app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 480px;
+    max-width: 100%;
+    padding: 32px;
+}
+
+.fetch-app h1 {
+    font-size: 24px;
+    font-weight: 300;
+    color: #2a7ae2;
+    margin-bottom: 16px;
+}
+
+.fetch-app h2 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.post-id {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.fetch-btn {
+    padding: 10px 28px;
+    background: #2a7ae2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.fetch-btn:hover {
+    background: #1a5ab2;
+}
+
+.loading {
+    color: #2a7ae2;
+}
+
+.body {
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.error {
+    color: #c44;
+    font-weight: 500;
+}
+
+/* -- Canvas -- */
+
+.canvas-app {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.canvas-app h1 {
+    font-size: 28px;
+    font-weight: 300;
+    color: #2a7ae2;
+}
+
+.draw-canvas {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: crosshair;
+    background: #fff;
+}
+
+.canvas-app .controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.canvas-app .clear-btn {
+    padding: 10px 24px;
+    background: #2a7ae2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.canvas-app .clear-btn:hover {
+    background: #1a5ab2;
+}
+
+.stroke-count {
+    font-size: 13px;
+    color: #888;
+}
+
+/* -- Regressions -- */
+
+.regressions-app {
+    width: 100%;
+    max-width: 760px;
+    background: #fff;
+    border: 1px solid #e7e9ef;
+    border-radius: 8px;
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+}
+
+.regressions-app h1 {
+    font-size: 26px;
+    font-weight: 500;
+}
+
+.regressions-app h2 {
+    font-size: 18px;
+    margin-top: 12px;
+}
+
+.items {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+}
+
+.item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #cfd5e3;
+    background: #f0f3fa;
+    min-width: 40px;
+    text-align: center;
+}
+
+.regressions-app .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.regressions-app button {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #bcc4d6;
+    background: #eef2fb;
+    cursor: pointer;
+}
+
+.spa-link,
+.spa-link-blank {
+    display: inline-block;
+    width: fit-content;
+    color: #145dd9;
+    text-decoration: underline;
+}

@@ -22,6 +22,10 @@ for (const name of examples) {
 const mjs = build("wasm-gc", "release", "build", "examples", "todo", "webapi.mjs");
 if (existsSync(mjs)) cpSync(mjs, pub("wasm", "webapi.mjs"));
 
+// shared CSS
+const css = resolve(__dirname, "..", "examples.css");
+if (existsSync(css)) cpSync(css, pub("examples.css"));
+
 // showcase app JS
 const showcase = build("js", "release", "build", "examples", "showcase", "showcase.js");
 if (existsSync(showcase)) cpSync(showcase, resolve(__dirname, "showcase.js"));
