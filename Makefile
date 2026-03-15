@@ -12,14 +12,10 @@ all: clean fmt build test info
 build: build-js build-wasm trim
 
 build-js:
-	@for pkg in $(EXAMPLES); do \
-		moon build examples/$$pkg --target js --release --target-dir $(BUILD_DIR); \
-	done
+	moon build --target js --release --target-dir $(BUILD_DIR); \
 
 build-wasm:
-	@for pkg in $(EXAMPLES); do \
-		moon build examples/$$pkg --target wasm-gc --release --target-dir $(BUILD_DIR); \
-	done
+	moon build --target wasm-gc --release --target-dir $(BUILD_DIR); \
 
 trim: build-wasm
 	@for pkg in $(EXAMPLES); do \
