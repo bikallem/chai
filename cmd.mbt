@@ -10,19 +10,16 @@ pub fn[Msg] Cmd::none() -> Cmd[Msg] {
 
 ///|
 pub fn[Msg] Cmd::batch(cmds : Array[Cmd[Msg]]) -> Cmd[Msg] {
-  let tasks : Array[((Msg) -> Unit) -> Unit] = []
-  for cmd in cmds {
-    tasks.append(cmd.tasks)
-  }
-  { tasks, }
+  { tasks: cmds.iter().flat_map(fn(cmd) { cmd.tasks.iter() }).collect() }
 }
 
 ///|
 pub fn[A, B] Cmd::map(self : Cmd[A], f : (A) -> B) -> Cmd[B] {
-  let new_tasks : Array[((B) -> Unit) -> Unit] = self.tasks.map(fn(task) {
-    fn(dispatch : (B) -> Unit) { task(fn(a) { dispatch(f(a)) }) }
-  })
-  { tasks: new_tasks }
+  {
+    tasks: self.tasks.map(fn(task) {
+      fn(dispatch : (B) -> Unit) { task(fn(a) { dispatch(f(a)) }) }
+    }),
+  }
 }
 
 ///|
@@ -32,9 +29,7 @@ pub fn[Msg] Cmd::task(task : ((Msg) -> Unit) -> Unit) -> Cmd[Msg] {
 
 ///|
 fn[Msg] Cmd::run(self : Cmd[Msg], dispatch : (Msg) -> Unit) -> Unit {
-  for task in self.tasks {
-    task(dispatch)
-  }
+  self.tasks.each(fn(task) { task(dispatch) })
 }
 
 ///|

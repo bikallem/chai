@@ -48,10 +48,7 @@ test "mode switch detection via child_list_mode" {
     true,
   )
   // Same mode should not
-  assert_eq(
-    child_list_mode(plain, "p1") != child_list_mode(plain, "p2"),
-    false,
-  )
+  assert_eq(child_list_mode(plain, "p1") != child_list_mode(plain, "p2"), false)
   // Empty vs non-empty should not trigger replacement
   assert_eq(child_list_mode(empty, "e") == Empty, true)
 }

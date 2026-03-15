@@ -83,7 +83,7 @@ fn visible_todos(model : Model) -> Array[Todo] {
 
 ///|
 fn items_left(todos : Array[Todo]) -> Int {
-  todos.filter(fn(todo) { not(todo.completed) }).length()
+  todos.iter().filter(fn(todo) { not(todo.completed) }).count()
 }
 
 ///|

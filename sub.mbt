@@ -36,23 +36,22 @@ pub fn[Msg] Sub::none() -> Sub[Msg] {
 
 ///|
 pub fn[Msg] Sub::batch(subs : Array[Sub[Msg]]) -> Sub[Msg] {
-  let all : Array[SubDef[Msg]] = []
-  for sub in subs {
-    all.append(sub.subs)
-  }
-  { subs: all }
+  { subs: subs.iter().flat_map(fn(sub) { sub.subs.iter() }).collect() }
 }
 
 ///|
 pub fn[A, B] Sub::map(self : Sub[A], f : (A) -> B) -> Sub[B] {
-  let new_subs : Array[SubDef[B]] = self.subs.map(fn(sd) {
-    {
-      key: sd.key,
-      identity: sd.identity,
-      start: fn(dispatch : (B) -> Unit) { (sd.start)(fn(a) { dispatch(f(a)) }) },
-    }
-  })
-  { subs: new_subs }
+  {
+    subs: self.subs.map(fn(sd) {
+      {
+        key: sd.key,
+        identity: sd.identity,
+        start: fn(dispatch : (B) -> Unit) {
+          (sd.start)(fn(a) { dispatch(f(a)) })
+        },
+      }
+    }),
+  }
 }
 
 ///|

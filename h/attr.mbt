@@ -162,7 +162,10 @@ pub fn[Msg] class(value : String) -> @chai.Attr[Msg] {
 
 ///|
 pub fn[Msg] class_list(classes : Array[(String, Bool)]) -> @chai.Attr[Msg] {
-  let parts = classes.filter(fn(pair) { pair.1 }).map(fn(pair) { pair.0 })
+  let parts = classes
+    .iter()
+    .filter_map(fn(pair) { if pair.1 { Some(pair.0) } else { None } })
+    .collect()
   @chai.attr("class", parts.join(" "))
 }
 

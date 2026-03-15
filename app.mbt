@@ -91,21 +91,20 @@ fn[Msg] update_subs(
   let new_keys : @hashset.HashSet[String] = @hashset.new()
   for sd in new_sub.subs {
     new_keys.add(sd.key)
-    let should_start = match active_subs.get(sd.key) {
-      Some(active) =>
-        if active.identity != sd.identity {
-          (active.cleanup)()
-          true
-        } else {
-          false
+    match active_subs.get(sd.key) {
+      Some(active) if active.identity == sd.identity => ()
+      Some(active) => {
+        (active.cleanup)()
+        active_subs[sd.key] = {
+          identity: sd.identity,
+          cleanup: (sd.start)(dispatch),
         }
-      None => true
-    }
-    if should_start {
-      active_subs[sd.key] = {
-        identity: sd.identity,
-        cleanup: (sd.start)(dispatch),
       }
+      None =>
+        active_subs[sd.key] = {
+          identity: sd.identity,
+          cleanup: (sd.start)(dispatch),
+        }
     }
   }
   let to_remove : Array[String] = []

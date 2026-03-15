@@ -24,23 +24,26 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
     Toggle => ({ ..model, running: not(model.running) }, @chai.Cmd::none())
     Reset => ({ seconds: 0, running: false }, @chai.Cmd::none())
     KeyDown(key) =>
-      if key == " " {
-        update(model, Toggle)
-      } else if key == "r" || key == "R" {
-        update(model, Reset)
-      } else {
-        (model, @chai.Cmd::none())
+      match key {
+        " " => update(model, Toggle)
+        "r" | "R" => update(model, Reset)
+        _ => (model, @chai.Cmd::none())
       }
   }
 }
 
 ///|
+fn pad2(n : Int) -> String {
+  if n < 10 {
+    "0" + n.to_string()
+  } else {
+    n.to_string()
+  }
+}
+
+///|
 fn format_time(seconds : Int) -> String {
-  let m = seconds / 60
-  let s = seconds % 60
-  let mm = if m < 10 { "0" + m.to_string() } else { m.to_string() }
-  let ss = if s < 10 { "0" + s.to_string() } else { s.to_string() }
-  mm + ":" + ss
+  pad2(seconds / 60) + ":" + pad2(seconds % 60)
 }
 
 ///|

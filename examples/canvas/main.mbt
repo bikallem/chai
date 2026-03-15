@@ -80,8 +80,7 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 fn view(model : Model) -> @chai.VNode[Msg] {
   @h.div([@h.class("canvas-app")], [
     @h.h1([], [@h.text("Drawing Pad")]),
-    @h.el(
-      "canvas",
+    @h.canvas(
       [
         @h.id("draw-canvas"),
         @h.attr("width", "600"),

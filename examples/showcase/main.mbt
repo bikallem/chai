@@ -51,10 +51,9 @@ fn Target::to_string(self : Target) -> String {
 
 ///|
 fn target_from_string(s : String) -> Target {
-  if s == "wasm" {
-    WASM
-  } else {
-    JS
+  match s {
+    "wasm" => WASM
+    _ => JS
   }
 }
 
@@ -105,12 +104,7 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
 
 ///|
 fn find_example(id : String) -> Example? {
-  for ex in examples {
-    if ex.id == id {
-      return Some(ex)
-    }
-  }
-  None
+  examples.iter().find_first(fn(ex) { ex.id == id })
 }
 
 ///|
@@ -204,7 +198,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
             [
               @h.href("https://github.com/bikallem/chai"),
               @h.target("_blank"),
-              @h.attr("rel", "noopener"),
+              @h.rel("noopener"),
               @h.class(
                 "text-sm text-stone-500 hover:text-stone-800 transition-colors",
               ),
@@ -237,7 +231,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
         @h.div([@h.class("flex-1 min-h-0 p-4")], [
           @h.iframe(
             [
-              @h.attr("src", src),
+              @h.src(src),
               @h.class(
                 "w-full h-full rounded-lg border border-stone-200 bg-white",
               ),

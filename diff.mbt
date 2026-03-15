@@ -29,10 +29,7 @@ fn[Msg] create_dom_node(
       match runtime.component_slots.get(comp.id) {
         Some(slot) =>
           create_dom_node(runtime, slot.current_expanded.val, fn(_) {  })
-        None => {
-          let empty : VNode[Msg] = Text("")
-          create_dom_node(runtime, empty, dispatch)
-        }
+        None => create_dom_node(runtime, Text(""), dispatch)
       }
     Keyed(_k, child) => create_dom_node(runtime, child, dispatch)
     Null => {
