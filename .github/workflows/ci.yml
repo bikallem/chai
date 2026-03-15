@@ -66,6 +66,8 @@ jobs:
             cp "examples/_build/js/release/build/examples/$name/$name.js" \
                "examples/showcase/public/examples/$name.js"
           done
+          cp "examples/_build/js/release/build/examples/showcase/showcase.js" \
+             "examples/showcase/showcase.js"
 
       - name: Install showcase dependencies
         working-directory: examples/showcase
