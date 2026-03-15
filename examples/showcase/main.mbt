@@ -72,8 +72,7 @@ priv enum Msg {
 }
 
 ///|
-fn parse_hash() -> (String, Target) {
-  let url = @chai.hash_url()
+fn parse_url(url : @chai.Url) -> (String, Target) {
   match url.path {
     [id, t] => (id, target_from_string(t))
     [id] => (id, JS)
@@ -88,7 +87,7 @@ fn push_hash(id : String, target : Target) -> @chai.Cmd[Msg] {
 
 ///|
 fn app_init() -> (Model, @chai.Cmd[Msg]) {
-  let (id, target) = parse_hash()
+  let (id, target) = parse_url(@chai.hash_url())
   ({ selected: id, target }, @chai.Cmd::none())
 }
 
@@ -97,8 +96,8 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
     Select(id) => ({ ..model, selected: id }, push_hash(id, model.target))
     SetTarget(t) => ({ ..model, target: t }, push_hash(model.selected, t))
-    UrlChanged(_url) => {
-      let (id, target) = parse_hash()
+    UrlChanged(url) => {
+      let (id, target) = parse_url(url)
       ({ selected: id, target }, @chai.Cmd::none())
     }
   }
@@ -147,37 +146,39 @@ fn view_sidebar_btn(ex : Example, selected : String) -> @chai.VNode[Msg] {
 }
 
 ///|
+fn toggle_cls(is_active : Bool) -> String {
+  if is_active {
+    "px-2.5 py-1 rounded text-xs font-medium bg-stone-800 text-white"
+  } else {
+    "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
+  }
+}
+
+///|
 fn view_target_toggle(target : Target) -> @chai.VNode[Msg] {
-  let js_cls = if target == JS {
-    "px-2.5 py-1 rounded text-xs font-medium bg-stone-800 text-white"
-  } else {
-    "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
-  }
-  let wasm_cls = if target == WASM {
-    "px-2.5 py-1 rounded text-xs font-medium bg-stone-800 text-white"
-  } else {
-    "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
-  }
   @h.div([@h.class("flex items-center gap-1 bg-stone-100 rounded-md p-0.5")], [
-    @h.button([@h.class(js_cls), @h.on_click(fn(_e) { SetTarget(JS) })], [
-      @h.text("JS"),
-    ]),
-    @h.button([@h.class(wasm_cls), @h.on_click(fn(_e) { SetTarget(WASM) })], [
-      @h.text("WASM"),
-    ]),
+    @h.button(
+      [
+        @h.class(toggle_cls(target == JS)),
+        @h.on_click(fn(_e) { SetTarget(JS) }),
+      ],
+      [@h.text("JS")],
+    ),
+    @h.button(
+      [
+        @h.class(toggle_cls(target == WASM)),
+        @h.on_click(fn(_e) { SetTarget(WASM) }),
+      ],
+      [@h.text("WASM")],
+    ),
   ])
 }
 
 ///|
 fn view(model : Model) -> @chai.VNode[Msg] {
-  let current = find_example(model.selected)
-  let title = match current {
-    Some(ex) => ex.title
-    None => ""
-  }
-  let desc = match current {
-    Some(ex) => ex.desc
-    None => ""
+  let (title, desc) = match find_example(model.selected) {
+    Some(ex) => (ex.title, ex.desc)
+    None => ("", "")
   }
   let src = iframe_src(model.selected, model.target)
   @h.div([@h.class("h-screen flex flex-col")], [
