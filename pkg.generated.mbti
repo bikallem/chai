@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn[Msg] attr(String, String) -> Attr[Msg]
+pub fn[V : Show, Msg] attr(String, V) -> Attr[Msg]
 
 pub fn[Model, CMsg, Msg] component(id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
 
@@ -32,7 +32,7 @@ pub fn[Model, Msg] start(init~ : () -> (Model, Cmd[Msg]), update~ : (Model, Msg)
 
 pub fn[Msg] style(String, String) -> Attr[Msg]
 
-pub fn[Msg] text(String) -> VNode[Msg]
+pub fn[S : Show, Msg] text(S) -> VNode[Msg]
 
 pub fn url() -> Url
 

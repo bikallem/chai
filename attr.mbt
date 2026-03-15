@@ -28,8 +28,8 @@ pub fn[Msg] on(name : String, handler : (@webapi.Event) -> Msg) -> Attr[Msg] {
 
 ///|
 /// A generic attribute function for any attribute name and value.
-pub fn[Msg] attr(attr_name : String, value : String) -> Attr[Msg] {
-  Attribute(attr_name, value)
+pub fn[V : Show, Msg] attr(attr_name : String, value : V) -> Attr[Msg] {
+  Attribute(attr_name, value.to_string())
 }
 
 ///|
