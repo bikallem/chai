@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "copy-assets": "node copy-assets.js",
+    "dev": "node copy-assets.js && vite",
+    "build": "node copy-assets.js && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {

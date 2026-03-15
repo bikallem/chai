@@ -60,15 +60,6 @@ jobs:
       - name: Build and Test
         run: make test
 
-      - name: Copy built JS to showcase
-        run: |
-          for name in todo counters clock router fetch canvas; do
-            cp "examples/_build/js/release/build/examples/$name/$name.js" \
-               "examples/showcase/public/examples/$name.js"
-          done
-          cp "examples/_build/js/release/build/examples/showcase/showcase.js" \
-             "examples/showcase/showcase.js"
-
       - name: Install showcase dependencies
         working-directory: examples/showcase
         run: npm ci

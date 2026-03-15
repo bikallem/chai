@@ -40,35 +40,71 @@ let examples : Array[Example] = [
 ]
 
 ///|
+priv enum Target {
+  JS
+  WASM
+} derive(Eq)
+
+///|
+fn Target::to_string(self : Target) -> String {
+  match self {
+    JS => "js"
+    WASM => "wasm"
+  }
+}
+
+///|
+fn target_from_string(s : String) -> Target {
+  if s == "wasm" {
+    WASM
+  } else {
+    JS
+  }
+}
+
+///|
 priv struct Model {
   selected : String
+  target : Target
 }
 
 ///|
 priv enum Msg {
   Select(String)
+  SetTarget(Target)
   UrlChanged(@chai.Url)
 }
 
 ///|
-fn selected_from_hash() -> String {
+fn parse_hash() -> (String, Target) {
   let url = @chai.hash_url()
   match url.path {
-    [id] => id
-    _ => examples[0].id
+    [id, t] => (id, target_from_string(t))
+    [id] => (id, JS)
+    _ => (examples[0].id, JS)
   }
 }
 
 ///|
-fn app_init() -> (Model, @chai.Cmd[Msg]) {
-  ({ selected: selected_from_hash() }, @chai.Cmd::none())
+fn push_hash(id : String, target : Target) -> @chai.Cmd[Msg] {
+  @chai.Cmd::push_hash("/" + id + "/" + target.to_string())
 }
 
 ///|
-fn update(_model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
+fn app_init() -> (Model, @chai.Cmd[Msg]) {
+  let (id, target) = parse_hash()
+  ({ selected: id, target, }, @chai.Cmd::none())
+}
+
+///|
+fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
-    Select(id) => ({ selected: id }, @chai.Cmd::push_hash("/" + id))
-    UrlChanged(_url) => ({ selected: selected_from_hash() }, @chai.Cmd::none())
+    Select(id) => ({ ..model, selected: id }, push_hash(id, model.target))
+    SetTarget(t) => ({ ..model, target: t }, push_hash(model.selected, t))
+    UrlChanged(_url) => {
+      let (id, target) = parse_hash()
+      ({ selected: id, target, }, @chai.Cmd::none())
+    }
   }
 }
 
@@ -93,6 +129,15 @@ fn base_url() -> String {
 }
 
 ///|
+fn iframe_src(id : String, target : Target) -> String {
+  let base = base_url()
+  match target {
+    JS => base + "examples/" + id + ".html"
+    WASM => base + "examples/wasm/" + id + ".html"
+  }
+}
+
+///|
 fn view_sidebar_btn(ex : Example, selected : String) -> @chai.VNode[Msg] {
   let is_active = ex.id == selected
   let cls = if is_active {
@@ -106,6 +151,32 @@ fn view_sidebar_btn(ex : Example, selected : String) -> @chai.VNode[Msg] {
 }
 
 ///|
+fn view_target_toggle(target : Target) -> @chai.VNode[Msg] {
+  let js_cls = if target == JS {
+    "px-2.5 py-1 rounded text-xs font-medium bg-stone-800 text-white"
+  } else {
+    "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
+  }
+  let wasm_cls = if target == WASM {
+    "px-2.5 py-1 rounded text-xs font-medium bg-stone-800 text-white"
+  } else {
+    "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
+  }
+  @h.div(
+    [@h.class("flex items-center gap-1 bg-stone-100 rounded-md p-0.5")],
+    [
+      @h.button([@h.class(js_cls), @h.on_click(fn(_e) { SetTarget(JS) })], [
+        @h.text("JS"),
+      ]),
+      @h.button(
+        [@h.class(wasm_cls), @h.on_click(fn(_e) { SetTarget(WASM) })],
+        [@h.text("WASM")],
+      ),
+    ],
+  )
+}
+
+///|
 fn view(model : Model) -> @chai.VNode[Msg] {
   let current = find_example(model.selected)
   let title = match current {
@@ -116,7 +187,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
     Some(ex) => ex.desc
     None => ""
   }
-  let iframe_src = base_url() + "examples/" + model.selected + ".html"
+  let src = iframe_src(model.selected, model.target)
   @h.div([@h.class("h-screen flex flex-col")], [
     // Header
     @h.header(
@@ -130,15 +201,18 @@ fn view(model : Model) -> @chai.VNode[Msg] {
             @h.text("TEA framework for MoonBit"),
           ]),
         ]),
-        @h.a(
-          [
-            @h.href("https://github.com/bikallem/chai"),
-            @h.target("_blank"),
-            @h.attr("rel", "noopener"),
-            @h.class("text-sm text-stone-500 hover:text-stone-800 transition-colors"),
-          ],
-          [@h.text("GitHub")],
-        ),
+        @h.div([@h.class("flex items-center gap-4")], [
+          view_target_toggle(model.target),
+          @h.a(
+            [
+              @h.href("https://github.com/bikallem/chai"),
+              @h.target("_blank"),
+              @h.attr("rel", "noopener"),
+              @h.class("text-sm text-stone-500 hover:text-stone-800 transition-colors"),
+            ],
+            [@h.text("GitHub")],
+          ),
+        ]),
       ],
     ),
     // Body
@@ -160,7 +234,7 @@ fn view(model : Model) -> @chai.VNode[Msg] {
         @h.div([@h.class("flex-1 min-h-0 p-4")], [
           @h.iframe(
             [
-              @h.attr("src", iframe_src),
+              @h.attr("src", src),
               @h.class("w-full h-full rounded-lg border border-stone-200 bg-white"),
             ],
             [],
