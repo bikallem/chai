@@ -291,7 +291,7 @@ pub fn[Msg] tbody(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNod
 
 pub fn[Msg] td(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
-pub fn[Msg] text(String) -> @chai.VNode[Msg]
+pub fn[S : Show, Msg] text(S) -> @chai.VNode[Msg]
 
 pub fn[Msg] textarea(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 

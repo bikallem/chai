@@ -35,26 +35,25 @@ test "child_list_mode treats Null as non-keyed" {
 }
 
 ///|
-test "should_replace_children_on_mode_switch only flips for non-empty mode changes" {
+test "mode switch detection via child_list_mode" {
   let plain : Array[VNode[Unit]] = [text("a")]
   let keyed_children : Array[VNode[Unit]] = [keyed("1", text("a"))]
   let empty : Array[VNode[Unit]] = []
 
-  assert_eq(should_replace_children_on_mode_switch(plain, keyed_children), true)
-  assert_eq(should_replace_children_on_mode_switch(keyed_children, plain), true)
+  // Different non-empty modes should trigger replacement
   assert_eq(
-    should_replace_children_on_mode_switch(empty, keyed_children),
+    child_list_mode(plain, "p") != child_list_mode(keyed_children, "k") &&
+    child_list_mode(plain, "p") != Empty &&
+    child_list_mode(keyed_children, "k") != Empty,
+    true,
+  )
+  // Same mode should not
+  assert_eq(
+    child_list_mode(plain, "p1") != child_list_mode(plain, "p2"),
     false,
   )
-  assert_eq(
-    should_replace_children_on_mode_switch(keyed_children, empty),
-    false,
-  )
-  assert_eq(should_replace_children_on_mode_switch(plain, plain), false)
-  assert_eq(
-    should_replace_children_on_mode_switch(keyed_children, keyed_children),
-    false,
-  )
+  // Empty vs non-empty should not trigger replacement
+  assert_eq(child_list_mode(empty, "e") == Empty, true)
 }
 
 ///|

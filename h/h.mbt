@@ -7,7 +7,7 @@ pub fn[Msg] null() -> @chai.VNode[Msg] {
 }
 
 ///|
-pub fn[Msg] text(s : String) -> @chai.VNode[Msg] {
+pub fn[S : Show, Msg] text(s : S) -> @chai.VNode[Msg] {
   @chai.text(s)
 }
 

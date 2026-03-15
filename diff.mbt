@@ -158,18 +158,6 @@ fn[Msg] child_list_mode(
 }
 
 ///|
-fn[Msg] should_replace_children_on_mode_switch(
-  old_children : Array[VNode[Msg]],
-  new_children : Array[VNode[Msg]],
-) -> Bool {
-  let old_mode = child_list_mode(old_children, "old children")
-  let new_mode = child_list_mode(new_children, "new children")
-  let old_is_keyed = old_mode == AllKeyed
-  let new_is_keyed = new_mode == AllKeyed
-  old_is_keyed != new_is_keyed && old_mode != Empty && new_mode != Empty
-}
-
-///|
 fn[Msg] first_duplicate_key(children : Array[VNode[Msg]]) -> String? {
   let seen : @hashset.HashSet[String] = @hashset.new()
   for child in children {
@@ -212,13 +200,16 @@ fn[Msg] diff_children(
   new_children : Array[VNode[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
+  let old_mode = child_list_mode(old_children, "old children")
+  let new_mode = child_list_mode(new_children, "new children")
   // If sibling mode switches between keyed and non-keyed, replace the list to
   // keep DOM order/state correct.
-  if should_replace_children_on_mode_switch(old_children, new_children) {
+  let old_is_keyed = old_mode == AllKeyed
+  let new_is_keyed = new_mode == AllKeyed
+  if old_is_keyed != new_is_keyed && old_mode != Empty && new_mode != Empty {
     replace_children(runtime, parent, new_children, dispatch)
     return
   }
-  let new_is_keyed = child_list_mode(new_children, "new children") == AllKeyed
   if new_is_keyed {
     diff_children_keyed(runtime, parent, old_children, new_children, dispatch)
     return
