@@ -19,7 +19,6 @@ Add both packages to your `moon.pkg`:
 
 ```
 import {
-  "bikallem/chai",
   "bikallem/chai/h",
 }
 ```
