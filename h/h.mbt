@@ -1,4 +1,12 @@
 ///|
+/// A VNode that renders nothing. Useful for conditional rendering where a branch
+/// should produce no output, e.g. `if show { div([], [text("hi")]) } else { null() }`.
+/// Also handy for optional list items: `items.map(fn(i) { if i.visible { li([], [text(i.name)]) } else { null() } })`.
+pub fn[Msg] null() -> @chai.VNode[Msg] {
+  @chai.null()
+}
+
+///|
 pub fn[Msg] text(s : String) -> @chai.VNode[Msg] {
   @chai.text(s)
 }

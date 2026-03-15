@@ -74,6 +74,10 @@ Use `@h.el` and `@h.attr` for any HTML tag or attribute not covered by the named
 
 ## Elements
 
+**Special nodes** (no arguments):
+
+`null` — renders nothing; use for conditional branches that should produce no output, e.g. `if cond { div([], []) } else { null() }`
+
 Normal elements take `(attrs, children)`:
 
 `div`, `span`, `main_`, `section`, `article`, `aside`, `header`, `footer`, `nav`, `h1`–`h6`, `p`, `pre`, `blockquote`, `ol`, `ul`, `li`, `dl`, `dt`, `dd`, `figure`, `figcaption`, `a`, `strong`, `em`, `code`, `small`, `sub`, `sup`, `mark`, `abbr`, `time`, `kbd`, `samp`, `var_`, `cite`, `form`, `button`, `label`, `fieldset`, `legend`, `textarea`, `select`, `option`, `optgroup`, `output`, `progress`, `meter`, `datalist`, `table`, `thead`, `tbody`, `tfoot`, `tr`, `td`, `th`, `caption`, `colgroup`, `audio`, `video`, `canvas`, `iframe`, `picture`, `svg`, `details`, `summary`, `dialog`

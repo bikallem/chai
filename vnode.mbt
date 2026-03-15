@@ -4,6 +4,7 @@ enum VNode[Msg] {
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
   Component(ComponentNode)
   Keyed(String, VNode[Msg])
+  Null
 }
 
 ///|
@@ -17,7 +18,15 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
     }
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, child.map(f))
+    Null => Null
   }
+}
+
+///|
+/// A VNode that renders nothing. Useful for conditional rendering where a branch
+/// should produce no output, e.g. `if show { div([], [text("hi")]) } else { null() }`.
+pub fn[Msg] null() -> VNode[Msg] {
+  Null
 }
 
 ///|
@@ -41,6 +50,7 @@ fn[CMsg] bind_events(
     }
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, bind_events(child, dispatch))
+    Null => Null
   }
 }
 

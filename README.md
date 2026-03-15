@@ -132,6 +132,29 @@ For efficient list diffing, wrap children with keys:
 ))
 ```
 
+#### Null Nodes
+
+Use `@h.null()` when a branch should render nothing. This produces no DOM output — the differ treats it as a no-op.
+
+```moonbit
+// Conditional rendering
+fn view(model : Model) -> @chai.VNode[Msg] {
+  @h.div([], [
+    if model.show_banner {
+      @h.div([@h.class("banner")], [@h.text("Welcome!")])
+    } else {
+      @h.null()
+    },
+    @h.p([], [@h.text("Content")]),
+  ])
+}
+
+// Optional list items
+@h.ul([], items.map(fn(item) {
+  if item.visible { @h.li([], [@h.text(item.name)]) } else { @h.null() }
+}))
+```
+
 ### Attributes
 
 ```moonbit

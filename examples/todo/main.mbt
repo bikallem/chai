@@ -156,10 +156,14 @@ fn view(model : Model, dispatch : Ref[(Msg) -> Unit]) -> @chai.VNode[Msg] {
         view_filter_btn(model.filter, Active, "Active"),
         view_filter_btn(model.filter, Completed, "Completed"),
       ]),
-      @h.button(
-        [@h.class("clear-btn"), @h.on_click(fn(_e) { ClearCompleted })],
-        [@h.text("Clear completed")],
-      ),
+      if model.todos.iter().any(fn(t) { t.completed }) {
+        @h.button(
+          [@h.class("clear-btn"), @h.on_click(fn(_e) { ClearCompleted })],
+          [@h.text("Clear completed")],
+        )
+      } else {
+        @h.null()
+      },
     ]),
   ])
 }

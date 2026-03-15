@@ -35,6 +35,10 @@ fn[Msg] create_dom_node(
         }
       }
     Keyed(_k, child) => create_dom_node(runtime, child, dispatch)
+    Null => {
+      let comment = @webapi.document().create_comment("")
+      @webapi.TJsValue::to_js(comment).unsafe_into()
+    }
   }
 }
 
@@ -74,6 +78,7 @@ fn[Msg] diff(
   dispatch : (Msg) -> Unit,
 ) -> Unit {
   match (old, new_) {
+    (Null, Null) => ()
     (Text(old_text), Text(new_text)) =>
       if old_text != new_text {
         get_child(parent, index).set_node_value(new_text)

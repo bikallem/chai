@@ -169,6 +169,8 @@ pub fn[Msg] name(String) -> @chai.Attr[Msg]
 
 pub fn[Msg] nav(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
+pub fn[Msg] null() -> @chai.VNode[Msg]
+
 pub fn[Msg] ol(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
 pub fn[Msg] on(String, (@webapi.Event) -> Msg) -> @chai.Attr[Msg]

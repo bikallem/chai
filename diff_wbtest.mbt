@@ -21,6 +21,20 @@ test "child_list_mode detects empty keyed and non-keyed lists" {
 }
 
 ///|
+test "child_list_mode treats Null as non-keyed" {
+  let with_null : Array[VNode[Unit]] = [null(), text("a")]
+  match child_list_mode(with_null, "with_null") {
+    NonKeyed => ()
+    _ => panic()
+  }
+  let only_null : Array[VNode[Unit]] = [null()]
+  match child_list_mode(only_null, "only_null") {
+    NonKeyed => ()
+    _ => panic()
+  }
+}
+
+///|
 test "should_replace_children_on_mode_switch only flips for non-empty mode changes" {
   let plain : Array[VNode[Unit]] = [text("a")]
   let keyed_children : Array[VNode[Unit]] = [keyed("1", text("a"))]

@@ -184,6 +184,35 @@ test "VNode::map remaps nested keyed event handlers" {
 }
 
 ///|
+test "null() constructs a Null VNode" {
+  let n : VNode[Unit] = null()
+  match n {
+    Null => ()
+    _ => panic()
+  }
+}
+
+///|
+test "VNode::map preserves Null" {
+  let n : VNode[Int] = Null
+  let mapped = n.map(fn(x) { x + 1 })
+  match mapped {
+    Null => ()
+    _ => panic()
+  }
+}
+
+///|
+test "bind_events preserves Null" {
+  let n : VNode[Int] = Null
+  let bound = bind_events(n, fn(_) {  })
+  match bound {
+    Null => ()
+    _ => panic()
+  }
+}
+
+///|
 test "keyed_list wraps pairs into keyed children" {
   let children : Array[VNode[Unit]] = keyed_list([
     ("a", text("A")),

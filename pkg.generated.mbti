@@ -22,6 +22,8 @@ pub fn[Msg] keyed_list(Array[(String, VNode[Msg])]) -> Array[VNode[Msg]]
 
 pub fn[Msg] link(String, Array[Attr[Msg]], Array[VNode[Msg]], on_nav~ : Msg) -> VNode[Msg]
 
+pub fn[Msg] null() -> VNode[Msg]
+
 pub fn[Msg] on(String, (@webapi.Event) -> Msg) -> Attr[Msg]
 
 pub fn[Msg] property(String, @webapi.JsValue) -> Attr[Msg]
