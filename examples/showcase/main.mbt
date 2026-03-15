@@ -27,11 +27,7 @@ let examples : Array[Example] = [
     title: "Router",
     desc: "Hash-based routing with Sub::on_hash_change and hash_link",
   },
-  {
-    id: "fetch",
-    title: "Fetch",
-    desc: "HTTP requests with Cmd::http_get",
-  },
+  { id: "fetch", title: "Fetch", desc: "HTTP requests with Cmd::http_get" },
   {
     id: "canvas",
     title: "Canvas",
@@ -93,7 +89,7 @@ fn push_hash(id : String, target : Target) -> @chai.Cmd[Msg] {
 ///|
 fn app_init() -> (Model, @chai.Cmd[Msg]) {
   let (id, target) = parse_hash()
-  ({ selected: id, target, }, @chai.Cmd::none())
+  ({ selected: id, target }, @chai.Cmd::none())
 }
 
 ///|
@@ -103,7 +99,7 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
     SetTarget(t) => ({ ..model, target: t }, push_hash(model.selected, t))
     UrlChanged(_url) => {
       let (id, target) = parse_hash()
-      ({ selected: id, target, }, @chai.Cmd::none())
+      ({ selected: id, target }, @chai.Cmd::none())
     }
   }
 }
@@ -162,18 +158,14 @@ fn view_target_toggle(target : Target) -> @chai.VNode[Msg] {
   } else {
     "px-2.5 py-1 rounded text-xs font-medium text-stone-500 hover:text-stone-700 cursor-pointer"
   }
-  @h.div(
-    [@h.class("flex items-center gap-1 bg-stone-100 rounded-md p-0.5")],
-    [
-      @h.button([@h.class(js_cls), @h.on_click(fn(_e) { SetTarget(JS) })], [
-        @h.text("JS"),
-      ]),
-      @h.button(
-        [@h.class(wasm_cls), @h.on_click(fn(_e) { SetTarget(WASM) })],
-        [@h.text("WASM")],
-      ),
-    ],
-  )
+  @h.div([@h.class("flex items-center gap-1 bg-stone-100 rounded-md p-0.5")], [
+    @h.button([@h.class(js_cls), @h.on_click(fn(_e) { SetTarget(JS) })], [
+      @h.text("JS"),
+    ]),
+    @h.button([@h.class(wasm_cls), @h.on_click(fn(_e) { SetTarget(WASM) })], [
+      @h.text("WASM"),
+    ]),
+  ])
 }
 
 ///|
@@ -191,7 +183,11 @@ fn view(model : Model) -> @chai.VNode[Msg] {
   @h.div([@h.class("h-screen flex flex-col")], [
     // Header
     @h.header(
-      [@h.class("bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between shrink-0")],
+      [
+        @h.class(
+          "bg-white border-b border-stone-200 px-6 py-3 flex items-center justify-between shrink-0",
+        ),
+      ],
       [
         @h.div([@h.class("flex items-center gap-3")], [
           @h.h1([@h.class("text-xl font-semibold tracking-tight")], [
@@ -208,7 +204,9 @@ fn view(model : Model) -> @chai.VNode[Msg] {
               @h.href("https://github.com/bikallem/chai"),
               @h.target("_blank"),
               @h.attr("rel", "noopener"),
-              @h.class("text-sm text-stone-500 hover:text-stone-800 transition-colors"),
+              @h.class(
+                "text-sm text-stone-500 hover:text-stone-800 transition-colors",
+              ),
             ],
             [@h.text("GitHub")],
           ),
@@ -219,7 +217,11 @@ fn view(model : Model) -> @chai.VNode[Msg] {
     @h.div([@h.class("flex flex-1 min-h-0")], [
       // Sidebar
       @h.nav(
-        [@h.class("w-56 shrink-0 bg-white border-r border-stone-200 py-4 px-3 flex flex-col gap-1 overflow-y-auto")],
+        [
+          @h.class(
+            "w-56 shrink-0 bg-white border-r border-stone-200 py-4 px-3 flex flex-col gap-1 overflow-y-auto",
+          ),
+        ],
         examples.map(fn(ex) { view_sidebar_btn(ex, model.selected) }),
       ),
       // Main content
@@ -235,7 +237,9 @@ fn view(model : Model) -> @chai.VNode[Msg] {
           @h.iframe(
             [
               @h.attr("src", src),
-              @h.class("w-full h-full rounded-lg border border-stone-200 bg-white"),
+              @h.class(
+                "w-full h-full rounded-lg border border-stone-200 bg-white",
+              ),
             ],
             [],
           ),
