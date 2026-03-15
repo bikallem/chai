@@ -64,15 +64,6 @@ fn[Msg] attr_needs_update(old : Attr[Msg], new_ : Attr[Msg]) -> Bool {
 }
 
 ///|
-fn[Msg] attr_text_value(attr : Attr[Msg]) -> String {
-  match attr {
-    Attribute(_, value) => value
-    Style(_, value) => value
-    _ => abort("chai: attr_text_value expected Attribute or Style")
-  }
-}
-
-///|
 /// Set a DOM Level 0 event handler (e.g., el.onclick = fn)
 fn set_event_handler(
   el : @webapi.Element,

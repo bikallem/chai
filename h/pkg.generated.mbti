@@ -139,6 +139,8 @@ pub fn[Msg] keyed_list(Array[(String, @chai.VNode[Msg])]) -> Array[@chai.VNode[M
 
 pub fn[Msg] label(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
+pub fn[Msg] lazy_(Int, () -> @chai.VNode[Msg]) -> @chai.VNode[Msg]
+
 pub fn[Msg] legend(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
 pub fn[Msg] li(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]

@@ -3,7 +3,7 @@ test "update_subs restarts custom subscriptions with the same key" {
   let starts = Ref::new(0)
   let cleans = Ref::new(0)
   let received : Array[Int] = []
-  let active : Map[String, ActiveSub] = {}
+  let active : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
 
   fn custom_sub(msg : Int) -> Sub[Int] {
     Sub::sub("a", fn(dispatch) {
@@ -38,7 +38,7 @@ test "update_subs keeps same-identity subscriptions in place" {
   let starts = Ref::new(0)
   let cleans = Ref::new(0)
   let received : Array[Int] = []
-  let active : Map[String, ActiveSub] = {}
+  let active : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
 
   fn stable_sub(msg : Int) -> Sub[Int] {
     {
@@ -80,7 +80,7 @@ test "update_subs restarts changed identities for the same key" {
   let starts = Ref::new(0)
   let cleans = Ref::new(0)
   let received : Array[Int] = []
-  let active : Map[String, ActiveSub] = {}
+  let active : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
 
   fn changing_identity(msg : Int) -> Sub[Int] {
     tracked_sub("timer", fresh_sub_identity("timer"), fn(dispatch) {
@@ -114,7 +114,7 @@ test "update_subs restarts changed identities for the same key" {
 test "update_subs handles multiple keys and selective removal" {
   let cleaned_a = Ref::new(0)
   let cleaned_b = Ref::new(0)
-  let active : Map[String, ActiveSub] = {}
+  let active : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
 
   let first : Sub[Unit] = Sub::batch([
     Sub::sub("a", fn(_dispatch) { fn() { cleaned_a.val += 1 } }),

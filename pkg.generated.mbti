@@ -20,6 +20,8 @@ pub fn[Msg] keyed(String, VNode[Msg]) -> VNode[Msg]
 
 pub fn[Msg] keyed_list(Array[(String, VNode[Msg])]) -> Array[VNode[Msg]]
 
+pub fn[Msg] lazy_(Int, () -> VNode[Msg]) -> VNode[Msg]
+
 pub fn[Msg] link(String, Array[Attr[Msg]], Array[VNode[Msg]], on_nav~ : Msg) -> VNode[Msg]
 
 pub fn[Msg] null() -> VNode[Msg]

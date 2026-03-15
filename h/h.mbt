@@ -26,6 +26,15 @@ pub fn[Msg] keyed(key : String, child : @chai.VNode[Msg]) -> @chai.VNode[Msg] {
 }
 
 ///|
+/// Skip diffing when `hash` matches the previous render.
+pub fn[Msg] lazy_(
+  hash : Int,
+  thunk : () -> @chai.VNode[Msg],
+) -> @chai.VNode[Msg] {
+  @chai.lazy_(hash, thunk)
+}
+
+///|
 pub fn[Msg] keyed_list(
   items : Array[(String, @chai.VNode[Msg])],
 ) -> Array[@chai.VNode[Msg]] {

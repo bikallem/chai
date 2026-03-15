@@ -27,7 +27,7 @@ priv struct ComponentSlot {
 ///|
 priv struct ComponentRuntime {
   component_counter : Ref[Int]
-  component_slots : Map[String, ComponentSlot]
+  component_slots : @hashmap.HashMap[String, ComponentSlot]
   trigger_render : Ref[() -> Unit]
   pending_init_cmds : Array[() -> Unit]
   seen_slots : @hashset.HashSet[String]
@@ -37,7 +37,7 @@ priv struct ComponentRuntime {
 fn new_component_runtime() -> ComponentRuntime {
   {
     component_counter: Ref::new(0),
-    component_slots: {},
+    component_slots: @hashmap.new(),
     trigger_render: Ref::new(fn() {  }),
     pending_init_cmds: [],
     seen_slots: @hashset.new(),

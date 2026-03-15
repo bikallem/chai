@@ -20,7 +20,7 @@ pub fn[Model, Msg] start(
   }
   let root_node : @webapi.Node = @webapi.TJsValue::to_js(el).unsafe_into()
   let runtime = new_component_runtime()
-  let active_subs : Map[String, ActiveSub] = {}
+  let active_subs : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
   let (init_model, init_cmd) = init()
   let state : Ref[Model] = Ref::new(init_model)
   let current_vdom : Ref[VNode[Msg]] = Ref::new(Text(""))
@@ -28,6 +28,7 @@ pub fn[Model, Msg] start(
   let is_updating : Ref[Bool] = Ref::new(false)
   let needs_render : Ref[Bool] = Ref::new(false)
   let dispatch_ref : Ref[(Msg) -> Unit] = Ref::new(fn(_msg) {  })
+  let raf_scheduled : Ref[Bool] = Ref::new(false)
   fn dispatch(msg : Msg) -> Unit {
     (dispatch_ref.val)(msg)
   }
@@ -35,7 +36,8 @@ pub fn[Model, Msg] start(
   fn do_render() -> Unit {
     begin_render_pass_for(runtime)
     let new_vdom = with_component_runtime(runtime, fn() { view(state.val) })
-    diff(runtime, root_node, 0, current_vdom.val, new_vdom, dispatch)
+    guard node_first_child(root_node) is Some(child) else { return }
+    diff(runtime, root_node, child, current_vdom.val, new_vdom, dispatch, "")
     current_vdom.val = new_vdom
     remove_unused_component_slots_for(runtime)
     drain_pending_init_cmds_for(runtime)
@@ -59,19 +61,29 @@ pub fn[Model, Msg] start(
       do_render()
     }
     is_updating.val = false
+    raf_scheduled.val = false
+  }
+
+  fn schedule_process_queue() -> Unit {
+    if raf_scheduled.val {
+      return
+    }
+    raf_scheduled.val = true
+    @webapi.window().request_animation_frame(fn(_timestamp) { process_queue() })
+    |> ignore
   }
 
   dispatch_ref.val = fn(msg) {
     msg_queue.push(msg)
-    process_queue()
+    schedule_process_queue()
   }
   runtime.trigger_render.val = fn() {
     needs_render.val = true
-    process_queue()
+    schedule_process_queue()
   }
   reset_component_state_for(runtime)
   let initial_vdom = with_component_runtime(runtime, fn() { view(init_model) })
-  replace_children(runtime, root_node, [initial_vdom], dispatch)
+  replace_children(runtime, root_node, [initial_vdom], dispatch, "")
   current_vdom.val = initial_vdom
   drain_pending_init_cmds_for(runtime)
   init_cmd.run(dispatch)
@@ -82,7 +94,7 @@ pub fn[Model, Msg] start(
 /// Update active subscriptions based on new subscription definitions
 fn[Msg] update_subs(
   new_sub : Sub[Msg],
-  active_subs : Map[String, ActiveSub],
+  active_subs : @hashmap.HashMap[String, ActiveSub],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
   if new_sub.subs.length() == 0 && active_subs.length() == 0 {

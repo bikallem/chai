@@ -4,6 +4,7 @@ enum VNode[Msg] {
   Element(String, Array[Attr[Msg]], Array[VNode[Msg]])
   Component(ComponentNode)
   Keyed(String, VNode[Msg])
+  Lazy(Int, () -> VNode[Msg])
   Null
 }
 
@@ -18,6 +19,7 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
     }
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, child.map(f))
+    Lazy(hash, thunk) => Lazy(hash, fn() { thunk().map(f) })
     Null => Null
   }
 }
@@ -50,6 +52,7 @@ fn[CMsg] bind_events(
     }
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, bind_events(child, dispatch))
+    Lazy(hash, thunk) => Lazy(hash, fn() { bind_events(thunk(), dispatch) })
     Null => Null
   }
 }
@@ -69,6 +72,13 @@ pub fn[Msg] keyed_list(
     let (k, v) = pair
     Keyed(k, v)
   })
+}
+
+///|
+/// Skip diffing when `hash` matches the previous render. The `thunk` is only
+/// called when the hash changes.
+pub fn[Msg] lazy_(hash : Int, thunk : () -> VNode[Msg]) -> VNode[Msg] {
+  Lazy(hash, thunk)
 }
 
 ///|
