@@ -59,12 +59,14 @@ for (const target of targets) {
       // Click clear
       await page.locator(".clear-btn").click();
 
+      // Wait for render to complete (stroke count updates after rAF)
+      await expect(page.locator(".stroke-count")).toHaveText("0 strokes");
+
       // Canvas should be blank again
       const cleared = await canvas.evaluate((el: HTMLCanvasElement) =>
         el.toDataURL()
       );
       expect(cleared).not.toBe(drawn);
-      await expect(page.locator(".stroke-count")).toHaveText("0 strokes");
     });
 
     test("multiple strokes are tracked", async ({ page }) => {

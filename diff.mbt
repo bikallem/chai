@@ -3,7 +3,18 @@ let svg_ns : String = "http://www.w3.org/2000/svg"
 
 ///|
 #cfg(target="js")
-extern "js" fn node_first_child(n : @webapi.Node) -> @webapi.Node? = "(n) => { const c = n.firstChild; return c === null ? undefined : c; }"
+extern "js" fn node_first_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.firstChild"
+
+///|
+#cfg(target="js")
+fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
+  let v = node_first_child_ffi(@webapi.TJsValue::to_js(n))
+  if v.is_null() {
+    None
+  } else {
+    Some(v.unsafe_into())
+  }
+}
 
 ///|
 #cfg(target="wasm-gc")
@@ -17,7 +28,18 @@ fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
 
 ///|
 #cfg(target="js")
-extern "js" fn node_last_child(n : @webapi.Node) -> @webapi.Node? = "(n) => { const c = n.lastChild; return c === null ? undefined : c; }"
+extern "js" fn node_last_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.lastChild"
+
+///|
+#cfg(target="js")
+fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
+  let v = node_last_child_ffi(@webapi.TJsValue::to_js(n))
+  if v.is_null() {
+    None
+  } else {
+    Some(v.unsafe_into())
+  }
+}
 
 ///|
 #cfg(target="wasm-gc")
@@ -31,7 +53,18 @@ fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
 
 ///|
 #cfg(target="js")
-extern "js" fn node_next_sibling(n : @webapi.Node) -> @webapi.Node? = "(n) => { const s = n.nextSibling; return s === null ? undefined : s; }"
+extern "js" fn node_next_sibling_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.nextSibling"
+
+///|
+#cfg(target="js")
+fn node_next_sibling(n : @webapi.Node) -> @webapi.Node? {
+  let v = node_next_sibling_ffi(@webapi.TJsValue::to_js(n))
+  if v.is_null() {
+    None
+  } else {
+    Some(v.unsafe_into())
+  }
+}
 
 ///|
 #cfg(target="wasm-gc")
@@ -234,12 +267,10 @@ fn[Msg] replace_children(
   dispatch : (Msg) -> Unit,
   ns : String,
 ) -> Unit {
-  loop node_last_child(parent) {
-    Some(child) => {
-      parent.remove_child(child) |> ignore
-      continue node_last_child(parent)
-    }
-    None => ()
+  let old_len = parent.child_nodes().length().reinterpret_as_int()
+  for i = old_len - 1; i >= 0; i = i - 1 {
+    parent.remove_child(parent.child_nodes().item(i.reinterpret_as_uint()))
+    |> ignore
   }
   for child in new_children {
     parent.append_child(create_dom_node(runtime, child, dispatch, ns)) |> ignore
@@ -340,6 +371,9 @@ fn lis(arr : Array[Int]) -> @hashset.HashSet[Int] {
     }
   }
   // Trace back from the last element
+  if indices.length() == 0 {
+    return result
+  }
   let mut k = indices[indices.length() - 1]
   for _j = tails.length(); _j > 0; _j = _j - 1 {
     result.add(k)
