@@ -1,8 +1,18 @@
-name: Chai - Build/Test
+name: Chai - Build/Test/Deploy
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build-test-chai:
@@ -24,6 +34,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: |
             tests/package-lock.json
+            examples/showcase/package-lock.json
 
       - name: Install npm dependencies for 'tests'
         working-directory: tests
@@ -48,3 +59,33 @@ jobs:
 
       - name: Build and Test
         run: make test
+
+      - name: Copy built JS to showcase
+        run: |
+          for name in todo counters clock router fetch canvas; do
+            cp "examples/_build/js/release/build/examples/$name/$name.js" \
+               "examples/showcase/public/examples/$name.js"
+          done
+
+      - name: Install showcase dependencies
+        working-directory: examples/showcase
+        run: npm ci
+
+      - name: Build showcase
+        working-directory: examples/showcase
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: examples/showcase/dist
+
+  deploy:
+    needs: build-test-chai
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
