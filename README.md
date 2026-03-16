@@ -49,7 +49,7 @@ See the [`h` package README](h/README.md) for the complete list of elements, att
 
 ## Benchmarks
 
-Performance on the [js-framework-benchmark](https://github.com/nicolo-ribaudo/js-framework-benchmark) operations (median of 5 runs, headless Chromium, lower is better):
+Performance on the [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) operations (median of 5 runs, headless Chromium, lower is better):
 
 | Operation | Chai JS | Chai WASM | Vanilla JS | React 18 | Preact |
 |---|--:|--:|--:|--:|--:|
