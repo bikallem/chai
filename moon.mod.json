@@ -16,5 +16,5 @@
     "test-results",
     "tests"
   ],
-  "preferred-target": "js"
+  "source": "src"
 }
