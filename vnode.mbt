@@ -5,6 +5,7 @@ enum VNode[Msg] {
   Component(ComponentNode)
   Keyed(String, VNode[Msg])
   Lazy(Int, () -> VNode[Msg])
+  Fragment(Array[VNode[Msg]])
   Null
 }
 
@@ -20,6 +21,7 @@ pub fn[A, B] VNode::map(self : VNode[A], f : (A) -> B) -> VNode[B] {
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, child.map(f))
     Lazy(hash, thunk) => Lazy(hash, fn() { thunk().map(f) })
+    Fragment(children) => Fragment(children.map(fn(c) { c.map(f) }))
     Null => Null
   }
 }
@@ -53,6 +55,8 @@ fn[CMsg] bind_events(
     Component(comp) => Component(comp)
     Keyed(k, child) => Keyed(k, bind_events(child, dispatch))
     Lazy(hash, thunk) => Lazy(hash, fn() { bind_events(thunk(), dispatch) })
+    Fragment(children) =>
+      Fragment(children.map(fn(c) { bind_events(c, dispatch) }))
     Null => Null
   }
 }
@@ -107,6 +111,48 @@ pub fn[Msg] error_boundary(
     result.val = fallback(msg)
   })
   result.val
+}
+
+///|
+/// Group multiple VNodes without a wrapper element.
+pub fn[Msg] fragment(children : Array[VNode[Msg]]) -> VNode[Msg] {
+  Fragment(children)
+}
+
+///|
+/// Flatten Fragment vnodes into a flat array. Non-fragment nodes pass through.
+fn[Msg] flatten_children(children : Array[VNode[Msg]]) -> Array[VNode[Msg]] {
+  let mut has_fragment = false
+  for child in children {
+    if child is Fragment(_) {
+      has_fragment = true
+      break
+    }
+  }
+  if not(has_fragment) {
+    return children
+  }
+  let result : Array[VNode[Msg]] = []
+  for child in children {
+    match child {
+      Fragment(inner) => flatten_into(inner, result)
+      _ => result.push(child)
+    }
+  }
+  result
+}
+
+///|
+fn[Msg] flatten_into(
+  children : Array[VNode[Msg]],
+  result : Array[VNode[Msg]],
+) -> Unit {
+  for child in children {
+    match child {
+      Fragment(inner) => flatten_into(inner, result)
+      _ => result.push(child)
+    }
+  }
 }
 
 ///|

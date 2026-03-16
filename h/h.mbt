@@ -20,6 +20,11 @@ pub fn[Msg] error_boundary(
 }
 
 ///|
+pub fn[Msg] fragment(children : Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg] {
+  @chai.fragment(children)
+}
+
+///|
 pub fn[Msg] el(
   tag : String,
   attrs : Array[@chai.Attr[Msg]],

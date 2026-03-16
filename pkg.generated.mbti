@@ -14,6 +14,8 @@ pub fn[Msg] el(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn[Msg] error_boundary(fallback~ : (String) -> VNode[Msg], child~ : () -> VNode[Msg]) -> VNode[Msg]
 
+pub fn[Msg] fragment(Array[VNode[Msg]]) -> VNode[Msg]
+
 pub fn[Msg] hash_link(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
 pub fn hash_url() -> Url

@@ -113,6 +113,15 @@ fn[Msg] create_dom_node(
       }
     Keyed(_k, child) => create_dom_node(runtime, child, dispatch, ns)
     Lazy(_hash, thunk) => create_dom_node(runtime, thunk(), dispatch, ns)
+    Fragment(children) => {
+      let frag = @webapi.document().create_document_fragment()
+      let frag_node : @webapi.Node = @webapi.TJsValue::to_js(frag).unsafe_into()
+      for child in children {
+        frag_node.append_child(create_dom_node(runtime, child, dispatch, ns))
+        |> ignore
+      }
+      frag_node
+    }
     Null => {
       let comment = @webapi.document().create_comment("")
       @webapi.TJsValue::to_js(comment).unsafe_into()
@@ -270,6 +279,8 @@ fn[Msg] diff_children(
   dispatch : (Msg) -> Unit,
   ns : String,
 ) -> Unit {
+  let old_children = flatten_children(old_children)
+  let new_children = flatten_children(new_children)
   let old_mode = child_list_mode(old_children, "old children")
   let new_mode = child_list_mode(new_children, "new children")
   let old_is_keyed = old_mode == AllKeyed

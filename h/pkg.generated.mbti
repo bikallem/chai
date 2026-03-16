@@ -103,6 +103,8 @@ pub fn[Msg] for_(String) -> @chai.Attr[Msg]
 
 pub fn[Msg] form(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
+pub fn[Msg] fragment(Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
+
 pub fn[Msg] h1(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
 pub fn[Msg] h2(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]

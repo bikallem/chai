@@ -135,3 +135,74 @@ test "bind_events on Lazy wraps thunk" {
     _ => panic()
   }
 }
+
+///|
+test "fragment constructor creates Fragment variant" {
+  let v : VNode[Unit] = fragment([text("a"), text("b")])
+  match v {
+    Fragment(children) => assert_eq(children.length(), 2)
+    _ => panic()
+  }
+}
+
+///|
+test "VNode::map on Fragment maps children" {
+  let v : VNode[Int] = Fragment([text("x")])
+  let mapped = v.map(fn(x) { x + 1 })
+  match mapped {
+    Fragment(children) => {
+      assert_eq(children.length(), 1)
+      match children[0] {
+        Text("x") => ()
+        _ => panic()
+      }
+    }
+    _ => panic()
+  }
+}
+
+///|
+test "flatten_children passes through when no fragments" {
+  let children : Array[VNode[Unit]] = [text("a"), text("b")]
+  let flat = flatten_children(children)
+  // Should return same array (no allocation)
+  assert_eq(flat.length(), 2)
+}
+
+///|
+test "flatten_children expands fragments" {
+  let children : Array[VNode[Unit]] = [
+    text("a"),
+    fragment([text("b"), text("c")]),
+    text("d"),
+  ]
+  let flat = flatten_children(children)
+  assert_eq(flat.length(), 4)
+  match flat[0] {
+    Text("a") => ()
+    _ => panic()
+  }
+  match flat[1] {
+    Text("b") => ()
+    _ => panic()
+  }
+  match flat[2] {
+    Text("c") => ()
+    _ => panic()
+  }
+  match flat[3] {
+    Text("d") => ()
+    _ => panic()
+  }
+}
+
+///|
+test "flatten_children handles nested fragments" {
+  let children : Array[VNode[Unit]] = [fragment([fragment([text("deep")])])]
+  let flat = flatten_children(children)
+  assert_eq(flat.length(), 1)
+  match flat[0] {
+    Text("deep") => ()
+    _ => panic()
+  }
+}
