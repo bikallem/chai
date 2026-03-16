@@ -59,7 +59,19 @@ fn[Msg] attr_needs_update(old : Attr[Msg], new_ : Attr[Msg]) -> Bool {
   match (old, new_) {
     (Attribute(_, old_value), Attribute(_, new_value)) => old_value != new_value
     (Style(_, old_value), Style(_, new_value)) => old_value != new_value
-    _ => true
+    // Properties, events, and bound events: always re-apply (not comparable)
+    (Property(_, _), Property(_, _))
+    | (Event(_, _), Event(_, _))
+    | (EventMaybe(_, _), EventMaybe(_, _))
+    | (BoundEvent(_, _), BoundEvent(_, _)) => true
+    // Cross-type mismatch: always needs update.
+    // Enumerating old variants ensures a new Attr variant triggers a compile error.
+    (Attribute(_, _), _)
+    | (Property(_, _), _)
+    | (Event(_, _), _)
+    | (EventMaybe(_, _), _)
+    | (BoundEvent(_, _), _)
+    | (Style(_, _), _) => true
   }
 }
 

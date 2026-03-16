@@ -135,12 +135,22 @@ fn[Msg] flatten_children(children : Array[VNode[Msg]]) -> Array[VNode[Msg]] {
         for j = i + 1; j < children.length(); j = j + 1 {
           match children[j] {
             Fragment(inner2) => flatten_into(inner2, result)
-            other => result.push(other)
+            Text(_)
+            | Element(_, _, _)
+            | Component(_)
+            | Keyed(_, _)
+            | Lazy(_, _)
+            | Null as other => result.push(other)
           }
         }
         return result
       }
-      _ => ()
+      Text(_)
+      | Element(_, _, _)
+      | Component(_)
+      | Keyed(_, _)
+      | Lazy(_, _)
+      | Null => ()
     }
   }
   children
@@ -154,7 +164,12 @@ fn[Msg] flatten_into(
   for child in children {
     match child {
       Fragment(inner) => flatten_into(inner, result)
-      _ => result.push(child)
+      Text(_)
+      | Element(_, _, _)
+      | Component(_)
+      | Keyed(_, _)
+      | Lazy(_, _)
+      | Null => result.push(child)
     }
   }
 }

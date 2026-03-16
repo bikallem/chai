@@ -207,7 +207,16 @@ fn[Msg] diff(
         let new_node = create_dom_node(runtime, Component(new_comp), noop, ns)
         parent.replace_child(new_node, child_node) |> ignore
       }
-    _ => {
+    // Type mismatch: old and new are different VNode variants — full replace.
+    // Enumerating all old variants ensures a new VNode variant triggers a
+    // compile error here instead of silently falling through.
+    (Null, _)
+    | (Text(_), _)
+    | (Element(_, _, _), _)
+    | (Component(_), _)
+    | (Keyed(_, _), _)
+    | (Lazy(_, _), _)
+    | (Fragment(_), _) => {
       let new_node = create_dom_node(runtime, new_, dispatch, ns)
       parent.replace_child(new_node, child_node) |> ignore
     }
