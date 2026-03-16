@@ -87,8 +87,6 @@ pub fn[Model, Msg] start(
     |> ignore
   }
 
-  // Initial setup uses synchronous dispatch so init commands take effect
-  // immediately. Switch to rAF-batched dispatch after setup completes.
   dispatch_ref.val = fn(msg) {
     msg_queue.push(msg)
     schedule_process_queue()
@@ -104,14 +102,6 @@ pub fn[Model, Msg] start(
   drain_pending_init_cmds_for(runtime)
   init_cmd.run(dispatch)
   update_subs(subscriptions(init_model), active_subs, dispatch)
-  dispatch_ref.val = fn(msg) {
-    msg_queue.push(msg)
-    schedule_process_queue()
-  }
-  runtime.trigger_render.val = fn() {
-    needs_render.val = true
-    schedule_process_queue()
-  }
 }
 
 ///|

@@ -3,17 +3,22 @@ let svg_ns : String = "http://www.w3.org/2000/svg"
 
 ///|
 #cfg(target="js")
-extern "js" fn node_first_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.firstChild"
-
-///|
-#cfg(target="js")
-fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
-  let v = node_first_child_ffi(@webapi.TJsValue::to_js(n))
+fn nullable_node(v : @webapi.JsValue) -> @webapi.Node? {
   if v.is_null() {
     None
   } else {
     Some(v.unsafe_into())
   }
+}
+
+///|
+#cfg(target="js")
+extern "js" fn node_first_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.firstChild"
+
+///|
+#cfg(target="js")
+fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
+  nullable_node(node_first_child_ffi(@webapi.TJsValue::to_js(n)))
 }
 
 ///|
@@ -33,12 +38,7 @@ extern "js" fn node_last_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n
 ///|
 #cfg(target="js")
 fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
-  let v = node_last_child_ffi(@webapi.TJsValue::to_js(n))
-  if v.is_null() {
-    None
-  } else {
-    Some(v.unsafe_into())
-  }
+  nullable_node(node_last_child_ffi(@webapi.TJsValue::to_js(n)))
 }
 
 ///|
@@ -58,12 +58,7 @@ extern "js" fn node_next_sibling_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "
 ///|
 #cfg(target="js")
 fn node_next_sibling(n : @webapi.Node) -> @webapi.Node? {
-  let v = node_next_sibling_ffi(@webapi.TJsValue::to_js(n))
-  if v.is_null() {
-    None
-  } else {
-    Some(v.unsafe_into())
-  }
+  nullable_node(node_next_sibling_ffi(@webapi.TJsValue::to_js(n)))
 }
 
 ///|
@@ -377,6 +372,18 @@ fn lis(arr : Array[Int]) -> @hashset.HashSet[Int] {
 }
 
 ///|
+fn insert_node(
+  parent : @webapi.Node,
+  node : @webapi.Node,
+  before : @webapi.Node?,
+) -> Unit {
+  match before {
+    Some(ref_) => parent.insert_before(node, ref_) |> ignore
+    None => parent.append_child(node) |> ignore
+  }
+}
+
+///|
 /// Diff children using key-based reconciliation with LIS optimization.
 /// Each child must be a Keyed(key, vnode) wrapper. Matches old and new
 /// children by key, uses LIS to minimize DOM moves, and removes unused ones.
@@ -396,10 +403,11 @@ fn[Msg] diff_children_keyed(
   for i = 0; i < old_len; i = i + 1 {
     guard cursor is Some(node) else { break }
     let next = node_next_sibling(node)
-    match old_children[i] {
-      Keyed(k, inner) => old_key_map[k] = (i, inner, node)
-      _ => ()
+    guard old_children[i] is Keyed(k, inner) else {
+      cursor = next
+      continue i + 1
     }
+    old_key_map[k] = (i, inner, node)
     cursor = next
   }
   // Build new-to-old index mapping; -1 for new items
@@ -407,17 +415,14 @@ fn[Msg] diff_children_keyed(
   let new_to_old : Array[Int] = Array::make(new_len, -1)
   let matched : Array[(VNode[Msg], @webapi.Node)?] = Array::make(new_len, None)
   for i = 0; i < new_len; i = i + 1 {
-    match new_children[i] {
-      Keyed(new_key, _) =>
-        match old_key_map.get(new_key) {
-          Some((old_idx, old_inner, dom_node)) => {
-            new_to_old[i] = old_idx
-            matched[i] = Some((old_inner, dom_node))
-            old_key_map.remove(new_key)
-          }
-          None => ()
-        }
-      _ => ()
+    guard new_children[i] is Keyed(new_key, _) else { continue i + 1 }
+    match old_key_map.get(new_key) {
+      Some((old_idx, old_inner, dom_node)) => {
+        new_to_old[i] = old_idx
+        matched[i] = Some((old_inner, dom_node))
+        old_key_map.remove(new_key)
+      }
+      None => ()
     }
   }
   // Compute LIS of old indices to find items that don't need moving
@@ -427,31 +432,22 @@ fn[Msg] diff_children_keyed(
   // Process new children right to left, using next_node as insertBefore reference
   let mut next_node : @webapi.Node? = None
   for i = new_len - 1; i >= 0; i = i - 1 {
-    match new_children[i] {
-      Keyed(_new_key, new_inner) =>
-        match matched[i] {
-          Some((old_inner, dom_node)) => {
-            // Reused item: move if not in LIS
-            if not(lis_set.contains(i)) {
-              match next_node {
-                Some(ref_) => parent.insert_before(dom_node, ref_) |> ignore
-                None => parent.append_child(dom_node) |> ignore
-              }
-            }
-            diff(runtime, parent, dom_node, old_inner, new_inner, dispatch, ns)
-            next_node = Some(dom_node)
-          }
-          None => {
-            // New item: create and insert
-            let new_dom = create_dom_node(runtime, new_inner, dispatch, ns)
-            match next_node {
-              Some(ref_) => parent.insert_before(new_dom, ref_) |> ignore
-              None => parent.append_child(new_dom) |> ignore
-            }
-            next_node = Some(new_dom)
-          }
+    guard new_children[i] is Keyed(_, new_inner) else { continue i - 1 }
+    match matched[i] {
+      Some((old_inner, dom_node)) => {
+        // Reused item: move if not in LIS
+        if not(lis_set.contains(i)) {
+          insert_node(parent, dom_node, next_node)
         }
-      _ => ()
+        diff(runtime, parent, dom_node, old_inner, new_inner, dispatch, ns)
+        next_node = Some(dom_node)
+      }
+      None => {
+        // New item: create and insert
+        let new_dom = create_dom_node(runtime, new_inner, dispatch, ns)
+        insert_node(parent, new_dom, next_node)
+        next_node = Some(new_dom)
+      }
     }
   }
 }
@@ -471,15 +467,15 @@ fn[Msg] diff_attrs(
   // Events/properties are always re-set (not comparable), attributes/styles
   // are compared pairwise.
   if old_attrs.length() == new_attrs.length() {
-    let mut fast_ok = true
-    for i = 0; i < new_attrs.length() && fast_ok; i = i + 1 {
-      let old_attr = old_attrs[i]
-      let new_attr = new_attrs[i]
-      if not(same_attr_slot(old_attr, new_attr)) {
-        fast_ok = false
-      } else if attr_needs_update(old_attr, new_attr) {
-        apply_attr(el, new_attr, dispatch)
+    let fast_ok = for i = 0; i < new_attrs.length(); i = i + 1 {
+      if not(same_attr_slot(old_attrs[i], new_attrs[i])) {
+        break false
       }
+      if attr_needs_update(old_attrs[i], new_attrs[i]) {
+        apply_attr(el, new_attrs[i], dispatch)
+      }
+    } nobreak {
+      true
     }
     if fast_ok {
       return
@@ -495,6 +491,11 @@ fn[Msg] diff_attrs(
 }
 
 ///|
+fn to_html_element(el : @webapi.Element) -> @webapi.HTMLElement {
+  @webapi.TJsValue::to_js(el).unsafe_into()
+}
+
+///|
 /// Linear-scan slow path for small attr lists (< 8 elements).
 /// Avoids allocating hash structures.
 fn[Msg] diff_attrs_linear(
@@ -503,17 +504,6 @@ fn[Msg] diff_attrs_linear(
   new_attrs : Array[Attr[Msg]],
   dispatch : (Msg) -> Unit,
 ) -> Unit {
-  let html_el_ref : Ref[@webapi.HTMLElement?] = Ref::new(None)
-  fn get_html_el() -> @webapi.HTMLElement {
-    match html_el_ref.val {
-      Some(h) => h
-      None => {
-        let h : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).unsafe_into()
-        html_el_ref.val = Some(h)
-        h
-      }
-    }
-  }
   // Apply new attrs, skipping unchanged ones found in old
   for new_attr in new_attrs {
     let name = attr_name(new_attr)
@@ -548,7 +538,7 @@ fn[Msg] diff_attrs_linear(
         AttributeSlot => el.remove_attribute(name)
         PropertySlot => set_prop(el, name, @webapi.JsValue::null())
         EventSlot => remove_event_handler(el, name)
-        StyleSlot => get_html_el().style().remove_property(name) |> ignore
+        StyleSlot => to_html_element(el).style().remove_property(name) |> ignore
       }
     }
   }
@@ -569,17 +559,6 @@ fn[Msg] diff_attrs_maps(
     old_keys[key] = attr
   }
   let seen_keys : @hashset.HashSet[String] = @hashset.new()
-  let html_el_ref : Ref[@webapi.HTMLElement?] = Ref::new(None)
-  fn get_html_el() -> @webapi.HTMLElement {
-    match html_el_ref.val {
-      Some(h) => h
-      None => {
-        let h : @webapi.HTMLElement = @webapi.TJsValue::to_js(el).unsafe_into()
-        html_el_ref.val = Some(h)
-        h
-      }
-    }
-  }
   // Apply new attributes
   for attr in new_attrs {
     let key = attr_combined_key(attr)
@@ -600,7 +579,7 @@ fn[Msg] diff_attrs_maps(
         AttributeSlot => el.remove_attribute(name)
         PropertySlot => set_prop(el, name, @webapi.JsValue::null())
         EventSlot => remove_event_handler(el, name)
-        StyleSlot => get_html_el().style().remove_property(name) |> ignore
+        StyleSlot => to_html_element(el).style().remove_property(name) |> ignore
       }
     }
   })
