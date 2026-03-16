@@ -164,12 +164,19 @@ pub fn[Model, CMsg, Msg] component(
         },
       }
       runtime.component_slots[slot_key] = slot
-      runtime.pending_init_cmds.push(fn() {
-        if init_cmd.tasks.length() > 0 {
-          init_cmd.run(comp_dispatch)
-        }
-        do_update_subs()
-      })
+      let has_init_cmd = init_cmd.tasks.length() > 0
+      let init_subs = subscriptions(init_model)
+      let has_subs = init_subs.subs.length() > 0
+      if has_init_cmd || has_subs {
+        runtime.pending_init_cmds.push(fn() {
+          if has_init_cmd {
+            init_cmd.run(comp_dispatch)
+          }
+          if has_subs {
+            update_subs(init_subs, comp_active_subs, comp_dispatch)
+          }
+        })
+      }
     }
   }
   Component({ id: slot_key })

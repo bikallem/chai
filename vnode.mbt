@@ -120,26 +120,30 @@ pub fn[Msg] fragment(children : Array[VNode[Msg]]) -> VNode[Msg] {
 }
 
 ///|
-/// Flatten Fragment vnodes into a flat array. Non-fragment nodes pass through.
+/// Flatten Fragment vnodes into a flat array. Returns the original array
+/// unchanged (no allocation) when no Fragments are present.
 fn[Msg] flatten_children(children : Array[VNode[Msg]]) -> Array[VNode[Msg]] {
-  let mut has_fragment = false
-  for child in children {
-    if child is Fragment(_) {
-      has_fragment = true
-      break
+  for i = 0; i < children.length(); i = i + 1 {
+    match children[i] {
+      Fragment(inner) => {
+        // First fragment found — allocate and copy prefix, then flatten the rest
+        let result : Array[VNode[Msg]] = Array::new(capacity=children.length())
+        for j = 0; j < i; j = j + 1 {
+          result.push(children[j])
+        }
+        flatten_into(inner, result)
+        for j = i + 1; j < children.length(); j = j + 1 {
+          match children[j] {
+            Fragment(inner2) => flatten_into(inner2, result)
+            other => result.push(other)
+          }
+        }
+        return result
+      }
+      _ => ()
     }
   }
-  if not(has_fragment) {
-    return children
-  }
-  let result : Array[VNode[Msg]] = []
-  for child in children {
-    match child {
-      Fragment(inner) => flatten_into(inner, result)
-      _ => result.push(child)
-    }
-  }
-  result
+  children
 }
 
 ///|
