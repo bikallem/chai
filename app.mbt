@@ -133,17 +133,12 @@ fn[Msg] update_subs(
         }
     }
   }
-  let to_remove : Array[String] = []
-  active_subs.each(fn(k, _v) {
-    if not(new_keys.contains(k)) {
-      to_remove.push(k)
+  active_subs.retain(fn(k, sub) {
+    if new_keys.contains(k) {
+      true
+    } else {
+      (sub.cleanup)()
+      false
     }
   })
-  for key in to_remove {
-    match active_subs.get(key) {
-      Some(sub) => (sub.cleanup)()
-      None => ()
-    }
-    active_subs.remove(key)
-  }
 }

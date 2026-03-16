@@ -209,17 +209,12 @@ fn begin_render_pass_for(runtime : ComponentRuntime) -> Unit {
 ///|
 /// Remove component slots that were not visited during the last render.
 fn remove_unused_component_slots_for(runtime : ComponentRuntime) -> Unit {
-  let to_remove : Array[String] = []
-  runtime.component_slots.each(fn(k, _) {
-    if not(runtime.seen_slots.contains(k)) {
-      to_remove.push(k)
+  runtime.component_slots.retain(fn(k, slot) {
+    if runtime.seen_slots.contains(k) {
+      true
+    } else {
+      (slot.teardown)()
+      false
     }
   })
-  for k in to_remove {
-    match runtime.component_slots.get(k) {
-      Some(slot) => (slot.teardown)()
-      None => ()
-    }
-    runtime.component_slots.remove(k)
-  }
 }

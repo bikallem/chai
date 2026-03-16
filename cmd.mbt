@@ -61,14 +61,16 @@ pub fn[Msg] Cmd::after(ms : Int, msg : Msg) -> Cmd[Msg] {
 
 ///|
 fn error_message(reason : @webapi.JsValue) -> String {
-  if not(reason.is_null()) {
-    let obj : @webapi.JsObject = reason.unsafe_into()
-    let msg = obj.get("message")
-    if not(msg.is_null()) {
-      return msg.to_string()
-    }
+  if reason.is_null() {
+    return reason.to_string()
   }
-  reason.to_string()
+  let obj : @webapi.JsObject = reason.unsafe_into()
+  let msg = obj.get("message")
+  if msg.is_null() {
+    reason.to_string()
+  } else {
+    msg.to_string()
+  }
 }
 
 ///|

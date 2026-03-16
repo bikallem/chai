@@ -248,10 +248,9 @@ fn[Msg] child_list_mode(
       )
     }
   }
-  if first_is_keyed {
-    AllKeyed
-  } else {
-    NonKeyed
+  match first_is_keyed {
+    true => AllKeyed
+    false => NonKeyed
   }
 }
 
@@ -517,17 +516,17 @@ fn[Msg] diff_attrs_linear(
   for new_attr in new_attrs {
     let name = attr_name(new_attr)
     let kind = attr_slot_kind(new_attr)
-    let mut found_old = false
-    for old_attr in old_attrs {
+    let found = for old_attr in old_attrs {
       if attr_name(old_attr) == name && attr_slot_kind(old_attr) == kind {
-        found_old = true
         if attr_needs_update(old_attr, new_attr) {
           apply_attr(el, new_attr, dispatch)
         }
-        break
+        break true
       }
+    } nobreak {
+      false
     }
-    if not(found_old) {
+    if not(found) {
       apply_attr(el, new_attr, dispatch)
     }
   }
@@ -535,14 +534,14 @@ fn[Msg] diff_attrs_linear(
   for old_attr in old_attrs {
     let name = attr_name(old_attr)
     let kind = attr_slot_kind(old_attr)
-    let mut found_new = false
-    for new_attr in new_attrs {
+    let found = for new_attr in new_attrs {
       if attr_name(new_attr) == name && attr_slot_kind(new_attr) == kind {
-        found_new = true
-        break
+        break true
       }
+    } nobreak {
+      false
     }
-    if not(found_new) {
+    if not(found) {
       match kind {
         AttributeSlot => el.remove_attribute(name)
         PropertySlot => set_prop(el, name, @webapi.JsValue::null())
