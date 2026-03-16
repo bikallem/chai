@@ -21,6 +21,7 @@ priv struct ComponentSlot {
   current_expanded : Ref[VNode[Unit]]
   previous_expanded : Ref[VNode[Unit]]
   render : () -> VNode[Unit]
+  update_subs : () -> Unit
   teardown : () -> Unit
 }
 
@@ -87,6 +88,7 @@ pub fn[Model, CMsg, Msg] component(
   init~ : () -> (Model, Cmd[CMsg]),
   update~ : (Model, CMsg) -> (Model, Cmd[CMsg]),
   view~ : (Model) -> VNode[CMsg],
+  subscriptions? : (Model) -> Sub[CMsg] = fn(_) { Sub::none() },
 ) -> VNode[Msg] {
   let runtime = current_component_runtime()
   let slot_key = match id {
@@ -102,6 +104,7 @@ pub fn[Model, CMsg, Msg] component(
     Some(slot) => {
       slot.previous_expanded.val = slot.current_expanded.val
       slot.current_expanded.val = (slot.render)()
+      (slot.update_subs)()
     }
     None => {
       let (init_model, init_cmd) = init()
@@ -134,6 +137,14 @@ pub fn[Model, CMsg, Msg] component(
           None => fn() {  }
         }
       }
+      let comp_active_subs : @hashmap.HashMap[String, ActiveSub] = @hashmap.new()
+      let do_update_subs = fn() -> Unit {
+        update_subs(
+          subscriptions(model_ref.val),
+          comp_active_subs,
+          comp_dispatch,
+        )
+      }
       let render = fn() -> VNode[Unit] {
         with_component_runtime(runtime, fn() {
           bind_events(view(model_ref.val), comp_dispatch)
@@ -145,12 +156,20 @@ pub fn[Model, CMsg, Msg] component(
         current_expanded: Ref::new(expanded),
         previous_expanded: Ref::new(expanded),
         render,
-        teardown: fn() { (handle_teardown_ref.val)() },
+        update_subs: do_update_subs,
+        teardown: fn() {
+          (handle_teardown_ref.val)()
+          comp_active_subs.each(fn(_, sub) { (sub.cleanup)() })
+          comp_active_subs.clear()
+        },
       }
       runtime.component_slots[slot_key] = slot
-      if init_cmd.tasks.length() > 0 {
-        runtime.pending_init_cmds.push(fn() { init_cmd.run(comp_dispatch) })
-      }
+      runtime.pending_init_cmds.push(fn() {
+        if init_cmd.tasks.length() > 0 {
+          init_cmd.run(comp_dispatch)
+        }
+        do_update_subs()
+      })
     }
   }
   Component({ id: slot_key })

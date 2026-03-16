@@ -8,7 +8,7 @@ import {
 // Values
 pub fn[V : Show, Msg] attr(String, V) -> Attr[Msg]
 
-pub fn[Model, CMsg, Msg] component(id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg]) -> VNode[Msg]
+pub fn[Model, CMsg, Msg] component(id? : String, handle? : Handle[CMsg], init~ : () -> (Model, Cmd[CMsg]), update~ : (Model, CMsg) -> (Model, Cmd[CMsg]), view~ : (Model) -> VNode[CMsg], subscriptions? : (Model) -> Sub[CMsg]) -> VNode[Msg]
 
 pub fn[Msg] el(String, Array[Attr[Msg]], Array[VNode[Msg]]) -> VNode[Msg]
 
