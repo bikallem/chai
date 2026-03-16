@@ -89,6 +89,8 @@ pub fn[Msg] em(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[M
 
 pub fn[Msg] embed(Array[@chai.Attr[Msg]]) -> @chai.VNode[Msg]
 
+pub fn[Msg] error_boundary(fallback~ : (String) -> @chai.VNode[Msg], child~ : () -> @chai.VNode[Msg]) -> @chai.VNode[Msg]
+
 pub fn[Msg] fieldset(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]
 
 pub fn[Msg] figcaption(Array[@chai.Attr[Msg]], Array[@chai.VNode[Msg]]) -> @chai.VNode[Msg]

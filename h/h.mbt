@@ -12,6 +12,14 @@ pub fn[S : Show, Msg] text(s : S) -> @chai.VNode[Msg] {
 }
 
 ///|
+pub fn[Msg] error_boundary(
+  fallback~ : (String) -> @chai.VNode[Msg],
+  child~ : () -> @chai.VNode[Msg],
+) -> @chai.VNode[Msg] {
+  @chai.error_boundary(fallback~, child~)
+}
+
+///|
 pub fn[Msg] el(
   tag : String,
   attrs : Array[@chai.Attr[Msg]],

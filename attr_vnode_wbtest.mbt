@@ -228,3 +228,27 @@ test "keyed_list wraps pairs into keyed children" {
     _ => panic()
   }
 }
+
+///|
+#cfg(target="js")
+test "error_boundary returns child result on success" {
+  let v : VNode[Unit] = error_boundary(fallback=fn(_msg) { text("error") }, child=fn() {
+    text("ok")
+  })
+  match v {
+    Text("ok") => ()
+    _ => panic()
+  }
+}
+
+///|
+#cfg(target="js")
+test "error_boundary returns fallback on panic" {
+  let v : VNode[Unit] = error_boundary(fallback=fn(_msg) { text("caught") }, child=fn() {
+    abort("boom")
+  })
+  match v {
+    Text("caught") => ()
+    _ => panic()
+  }
+}

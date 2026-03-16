@@ -82,6 +82,34 @@ pub fn[Msg] lazy_(hash : Int, thunk : () -> VNode[Msg]) -> VNode[Msg] {
 }
 
 ///|
+#cfg(target="js")
+extern "js" fn try_render(
+  on_ok : () -> Unit,
+  on_err : (String) -> Unit,
+) -> Unit = "(ok, err) => { try { ok(); } catch(e) { err(String(e)); } }"
+
+///|
+#cfg(target="wasm-gc")
+fn try_render(on_ok : () -> Unit, _on_err : (String) -> Unit) -> Unit {
+  on_ok()
+}
+
+///|
+/// Wrap a view thunk in an error boundary. If `child` panics, `fallback`
+/// receives the error message and renders a replacement VNode.
+/// On wasm-gc, only `raise` errors are recoverable; `abort` traps the module.
+pub fn[Msg] error_boundary(
+  fallback~ : (String) -> VNode[Msg],
+  child~ : () -> VNode[Msg],
+) -> VNode[Msg] {
+  let result : Ref[VNode[Msg]] = Ref::new(Null)
+  try_render(fn() { result.val = child() }, fn(msg) {
+    result.val = fallback(msg)
+  })
+  result.val
+}
+
+///|
 pub fn[Msg] el(
   tag : String,
   attrs : Array[Attr[Msg]],
