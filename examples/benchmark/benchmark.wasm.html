@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark - Chai (WASM)</title>
+    <link rel="stylesheet" href="../examples.css">
+</head>
+
+<body>
+    <div id="app"></div>
+    <pre id="timing"></pre>
+    <script>
+        (function () {
+            const timing = document.getElementById('timing');
+            const results = {};
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest('button[id]');
+                if (!btn) return;
+                const op = btn.id;
+                const t0 = performance.now();
+                window.__benchStart = t0;
+                window.__benchOp = op;
+            });
+            const observer = new MutationObserver(function () {
+                if (window.__benchStart) {
+                    const op = window.__benchOp;
+                    const t0 = window.__benchStart;
+                    window.__benchStart = null;
+                    requestAnimationFrame(function () {
+                        setTimeout(function () {
+                            const t1 = performance.now();
+                            const ms = (t1 - t0).toFixed(1);
+                            results[op] = ms;
+                            timing.textContent = Object.entries(results)
+                                .map(function (e) { return e[0] + ': ' + e[1] + 'ms'; })
+                                .join('\n');
+                        }, 0);
+                    });
+                }
+            });
+            observer.observe(document.getElementById('app'), { childList: true, subtree: true });
+        })();
+    </script>
+    <script type="module">
+        import { wasmImportObject } from "../../_build/wasm-gc/release/build/examples/benchmark/webapi.mjs";
+        const wasmPath = "../../_build/wasm-gc/release/build/examples/benchmark/benchmark.wasm";
+        const { instance } = await WebAssembly.instantiateStreaming(
+            fetch(wasmPath),
+            wasmImportObject,
+            {
+                builtins: ["js-string"],
+                importedStringConstants: "_",
+            }
+        );
+        instance.exports._start();
+    </script>
+</body>
+
+</html>

@@ -544,3 +544,132 @@ body {
     color: #145dd9;
     text-decoration: underline;
 }
+
+/* -- Benchmark -- */
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    padding: 0 15px;
+}
+
+.jumbotron {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+.jumbotron .row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-md-1 {
+    flex: 0 0 8.333%;
+    max-width: 8.333%;
+}
+
+.col-md-4 {
+    flex: 0 0 33.333%;
+    max-width: 33.333%;
+}
+
+.col-sm-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.smallpad {
+    padding: 4px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: 1px solid #337ab7;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    text-align: center;
+    width: 100%;
+}
+
+.btn-primary {
+    background: #337ab7;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #286090;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table td {
+    padding: 8px;
+    border-top: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background: #f9f9f9;
+}
+
+.table-hover tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.table tbody tr.danger td {
+    background: #fcf2f2;
+}
+
+.table .lbl {
+    cursor: pointer;
+    color: #337ab7;
+    text-decoration: none;
+}
+
+.table .lbl:hover {
+    text-decoration: underline;
+}
+
+.table .remove {
+    cursor: pointer;
+    color: #999;
+}
+
+.table .remove:hover {
+    color: #c44;
+}
+
+.glyphicon-remove::before {
+    content: "\00D7";
+    font-size: 18px;
+}
+
+.preloadicon {
+    display: none;
+}
+
+#timing {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #0f0;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 1000;
+}

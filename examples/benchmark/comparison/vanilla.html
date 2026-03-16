@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark - Vanilla JS</title>
+    <link rel="stylesheet" href="../../examples.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="jumbotron">
+                <div class="row">
+                    <div class="col-md-6"><h1>Vanilla JS (keyed)</h1></div>
+                    <div class="col-md-6">
+                        <div class="row">
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="run">Create 1,000 rows</button>
+                            </div>
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="runlots">Create 10,000 rows</button>
+                            </div>
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="add">Append 1,000 rows</button>
+                            </div>
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="update">Update every 10th row</button>
+                            </div>
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="clear">Clear</button>
+                            </div>
+                            <div class="col-sm-6 smallpad">
+                                <button type="button" class="btn btn-primary btn-block" id="swaprows">Swap Rows</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-hover table-striped test-data">
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+    </div>
+    <pre id="timing"></pre>
+    <script>
+        (function () {
+            const adjectives = ["pretty","large","big","small","tall","short","long","handsome","plain","quaint","clean","elegant","easy","angry","crazy","helpful","mushy","odd","unsightly","adorable","important","inexpensive","cheap","expensive","fancy"];
+            const colors = ["red","yellow","blue","green","pink","brown","purple","brown","white","black","orange"];
+            const nouns = ["table","chair","house","bbq","desk","car","pony","cookie","sandwich","burger","pizza","mouse","keyboard"];
+
+            let nextId = 1, selected = 0, rows = [];
+            const tbody = document.getElementById('tbody');
+            const timing = document.getElementById('timing');
+            const results = {};
+
+            function randomLabel() {
+                return adjectives[Math.random() * adjectives.length | 0] + ' ' +
+                    colors[Math.random() * colors.length | 0] + ' ' +
+                    nouns[Math.random() * nouns.length | 0];
+            }
+
+            function buildRows(count) {
+                const arr = [];
+                for (let i = 0; i < count; i++) arr.push({ id: nextId++, label: randomLabel() });
+                return arr;
+            }
+
+            function createRow(row) {
+                const tr = document.createElement('tr');
+                tr.dataset.id = row.id;
+                if (row.id === selected) tr.className = 'danger';
+                tr.innerHTML = '<td class="col-md-1">' + row.id + '</td>' +
+                    '<td class="col-md-4"><a class="lbl">' + row.label + '</a></td>' +
+                    '<td class="col-md-1"><a class="remove"><span class="glyphicon glyphicon-remove remove" aria-hidden="true"></span></a></td>' +
+                    '<td class="col-md-6"></td>';
+                return tr;
+            }
+
+            function renderAll() {
+                tbody.textContent = '';
+                const frag = document.createDocumentFragment();
+                for (const row of rows) frag.appendChild(createRow(row));
+                tbody.appendChild(frag);
+            }
+
+            function updateSelection(id) {
+                const old = tbody.querySelector('tr.danger');
+                if (old) old.className = '';
+                selected = id;
+                const sel = tbody.querySelector('tr[data-id="' + id + '"]');
+                if (sel) sel.className = 'danger';
+            }
+
+            tbody.addEventListener('click', function (e) {
+                const target = e.target;
+                const tr = target.closest('tr');
+                if (!tr) return;
+                const id = parseInt(tr.dataset.id);
+                if (target.closest('.remove')) {
+                    rows = rows.filter(function (r) { return r.id !== id; });
+                    tr.remove();
+                } else if (target.closest('.lbl')) {
+                    updateSelection(id);
+                }
+            });
+
+            function bench(op, fn) {
+                const t0 = performance.now();
+                fn();
+                requestAnimationFrame(function () {
+                    setTimeout(function () {
+                        const ms = (performance.now() - t0).toFixed(1);
+                        results[op] = ms;
+                        timing.textContent = Object.entries(results).map(function (e) { return e[0] + ': ' + e[1] + 'ms'; }).join('\n');
+                    }, 0);
+                });
+            }
+
+            document.getElementById('run').onclick = function () { bench('run', function () { rows = buildRows(1000); selected = 0; renderAll(); }); };
+            document.getElementById('runlots').onclick = function () { bench('runlots', function () { rows = buildRows(10000); selected = 0; renderAll(); }); };
+            document.getElementById('add').onclick = function () { bench('add', function () { const nr = buildRows(1000); rows = rows.concat(nr); const frag = document.createDocumentFragment(); for (const r of nr) frag.appendChild(createRow(r)); tbody.appendChild(frag); }); };
+            document.getElementById('update').onclick = function () { bench('update', function () { for (let i = 0; i < rows.length; i += 10) { rows[i].label += ' !!!'; tbody.children[i].querySelector('.lbl').textContent = rows[i].label; } }); };
+            document.getElementById('clear').onclick = function () { bench('clear', function () { rows = []; selected = 0; tbody.textContent = ''; }); };
+            document.getElementById('swaprows').onclick = function () {
+                bench('swaprows', function () {
+                    if (rows.length > 998) {
+                        const tmp = rows[1]; rows[1] = rows[998]; rows[998] = tmp;
+                        const c = tbody.children;
+                        tbody.insertBefore(c[998], c[2]);
+                        tbody.insertBefore(c[999], c[999]);
+                        // simpler: re-render swapped
+                        const r1 = createRow(rows[1]);
+                        const r998 = createRow(rows[998]);
+                        c[1].replaceWith(r1);
+                        c[998].replaceWith(r998);
+                    }
+                });
+            };
+        })();
+    </script>
+</body>
+
+</html>

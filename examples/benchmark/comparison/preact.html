@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benchmark - Preact</title>
+    <link rel="stylesheet" href="../../examples.css">
+</head>
+
+<body>
+    <div id="app"></div>
+    <pre id="timing"></pre>
+    <script src="https://unpkg.com/preact@10/dist/preact.umd.js" crossorigin></script>
+    <script src="https://unpkg.com/preact@10/hooks/dist/hooks.umd.js" crossorigin></script>
+    <script>
+        (function () {
+            const { h, render } = preact;
+            const { useState, useCallback } = preactHooks;
+
+            const adjectives = ["pretty","large","big","small","tall","short","long","handsome","plain","quaint","clean","elegant","easy","angry","crazy","helpful","mushy","odd","unsightly","adorable","important","inexpensive","cheap","expensive","fancy"];
+            const colors = ["red","yellow","blue","green","pink","brown","purple","brown","white","black","orange"];
+            const nouns = ["table","chair","house","bbq","desk","car","pony","cookie","sandwich","burger","pizza","mouse","keyboard"];
+
+            let nextId = 1;
+            function randomLabel() {
+                return adjectives[Math.random() * adjectives.length | 0] + ' ' +
+                    colors[Math.random() * colors.length | 0] + ' ' +
+                    nouns[Math.random() * nouns.length | 0];
+            }
+            function buildRows(count) {
+                const arr = [];
+                for (let i = 0; i < count; i++) arr.push({ id: nextId++, label: randomLabel() });
+                return arr;
+            }
+
+            const timing = document.getElementById('timing');
+            const results = {};
+            function bench(op, fn) {
+                const t0 = performance.now();
+                fn();
+                requestAnimationFrame(function () {
+                    setTimeout(function () {
+                        const ms = (performance.now() - t0).toFixed(1);
+                        results[op] = ms;
+                        timing.textContent = Object.entries(results).map(function (e) { return e[0] + ': ' + e[1] + 'ms'; }).join('\n');
+                    }, 0);
+                });
+            }
+
+            function Row({ row, isSelected, select, remove }) {
+                return h('tr', { class: isSelected ? 'danger' : '', key: row.id },
+                    h('td', { class: 'col-md-1' }, row.id),
+                    h('td', { class: 'col-md-4' },
+                        h('a', { class: 'lbl', onClick: function () { select(row.id); } }, row.label)),
+                    h('td', { class: 'col-md-1' },
+                        h('a', { class: 'remove', onClick: function () { remove(row.id); } },
+                            h('span', { class: 'glyphicon glyphicon-remove remove', 'aria-hidden': 'true' }))),
+                    h('td', { class: 'col-md-6' })
+                );
+            }
+
+            function App() {
+                const [state, setState] = useState({ rows: [], selected: 0 });
+
+                const run = useCallback(function () { bench('run', function () { setState({ rows: buildRows(1000), selected: 0 }); }); }, []);
+                const runlots = useCallback(function () { bench('runlots', function () { setState({ rows: buildRows(10000), selected: 0 }); }); }, []);
+                const add = useCallback(function () { bench('add', function () { setState(function (s) { return { ...s, rows: s.rows.concat(buildRows(1000)) }; }); }); }, []);
+                const update = useCallback(function () {
+                    bench('update', function () {
+                        setState(function (s) {
+                            const rows = s.rows.slice();
+                            for (let i = 0; i < rows.length; i += 10) rows[i] = { ...rows[i], label: rows[i].label + ' !!!' };
+                            return { ...s, rows };
+                        });
+                    });
+                }, []);
+                const clear = useCallback(function () { bench('clear', function () { setState({ rows: [], selected: 0 }); }); }, []);
+                const swaprows = useCallback(function () {
+                    bench('swaprows', function () {
+                        setState(function (s) {
+                            if (s.rows.length > 998) {
+                                const rows = s.rows.slice();
+                                const tmp = rows[1]; rows[1] = rows[998]; rows[998] = tmp;
+                                return { ...s, rows };
+                            }
+                            return s;
+                        });
+                    });
+                }, []);
+                const select = useCallback(function (id) { setState(function (s) { return { ...s, selected: id }; }); }, []);
+                const remove = useCallback(function (id) { setState(function (s) { return { ...s, rows: s.rows.filter(function (r) { return r.id !== id; }) }; }); }, []);
+
+                function btn(id, text, handler) {
+                    return h('div', { class: 'col-sm-6 smallpad' },
+                        h('button', { type: 'button', class: 'btn btn-primary btn-block', id: id, onClick: handler }, text));
+                }
+
+                return h('div', { class: 'container' },
+                    h('div', { class: 'jumbotron' },
+                        h('div', { class: 'row' },
+                            h('div', { class: 'col-md-6' }, h('h1', null, 'Preact (keyed)')),
+                            h('div', { class: 'col-md-6' },
+                                h('div', { class: 'row' },
+                                    btn('run', 'Create 1,000 rows', run),
+                                    btn('runlots', 'Create 10,000 rows', runlots),
+                                    btn('add', 'Append 1,000 rows', add),
+                                    btn('update', 'Update every 10th row', update),
+                                    btn('clear', 'Clear', clear),
+                                    btn('swaprows', 'Swap Rows', swaprows)
+                                )))),
+                    h('table', { class: 'table table-hover table-striped test-data' },
+                        h('tbody', { id: 'tbody' },
+                            state.rows.map(function (row) {
+                                return h(Row, { key: row.id, row: row, isSelected: row.id === state.selected, select: select, remove: remove });
+                            }))),
+                    h('span', { class: 'preloadicon glyphicon glyphicon-remove', 'aria-hidden': 'true' })
+                );
+            }
+
+            render(h(App), document.getElementById('app'));
+        })();
+    </script>
+</body>
+
+</html>

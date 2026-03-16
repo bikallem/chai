@@ -12,6 +12,7 @@ It is inspired by the core TEA model of `Model`, `Msg`, `update`, and `view`, bu
 ## Table of Contents
 
 - [Packages](#packages)
+- [Benchmarks](#benchmarks)
 - [Quick Start](#quick-start)
 - [Examples](#examples)
 - [Core Concepts](#core-concepts)
@@ -45,6 +46,34 @@ import {
 ```
 
 See the [`h` package README](h/README.md) for the complete list of elements, attributes, and events.
+
+## Benchmarks
+
+Performance on the [js-framework-benchmark](https://github.com/nicolo-ribaudo/js-framework-benchmark) operations (median of 5 runs, headless Chromium, lower is better):
+
+| Operation | Chai JS | Chai WASM | Vanilla JS | React 18 | Preact |
+|---|--:|--:|--:|--:|--:|
+| Create 1,000 rows | **45ms** | **44ms** | 61ms | 55ms | 51ms |
+| Create 10,000 rows | 518ms | **483ms** | **483ms** | 620ms | 558ms |
+| Append 1,000 rows | 58ms | 57ms | **47ms** | 81ms | 74ms |
+| Partial update (every 10th) | 23ms | 24ms | **21ms** | 30ms | 12ms |
+| Clear rows | **5.4ms** | **5.4ms** | **5.4ms** | 12ms | 7.7ms |
+| Swap rows | **8.4ms** | **7.7ms** | 11ms | 52ms | 13ms |
+| Replace 1,000 rows | 44ms | **42ms** | **44ms** | 55ms | 66ms |
+| Select row | 3.8ms | 3.3ms | **1.6ms** | 4.9ms | 4.6ms |
+| Remove row | **10ms** | 11ms | **11ms** | 14ms | 14ms |
+
+Chai uses keyed virtual DOM diffing with three key optimizations:
+
+- **Bulk clear** — removes all children in a single `textContent = ""` call instead of one-by-one `removeChild`
+- **Common-prefix scan** — skips HashMap/LIS overhead when key order is stable (the common case for select, update, append)
+- **`lazy_`** — skips both vdom creation and diffing for rows whose hash hasn't changed
+
+Run the benchmarks yourself:
+
+```bash
+make bench
+```
 
 ## Quick Start
 

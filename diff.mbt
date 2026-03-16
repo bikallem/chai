@@ -273,6 +273,13 @@ fn[Msg] replace_children(
 }
 
 ///|
+/// Remove all child nodes from a parent by setting textContent to empty string.
+fn clear_children(parent : @webapi.Node) -> Unit {
+  let obj : @webapi.JsObject = @webapi.TJsValue::to_js(parent).unsafe_into()
+  obj.set("textContent", @webapi.TJsValue::to_js("")) |> ignore
+}
+
+///|
 /// Diff children using sequential comparison with sibling cursor
 fn[Msg] diff_children(
   runtime : ComponentRuntime,
@@ -300,6 +307,13 @@ fn[Msg] diff_children(
   }
   let old_len = old_children.length()
   let new_len = new_children.length()
+  // Fast path: clear all children at once
+  if new_len == 0 {
+    if old_len > 0 {
+      clear_children(parent)
+    }
+    return
+  }
   let min_len = @cmp.minimum(old_len, new_len)
   // Patch common prefix using sibling cursor
   for i = 0, cursor = node_first_child(parent); i < min_len; {
@@ -391,6 +405,8 @@ fn insert_node(
 /// Diff children using key-based reconciliation with LIS optimization.
 /// Each child must be a Keyed(key, vnode) wrapper. Matches old and new
 /// children by key, uses LIS to minimize DOM moves, and removes unused ones.
+/// Uses a common-prefix scan to avoid HashMap/LIS overhead when key order is
+/// stable (the common case for select, partial update, append, etc.).
 fn[Msg] diff_children_keyed(
   runtime : ComponentRuntime,
   parent : @webapi.Node,
@@ -401,54 +417,110 @@ fn[Msg] diff_children_keyed(
 ) -> Unit {
   let old_len = old_children.length()
   let new_len = new_children.length()
-  // Build old key -> (index, inner vnode, dom node) map via sibling cursor
-  let old_key_map : @hashmap.HashMap[String, (Int, VNode[Msg], @webapi.Node)] = @hashmap.new()
-  for i = 0, cursor = node_first_child(parent); i < old_len; {
+  // Fast path: clear all children
+  if new_len == 0 {
+    if old_len > 0 {
+      clear_children(parent)
+    }
+    return
+  }
+  // Fast path: all new children (empty old)
+  if old_len == 0 {
+    for child in new_children {
+      guard child is Keyed(_, inner) else { continue }
+      parent.append_child(create_dom_node(runtime, inner, dispatch, ns))
+      |> ignore
+    }
+    return
+  }
+  // Common prefix: diff matching keys from the start, walking the DOM cursor
+  let min_len = @cmp.minimum(old_len, new_len)
+  let (prefix_len, prefix_cursor) = for i = 0, cursor = node_first_child(parent); i <
+                                       min_len; {
+    guard cursor is Some(node) else { break (i, cursor) }
+    guard old_children[i] is Keyed(old_key, old_inner) else {
+      break (i, cursor)
+    }
+    guard new_children[i] is Keyed(new_key, new_inner) else {
+      break (i, cursor)
+    }
+    if old_key != new_key {
+      break (i, Some(node))
+    }
+    let next = node_next_sibling(node)
+    diff(runtime, parent, node, old_inner, new_inner, dispatch, ns)
+    continue i + 1, next
+  } nobreak {
+    (min_len, cursor)
+  }
+  // All keys matched in prefix — handle tail
+  if prefix_len == old_len && prefix_len == new_len {
+    return
+  }
+  // Only old tail remains — remove extras
+  if prefix_len == new_len {
+    for _i = prefix_len, cursor = prefix_cursor; _i < old_len; {
+      guard cursor is Some(node) else { break }
+      let next = node_next_sibling(node)
+      parent.remove_child(node) |> ignore
+      continue _i + 1, next
+    }
+    return
+  }
+  // Only new tail remains — append extras
+  if prefix_len == old_len {
+    for i = prefix_len; i < new_len; i = i + 1 {
+      guard new_children[i] is Keyed(_, inner) else { continue }
+      parent.append_child(create_dom_node(runtime, inner, dispatch, ns))
+      |> ignore
+    }
+    return
+  }
+  // General case: build HashMap/LIS for remaining items after prefix
+  let rem_old = old_len - prefix_len
+  let rem_new = new_len - prefix_len
+  let old_key_map : @hashmap.HashMap[String, (Int, VNode[Msg], @webapi.Node)] = @hashmap.new(
+    capacity=rem_old,
+  )
+  for i = prefix_len, cursor = prefix_cursor; i < old_len; {
     guard cursor is Some(node) else { break }
     let next = node_next_sibling(node)
     guard old_children[i] is Keyed(k, inner) else { continue i + 1, next }
     old_key_map[k] = (i, inner, node)
     continue i + 1, next
   }
-  // Build new-to-old index mapping; -1 for new items
-  // matched[i] = (old_inner, dom_node) for reused items, None for new
-  let new_to_old : Array[Int] = Array::make(new_len, -1)
-  let matched : Array[(VNode[Msg], @webapi.Node)?] = Array::make(new_len, None)
-  for i, child in new_children {
-    guard child is Keyed(new_key, _) else { continue }
+  let new_to_old : Array[Int] = Array::make(rem_new, -1)
+  let matched : Array[(VNode[Msg], @webapi.Node)?] = Array::make(rem_new, None)
+  for j = 0; j < rem_new; j = j + 1 {
+    guard new_children[j + prefix_len] is Keyed(new_key, _) else { continue }
     match old_key_map.get(new_key) {
       Some((old_idx, old_inner, dom_node)) => {
-        new_to_old[i] = old_idx
-        matched[i] = Some((old_inner, dom_node))
+        new_to_old[j] = old_idx
+        matched[j] = Some((old_inner, dom_node))
         old_key_map.remove(new_key)
       }
       None => ()
     }
   }
-  // Compute LIS of old indices to find items that don't need moving
   let lis_set = lis(new_to_old)
-  // Remove unused old nodes first
   old_key_map.each(fn(_k, v) { parent.remove_child(v.2) |> ignore })
-  // Process new children right to left, using next_node as insertBefore reference
   let init_next : @webapi.Node? = None
-  for i = new_len - 1, next_node = init_next; i >= 0; {
-    guard new_children[i] is Keyed(_, new_inner) else {
-      continue i - 1, next_node
+  for j = rem_new - 1, next_node = init_next; j >= 0; {
+    guard new_children[j + prefix_len] is Keyed(_, new_inner) else {
+      continue j - 1, next_node
     }
-    match matched[i] {
+    match matched[j] {
       Some((old_inner, dom_node)) => {
-        // Reused item: move if not in LIS
-        if not(lis_set.contains(i)) {
+        if not(lis_set.contains(j)) {
           insert_node(parent, dom_node, next_node)
         }
         diff(runtime, parent, dom_node, old_inner, new_inner, dispatch, ns)
-        continue i - 1, Some(dom_node)
+        continue j - 1, Some(dom_node)
       }
       None => {
-        // New item: create and insert
         let new_dom = create_dom_node(runtime, new_inner, dispatch, ns)
         insert_node(parent, new_dom, next_node)
-        continue i - 1, Some(new_dom)
+        continue j - 1, Some(new_dom)
       }
     }
   }
