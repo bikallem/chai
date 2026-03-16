@@ -120,15 +120,7 @@ pub fn[Model, CMsg, Msg] component(
           return
         }
         is_updating.val = true
-        while msg_queue.length() > 0 {
-          for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
-            let m = msg_queue[cursor]
-            let (new_model, cmd) = update(model_ref.val, m)
-            model_ref.val = new_model
-            cmd.run(comp_dispatch)
-          }
-          msg_queue.clear()
-        }
+        drain_messages(msg_queue, model_ref, update, comp_dispatch)
         is_updating.val = false
         (runtime.trigger_render.val)()
       }

@@ -1,4 +1,24 @@
 ///|
+/// Drain all pending messages from the queue by running update + cmd for each.
+/// Re-entrant messages (dispatched by cmd.run) are processed in the same pass
+/// because the for-loop re-evaluates msg_queue.length() each iteration.
+fn[Model, Msg] drain_messages(
+  msg_queue : Array[Msg],
+  state : Ref[Model],
+  update : (Model, Msg) -> (Model, Cmd[Msg]),
+  dispatch : (Msg) -> Unit,
+) -> Unit {
+  while msg_queue.length() > 0 {
+    for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
+      let (new_model, cmd) = update(state.val, msg_queue[cursor])
+      state.val = new_model
+      cmd.run(dispatch)
+    }
+    msg_queue.clear()
+  }
+}
+
+///|
 /// Active subscription with its cleanup function.
 priv struct ActiveSub {
   identity : String
@@ -50,13 +70,7 @@ pub fn[Model, Msg] start(
     }
     is_updating.val = true
     while msg_queue.length() > 0 || needs_render.val {
-      for cursor = 0; cursor < msg_queue.length(); cursor = cursor + 1 {
-        let msg = msg_queue[cursor]
-        let (new_model, cmd) = update(state.val, msg)
-        state.val = new_model
-        cmd.run(dispatch)
-      }
-      msg_queue.clear()
+      drain_messages(msg_queue, state, update, dispatch)
       needs_render.val = false
       do_render()
     }
