@@ -34,7 +34,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: |
             tests/package-lock.json
-            examples/showcase/package-lock.json
+            src/examples/showcase/package-lock.json
 
       - name: Install npm dependencies for 'tests'
         working-directory: tests
@@ -61,16 +61,16 @@ jobs:
         run: make test
 
       - name: Install showcase dependencies
-        working-directory: examples/showcase
+        working-directory: src/examples/showcase
         run: npm ci
 
       - name: Build showcase
-        working-directory: examples/showcase
+        working-directory: src/examples/showcase
         run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: examples/showcase/dist
+          path: src/examples/showcase/dist
 
   deploy:
     needs: build-test-chai
