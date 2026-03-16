@@ -54,18 +54,6 @@ test "mode switch detection via child_list_mode" {
 }
 
 ///|
-test "first_duplicate_key detects duplicate keyed children" {
-  let none : Array[VNode[Unit]] = [keyed("a", text("1")), keyed("b", text("2"))]
-  let dup : Array[VNode[Unit]] = [
-    keyed("a", text("1")),
-    keyed("a", text("2")),
-    keyed("b", text("3")),
-  ]
-  assert_eq(first_duplicate_key(none), None)
-  assert_eq(first_duplicate_key(dup), Some("a"))
-}
-
-///|
 test "lis returns empty for empty array" {
   let result = lis([])
   assert_eq(result.length(), 0)

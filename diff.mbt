@@ -243,23 +243,6 @@ fn[Msg] child_list_mode(
 }
 
 ///|
-fn[Msg] first_duplicate_key(children : Array[VNode[Msg]]) -> String? {
-  let seen : @hashset.HashSet[String] = @hashset.new()
-  for child in children {
-    match child {
-      Keyed(k, _) => {
-        if seen.contains(k) {
-          return Some(k)
-        }
-        seen.add(k)
-      }
-      _ => ()
-    }
-  }
-  None
-}
-
-///|
 fn[Msg] replace_children(
   runtime : ComponentRuntime,
   parent : @webapi.Node,
