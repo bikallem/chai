@@ -239,8 +239,8 @@ fn[Msg] child_list_mode(
     return Empty
   }
   let first_is_keyed = children[0] is Keyed(_, _)
-  for i = 1; i < children.length(); i = i + 1 {
-    if (children[i] is Keyed(_, _)) != first_is_keyed {
+  for i, child in children {
+    if i > 0 && (child is Keyed(_, _)) != first_is_keyed {
       abort(
         "chai: " +
         label +
@@ -302,12 +302,11 @@ fn[Msg] diff_children(
   let new_len = new_children.length()
   let min_len = @cmp.minimum(old_len, new_len)
   // Patch common prefix using sibling cursor
-  let mut cursor = node_first_child(parent)
-  for i = 0; i < min_len; i = i + 1 {
+  for i = 0, cursor = node_first_child(parent); i < min_len; {
     guard cursor is Some(node) else { break }
     let next = node_next_sibling(node)
     diff(runtime, parent, node, old_children[i], new_children[i], dispatch, ns)
-    cursor = next
+    continue i + 1, next
   }
   // Remove extras from end
   if old_len > new_len {
@@ -329,9 +328,8 @@ fn[Msg] diff_children(
 /// Compute the longest increasing subsequence of indices.
 /// Returns indices into the input array that form the LIS.
 fn lis(arr : Array[Int]) -> @hashset.HashSet[Int] {
-  let n = arr.length()
   let result : @hashset.HashSet[Int] = @hashset.new()
-  if n == 0 {
+  if arr.length() == 0 {
     return result
   }
   // tails[i] = smallest tail element of all increasing subsequences of length i+1
@@ -339,22 +337,21 @@ fn lis(arr : Array[Int]) -> @hashset.HashSet[Int] {
   // indices[i] = index in arr of tails[i]
   let indices : Array[Int] = []
   // parent[i] = index in arr of predecessor of arr[i] in the LIS
-  let parent : Array[Int] = Array::make(n, -1)
-  for i = 0; i < n; i = i + 1 {
-    let x = arr[i]
+  let parent : Array[Int] = Array::make(arr.length(), -1)
+  for i, x in arr {
     if x < 0 {
-      continue i + 1
+      continue
     }
     // Binary search for the leftmost tail >= x
-    let mut lo = 0
-    let mut hi = tails.length()
-    while lo < hi {
+    let lo = for lo = 0, hi = tails.length(); lo < hi; {
       let mid = (lo + hi) / 2
       if tails[mid] < x {
-        lo = mid + 1
+        continue mid + 1, hi
       } else {
-        hi = mid
+        continue lo, mid
       }
+    } nobreak {
+      lo
     }
     if lo == tails.length() {
       tails.push(x)
@@ -371,10 +368,9 @@ fn lis(arr : Array[Int]) -> @hashset.HashSet[Int] {
   if indices.length() == 0 {
     return result
   }
-  let mut k = indices[indices.length() - 1]
-  for _j = tails.length(); _j > 0; _j = _j - 1 {
+  for _j = tails.length(), k = indices[indices.length() - 1]; _j > 0; {
     result.add(k)
-    k = parent[k]
+    continue _j - 1, parent[k]
   }
   result
 }
@@ -407,23 +403,19 @@ fn[Msg] diff_children_keyed(
   let new_len = new_children.length()
   // Build old key -> (index, inner vnode, dom node) map via sibling cursor
   let old_key_map : @hashmap.HashMap[String, (Int, VNode[Msg], @webapi.Node)] = @hashmap.new()
-  let mut cursor = node_first_child(parent)
-  for i = 0; i < old_len; i = i + 1 {
+  for i = 0, cursor = node_first_child(parent); i < old_len; {
     guard cursor is Some(node) else { break }
     let next = node_next_sibling(node)
-    guard old_children[i] is Keyed(k, inner) else {
-      cursor = next
-      continue i + 1
-    }
+    guard old_children[i] is Keyed(k, inner) else { continue i + 1, next }
     old_key_map[k] = (i, inner, node)
-    cursor = next
+    continue i + 1, next
   }
   // Build new-to-old index mapping; -1 for new items
   // matched[i] = (old_inner, dom_node) for reused items, None for new
   let new_to_old : Array[Int] = Array::make(new_len, -1)
   let matched : Array[(VNode[Msg], @webapi.Node)?] = Array::make(new_len, None)
-  for i = 0; i < new_len; i = i + 1 {
-    guard new_children[i] is Keyed(new_key, _) else { continue i + 1 }
+  for i, child in new_children {
+    guard child is Keyed(new_key, _) else { continue }
     match old_key_map.get(new_key) {
       Some((old_idx, old_inner, dom_node)) => {
         new_to_old[i] = old_idx
@@ -438,9 +430,11 @@ fn[Msg] diff_children_keyed(
   // Remove unused old nodes first
   old_key_map.each(fn(_k, v) { parent.remove_child(v.2) |> ignore })
   // Process new children right to left, using next_node as insertBefore reference
-  let mut next_node : @webapi.Node? = None
-  for i = new_len - 1; i >= 0; i = i - 1 {
-    guard new_children[i] is Keyed(_, new_inner) else { continue i - 1 }
+  let init_next : @webapi.Node? = None
+  for i = new_len - 1, next_node = init_next; i >= 0; {
+    guard new_children[i] is Keyed(_, new_inner) else {
+      continue i - 1, next_node
+    }
     match matched[i] {
       Some((old_inner, dom_node)) => {
         // Reused item: move if not in LIS
@@ -448,13 +442,13 @@ fn[Msg] diff_children_keyed(
           insert_node(parent, dom_node, next_node)
         }
         diff(runtime, parent, dom_node, old_inner, new_inner, dispatch, ns)
-        next_node = Some(dom_node)
+        continue i - 1, Some(dom_node)
       }
       None => {
         // New item: create and insert
         let new_dom = create_dom_node(runtime, new_inner, dispatch, ns)
         insert_node(parent, new_dom, next_node)
-        next_node = Some(new_dom)
+        continue i - 1, Some(new_dom)
       }
     }
   }
@@ -475,12 +469,12 @@ fn[Msg] diff_attrs(
   // Events/properties are always re-set (not comparable), attributes/styles
   // are compared pairwise.
   if old_attrs.length() == new_attrs.length() {
-    let fast_ok = for i = 0; i < new_attrs.length(); i = i + 1 {
-      if not(same_attr_slot(old_attrs[i], new_attrs[i])) {
+    let fast_ok = for i, new_attr in new_attrs {
+      if not(same_attr_slot(old_attrs[i], new_attr)) {
         break false
       }
-      if attr_needs_update(old_attrs[i], new_attrs[i]) {
-        apply_attr(el, new_attrs[i], dispatch)
+      if attr_needs_update(old_attrs[i], new_attr) {
+        apply_attr(el, new_attr, dispatch)
       }
     } nobreak {
       true

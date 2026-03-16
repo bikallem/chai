@@ -123,8 +123,8 @@ pub fn[Msg] fragment(children : Array[VNode[Msg]]) -> VNode[Msg] {
 /// Flatten Fragment vnodes into a flat array. Returns the original array
 /// unchanged (no allocation) when no Fragments are present.
 fn[Msg] flatten_children(children : Array[VNode[Msg]]) -> Array[VNode[Msg]] {
-  for i = 0; i < children.length(); i = i + 1 {
-    match children[i] {
+  for i, child in children {
+    match child {
       Fragment(inner) => {
         // First fragment found — allocate and copy prefix, then flatten the rest
         let result : Array[VNode[Msg]] = Array::new(capacity=children.length())

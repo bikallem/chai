@@ -70,7 +70,7 @@ test "lis returns single element for single-element array" {
 test "lis returns correct result for sorted array" {
   let result = lis([0, 1, 2, 3])
   assert_eq(result.length(), 4)
-  for i = 0; i < 4; i = i + 1 {
+  for i in 0..<4 {
     assert_eq(result.contains(i), true)
   }
 }
