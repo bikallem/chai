@@ -34,7 +34,7 @@ Chai is split into two packages:
 | Package | Import | Purpose |
 |---------|--------|---------|
 | `bikallem/chai` | `@chai` | Runtime — `start`, `Cmd`, `Sub`, `Handle`, `component`, routing, `VNode`, `Attr` types |
-| [`bikallem/chai/h`](h/README.md) | `@h` | View helpers — `div`, `text`, `el`, `attr`, `class`, `on_click`, and all other HTML/attribute/event constructors |
+| [`bikallem/chai/h`](src/h/README.md) | `@h` | View helpers — `div`, `text`, `el`, `attr`, `class`, `on_click`, and all other HTML/attribute/event constructors |
 
 Add both to your `moon.pkg`:
 
@@ -45,7 +45,7 @@ import {
 }
 ```
 
-See the [`h` package README](h/README.md) for the complete list of elements, attributes, and events.
+See the [`h` package README](src/h/README.md) for the complete list of elements, attributes, and events.
 
 ## Benchmarks
 
@@ -114,7 +114,7 @@ fn main {
 
 ## Examples
 
-See the [`examples/`](examples/) directory:
+See the [`src/examples/`](src/examples/) directory:
 
 - **todo** — TodoMVC-style app with input, filtering, and keyed list diffing
 - **counters** — Encapsulated counter components with parent-to-child messaging via `Handle`
@@ -122,6 +122,8 @@ See the [`examples/`](examples/) directory:
 - **router** — Hash-based routing with `Sub::on_hash_change` and `hash_link`
 - **fetch** — HTTP requests with `Cmd::http_get`
 - **canvas** — Canvas drawing with mouse event subscriptions
+- **showcase** — Combined demo of multiple features
+- **benchmark** — Performance benchmarks
 
 ## Core Concepts
 
@@ -345,6 +347,19 @@ fn counter[ParentMsg]() -> VNode[ParentMsg] {
 }
 ```
 
+Components can have their own subscriptions, just like top-level apps:
+
+```moonbit
+fn clock[ParentMsg]() -> VNode[ParentMsg] {
+  component(
+    init=fn() { ({ time: 0 }, Cmd::none()) },
+    update~,
+    view~,
+    subscriptions=fn(_model) { Sub::every(1000, "tick", fn() { Tick }) },
+  )
+}
+```
+
 Pass `id` for stable identity in keyed lists. Use `Handle` for parent-to-child messaging:
 
 ```moonbit
@@ -366,8 +381,6 @@ Full local suite (build + unit + Playwright smoke tests):
 ```bash
 make test
 ```
-
-Detailed unit coverage and regression mapping live in [`docs/testing-matrix.md`](docs/testing-matrix.md).
 
 ## License
 
