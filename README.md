@@ -45,8 +45,6 @@ import {
 }
 ```
 
-See the [`h` package README](src/h/README.md) for the complete list of elements, attributes, and events.
-
 ## Benchmarks
 
 Performance on the [js-framework-benchmark](https://github.com/krausest/js-framework-benchmark) operations (median of 5 runs, headless Chromium, lower is better):
