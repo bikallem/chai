@@ -381,7 +381,3 @@ Full local suite (build + unit + Playwright smoke tests):
 ```bash
 make test
 ```
-
-## License
-
-MIT
