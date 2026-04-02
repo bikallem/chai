@@ -10,12 +10,5 @@
   },
   "repository": "https://github.com/bikallem/chai.git",
   "license": "MIT",
-  "description": "Chai is TEA (The Elm Architecture) framework for MoonBit",
-  "warn-list": "@27",
-  "exclude": [
-    "examples",
-    "test-results",
-    "tests"
-  ],
-  "source": "src"
+  "description": "Chai is TEA (The Elm Architecture) framework for MoonBit"
 }
