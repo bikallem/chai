@@ -17,11 +17,10 @@ for (const name of examples) {
 
   const wasm = build("wasm-gc", "release", "build", pkg, name, `${name}.wasm`);
   if (existsSync(wasm)) cpSync(wasm, pub("wasm", `${name}.wasm`));
-}
 
-// webapi.mjs is shared across all WASM examples — copy from any one
-const mjs = build("wasm-gc", "release", "build", pkg, "todo", "webapi.mjs");
-if (existsSync(mjs)) cpSync(mjs, pub("wasm", "webapi.mjs"));
+  const mjs = build("wasm-gc", "release", "build", pkg, name, "webapi.mjs");
+  if (existsSync(mjs)) cpSync(mjs, pub("wasm", `${name}.webapi.mjs`));
+}
 
 // shared CSS
 const css = resolve(__dirname, "..", "examples.css");

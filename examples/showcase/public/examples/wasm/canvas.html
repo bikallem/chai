@@ -11,7 +11,7 @@
 <body>
     <div id="app"></div>
     <script type="module">
-        import { wasmImportObject } from "./webapi.mjs";
+        import { wasmImportObject } from "./canvas.webapi.mjs";
         const { instance } = await WebAssembly.instantiateStreaming(
             fetch("./canvas.wasm"),
             wasmImportObject,

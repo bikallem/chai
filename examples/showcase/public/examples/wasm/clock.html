@@ -11,7 +11,7 @@
 <body style="padding-top: 60px">
     <div id="app"></div>
     <script type="module">
-        import { wasmImportObject } from "./webapi.mjs";
+        import { wasmImportObject } from "./clock.webapi.mjs";
         const { instance } = await WebAssembly.instantiateStreaming(
             fetch("./clock.wasm"),
             wasmImportObject,
