@@ -5,6 +5,8 @@ import {
   "moonbitlang/core/hashset",
 }
 
+supported_targets = "js+wasm-gc"
+
 options(
   exclude: [ "examples", "tests" ],
   link: {
@@ -13,5 +15,4 @@ options(
       "use-js-builtin-string": true,
     },
   },
-  "supported-targets": "js+wasm-gc",
 )

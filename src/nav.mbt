@@ -113,15 +113,15 @@ pub fn[Msg] Sub::on_hash_change(
 fn is_plain_primary_click(e : @webapi.Event) -> Bool {
   let me : @webapi.MouseEvent = e.unsafe_into()
   me.button() == 0 &&
-  not(me.meta_key()) &&
-  not(me.ctrl_key()) &&
-  not(me.shift_key()) &&
-  not(me.alt_key())
+  !me.meta_key() &&
+  !me.ctrl_key() &&
+  !me.shift_key() &&
+  !me.alt_key()
 }
 
 ///|
 fn should_intercept_link_click(e : @webapi.Event) -> Bool {
-  if e.default_prevented() || not(is_plain_primary_click(e)) {
+  if e.default_prevented() || !is_plain_primary_click(e) {
     return false
   }
   let anchor : @webapi.HTMLAnchorElement = e.current_target().unsafe_into()

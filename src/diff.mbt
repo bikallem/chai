@@ -511,7 +511,7 @@ fn[Msg] diff_children_keyed(
     }
     match matched[j] {
       Some((old_inner, dom_node)) => {
-        if not(lis_set.contains(j)) {
+        if !lis_set.contains(j) {
           insert_node(parent, dom_node, next_node)
         }
         diff(runtime, parent, dom_node, old_inner, new_inner, dispatch, ns)
@@ -542,7 +542,7 @@ fn[Msg] diff_attrs(
   // are compared pairwise.
   if old_attrs.length() == new_attrs.length() {
     let fast_ok = for i, new_attr in new_attrs {
-      if not(same_attr_slot(old_attrs[i], new_attr)) {
+      if !same_attr_slot(old_attrs[i], new_attr) {
         break false
       }
       if attr_needs_update(old_attrs[i], new_attr) {
@@ -592,7 +592,7 @@ fn[Msg] diff_attrs_linear(
     } nobreak {
       false
     }
-    if not(found) {
+    if !found {
       apply_attr(el, new_attr, dispatch)
     }
   }
@@ -607,7 +607,7 @@ fn[Msg] diff_attrs_linear(
     } nobreak {
       false
     }
-    if not(found) {
+    if !found {
       match kind {
         AttributeSlot => el.remove_attribute(name)
         PropertySlot => set_prop(el, name, @webapi.JsValue::null())
@@ -647,7 +647,7 @@ fn[Msg] diff_attrs_maps(
   }
   // Remove old attributes that are no longer present
   old_keys.each(fn(key, attr) {
-    if not(seen_keys.contains(key)) {
+    if !seen_keys.contains(key) {
       let name = attr_name(attr)
       match attr_slot_kind(attr) {
         AttributeSlot => el.remove_attribute(name)

@@ -8,8 +8,7 @@ package "bikallem/chai/examples/regressions"
 // Types and methods
 type Item
 
-type ListMode
-pub impl Eq for ListMode
+type ListMode derive(Eq)
 
 type Model
 

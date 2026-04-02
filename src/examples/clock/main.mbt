@@ -21,7 +21,7 @@ fn app_init() -> (Model, @chai.Cmd[Msg]) {
 fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
   match msg {
     Tick => ({ ..model, seconds: model.seconds + 1 }, @chai.Cmd::none())
-    Toggle => ({ ..model, running: not(model.running) }, @chai.Cmd::none())
+    Toggle => ({ ..model, running: !model.running }, @chai.Cmd::none())
     Reset => ({ seconds: 0, running: false }, @chai.Cmd::none())
     KeyDown(key) =>
       match key {

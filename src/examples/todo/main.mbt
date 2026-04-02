@@ -51,7 +51,7 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
     ToggleTodo(id) => {
       let new_todos = model.todos.map(fn(todo) {
         if todo.id == id {
-          { ..todo, completed: not(todo.completed) }
+          { ..todo, completed: !todo.completed }
         } else {
           todo
         }
@@ -64,7 +64,7 @@ fn update(model : Model, msg : Msg) -> (Model, @chai.Cmd[Msg]) {
     }
     SetFilter(filter) => ({ ..model, filter, }, @chai.Cmd::none())
     ClearCompleted => {
-      let new_todos = model.todos.filter(fn(todo) { not(todo.completed) })
+      let new_todos = model.todos.filter(fn(todo) { !todo.completed })
       ({ ..model, todos: new_todos }, @chai.Cmd::none())
     }
   }
@@ -75,7 +75,7 @@ fn visible_todos(model : Model) -> Array[Todo] {
   model.todos.filter(fn(todo) {
     match model.filter {
       All => true
-      Active => not(todo.completed)
+      Active => !todo.completed
       Completed => todo.completed
     }
   })
@@ -83,7 +83,7 @@ fn visible_todos(model : Model) -> Array[Todo] {
 
 ///|
 fn items_left(todos : Array[Todo]) -> Int {
-  todos.iter().filter(fn(todo) { not(todo.completed) }).count()
+  todos.iter().filter(fn(todo) { !todo.completed }).count()
 }
 
 ///|

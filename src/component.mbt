@@ -69,7 +69,7 @@ fn[A] with_component_runtime(runtime : ComponentRuntime, f : () -> A) -> A {
 fn[CMsg] disconnected_handle_dispatch() -> (CMsg) -> Unit {
   let warned : Ref[Bool] = Ref::new(false)
   fn(_msg) {
-    if not(warned.val) {
+    if !warned.val {
       warned.val = true
       @webapi.Console::warn([
         "chai: Cmd::send ignored because component handle is unmounted",
