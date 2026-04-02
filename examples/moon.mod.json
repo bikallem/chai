@@ -1,0 +1,8 @@
+{
+    "name": "bikallem/chai_examples",
+    "version": "0.1.0",
+    "deps": {
+        "bikallem/chai": "0.1.0",
+        "bikallem/webapi": "0.4.5"
+    }
+}

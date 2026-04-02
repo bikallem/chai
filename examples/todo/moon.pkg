@@ -1,0 +1,17 @@
+import {
+  "bikallem/chai",
+  "bikallem/chai/h",
+  "bikallem/chai_examples/todo/todo_input",
+}
+
+supported_targets = "js+wasm-gc"
+
+options(
+  "is-main": true,
+  link: {
+    "wasm-gc": {
+      "imported-string-constants": "_",
+      "use-js-builtin-string": true,
+    },
+  },
+)

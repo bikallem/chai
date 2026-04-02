@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bikallem/chai_examples/todo/todo_input"
+
+import {
+  "bikallem/chai",
+}
+
+// Values
+pub fn[ParentMsg] todo_input((String) -> @chai.Cmd[Msg]) -> @chai.VNode[ParentMsg]
+
+// Errors
+
+// Types and methods
+pub(all) enum Msg {
+  UpdateText(String)
+  Submit
+}
+
+// Type aliases
+
+// Traits
+

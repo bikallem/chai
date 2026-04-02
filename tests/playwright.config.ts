@@ -7,7 +7,7 @@ export default defineConfig({
     baseURL: "http://localhost:3123",
   },
   webServer: {
-    command: "npx serve ../src/examples -l 3123 --no-clipboard",
+    command: "npx serve ../examples -l 3123 --no-clipboard",
     port: 3123,
     reuseExistingServer: !process.env.CI,
   },
