@@ -2,27 +2,6 @@
 let svg_ns : String = "http://www.w3.org/2000/svg"
 
 ///|
-#cfg(target="js")
-fn nullable_node(v : @webapi.JsValue) -> @webapi.Node? {
-  if v.is_null() {
-    None
-  } else {
-    Some(v.unsafe_into())
-  }
-}
-
-///|
-#cfg(target="js")
-extern "js" fn node_first_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.firstChild"
-
-///|
-#cfg(target="js")
-fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
-  nullable_node(node_first_child_ffi(@webapi.TJsValue::to_js(n)))
-}
-
-///|
-#cfg(target="wasm-gc")
 fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
   if n.has_child_nodes() {
     Some(n.first_child())
@@ -32,17 +11,6 @@ fn node_first_child(n : @webapi.Node) -> @webapi.Node? {
 }
 
 ///|
-#cfg(target="js")
-extern "js" fn node_last_child_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.lastChild"
-
-///|
-#cfg(target="js")
-fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
-  nullable_node(node_last_child_ffi(@webapi.TJsValue::to_js(n)))
-}
-
-///|
-#cfg(target="wasm-gc")
 fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
   if n.has_child_nodes() {
     Some(n.last_child())
@@ -52,17 +20,6 @@ fn node_last_child(n : @webapi.Node) -> @webapi.Node? {
 }
 
 ///|
-#cfg(target="js")
-extern "js" fn node_next_sibling_ffi(n : @webapi.JsValue) -> @webapi.JsValue = "(n) => n.nextSibling"
-
-///|
-#cfg(target="js")
-fn node_next_sibling(n : @webapi.Node) -> @webapi.Node? {
-  nullable_node(node_next_sibling_ffi(@webapi.TJsValue::to_js(n)))
-}
-
-///|
-#cfg(target="wasm-gc")
 fn node_next_sibling(n : @webapi.Node) -> @webapi.Node? {
   let result = @webapi.TJsValue::to_js(n.next_sibling())
   if result.is_null() {

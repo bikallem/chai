@@ -1,13 +1,13 @@
 {
   "name": "bikallem/chai",
   "version": "0.1.0",
-  "readme": "README.md",
   "deps": {
-    "bikallem/webapi": "0.4.5"
+    "bikallem/webapi": "0.4.8"
   },
   "bin-deps": {
-    "bikallem/webapi": "0.4.5"
+    "bikallem/webapi": "0.4.8"
   },
+  "readme": "README.md",
   "repository": "https://github.com/bikallem/chai.git",
   "license": "MIT",
   "description": "Chai is TEA (The Elm Architecture) framework for MoonBit"

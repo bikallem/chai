@@ -2,7 +2,7 @@ EXAMPLES := benchmark canvas clock counters fetch regressions router todo
 
 WEBAPI_DIR := .mooncakes/bikallem/webapi
 TRIM       := $(WEBAPI_DIR)/_build/native/release/build/trim/trim.exe
-WEBAPI_MJS := $(WEBAPI_DIR)/src/webapi.mjs
+WEBAPI_MJS := $(WEBAPI_DIR)/webapi.mjs
 BUILD_DIR  := examples/_build
 PKG_PREFIX := bikallem/chai_examples
 
